@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>SPECFEM3D_Cartesian</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#157878">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="/assets/css/style.css?v=e01eaeac25bebaede87fee4bc75f9f27dc55c330">
+  </head>
+  <body>
+    <section class="page-header">
+      <div class="parallax"><!-- parallax -->
+        <div class="parallax_layer parallax_layer_back">
+          <div class="img_background img1"></div>
+        </div>
+      <!-- </div> -->
+      <div class="parallax_layer parallax_layer_front">
+        <h1 class="project-name">SPECFEM3D_Cartesian</h1>
+        <h2 class="project-tagline">SPECFEM3D_Cartesian simulates acoustic (fluid), elastic (solid), coupled acoustic/elastic, poroelastic or seismic wave propagation in any type of conforming mesh of hexahedra (structured or not.)
+</h2>
+        
+          <a href="http://github.com/danielpeter/specfem3d" class="btn">View on GitHub</a>
+        
+        
+      </div><!-- end of parallax -->
+    </section>
+
+    <section class="main-content">
+      <p><strong>Table of Contents</strong></p>
+
+<ul>
+  <li><a href="#post-processing-scripts">Post-Processing Scripts</a>
+    <ul>
+      <li><a href="#process-data-and-synthetics">Process Data and Synthetics</a>
+        <ul>
+          <li><a href="#data-processing-script-process_datapl">Data processing script <code class="highlighter-rouge">process_data.pl</code></a></li>
+          <li><a href="#synthetics-processing-script-process_synpl">Synthetics processing script <code class="highlighter-rouge">process_syn.pl</code></a></li>
+          <li><a href="#script-rotatepl">Script <code class="highlighter-rouge">rotate.pl</code></a></li>
+        </ul>
+      </li>
+      <li><a href="#collect-synthetic-seismograms">Collect Synthetic Seismograms</a></li>
+      <li><a href="#clean-local-database">Clean Local Database</a></li>
+      <li><a href="#plot-movie-snapshots-and-synthetic-shakemaps">Plot Movie Snapshots and Synthetic Shakemaps</a>
+        <ul>
+          <li><a href="#script-movie2gifgmtpl">Script <code class="highlighter-rouge">movie2gif.gmt.pl</code></a></li>
+          <li><a href="#script-plot_shakemapgmtpl">Script <code class="highlighter-rouge">plot_shakemap.gmt.pl</code></a></li>
+        </ul>
+      </li>
+      <li><a href="#map-local-database">Map Local Database</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="post-processing-scripts">Post-Processing Scripts</h1>
+
+<p>Several post-processing scripts/programs are provided in the <code class="highlighter-rouge">utils/</code> directory, and most of them need to be adjusted when used on different systems, for example, the path of the executable programs. Here we only list a few of the available scripts and provide a brief description, and you can either refer to the related sections for detailed usage or, in a lot of cases, type the script/program name without arguments for its usage.</p>
+
+<h2 id="process-data-and-synthetics">Process Data and Synthetics</h2>
+
+<p>In many cases, the SEM synthetics are calculated and compared to data seismograms recorded at seismic stations. Since the SEM synthetics are accurate for a certain frequency range, both the original data and the synthetics need to be processed before a comparison can be made.</p>
+
+<p>For such comparisons, the following steps are recommended:</p>
+
+<ol>
+  <li>
+    <p>Make sure that both synthetic and observed seismograms have the correct station/event and timing information.</p>
+  </li>
+  <li>
+    <p>Convolve synthetic seismograms with a source time function with the half duration specified in the <code class="highlighter-rouge">CMTSOLUTION</code> file, provided, as recommended, you used a zero half duration in the SEM simulations.</p>
+  </li>
+  <li>
+    <p>Resample both observed and synthetic seismograms to a common sampling rate.</p>
+  </li>
+  <li>
+    <p>Cut the records using the same window.</p>
+  </li>
+  <li>
+    <p>Remove the trend and mean from the records and taper them.</p>
+  </li>
+  <li>
+    <p>Remove the instrument response from the observed seismograms (recommended) or convolve the synthetic seismograms with the instrument response.</p>
+  </li>
+  <li>
+    <p>Make sure that you apply the same filters to both observed and synthetic seismograms. Preferably, avoid filtering your records more than once.</p>
+  </li>
+  <li>
+    <p>Now, you are ready to compare your synthetic and observed seismograms.</p>
+  </li>
+</ol>
+
+<p>We generally use the following scripts provided in the <code class="highlighter-rouge">utils/seis_process/</code> directory:</p>
+
+<h3 id="data-processing-script-process_datapl">Data processing script <code class="highlighter-rouge">process_data.pl</code></h3>
+
+<p>This script cuts a given portion of the original data, filters it, transfers the data into a displacement record, and picks the first P and S arrivals. For more functionality, type ‘<code class="highlighter-rouge">process_data.pl</code>’ without any argument. An example of the usage of the script:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>process_data.pl -m CMTSOLUTION -s 1.0 -l 0/4000 -i -f -t 40/500 -p -x bp DATA/1999.330*.BH?.SAC
+</code></pre>
+</div>
+
+<p>which has resampled the SAC files to a sampling rate of 1 seconds, cut them between 0 and 4000 seconds, transfered them into displacement records and filtered them between 40 and 500 seconds, picked the first P and S arrivals, and added suffix ‘<code class="highlighter-rouge">bp</code>’ to the file names.</p>
+
+<p>Note that all of the scripts in this section actually use the SAC and/or IASP91 to do the core operations; therefore make sure that the SAC and IASP91 packages are installed properly on your system, and that all the environment variables are set properly before running these scripts.</p>
+
+<h3 id="synthetics-processing-script-process_synpl">Synthetics processing script <code class="highlighter-rouge">process_syn.pl</code></h3>
+
+<p>This script converts the synthetic output from the SEM code from ASCII to SAC format, and performs similar operations as ‘<code class="highlighter-rouge">process_data.pl</code>’. An example of the usage of the script:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>process_syn.pl -m CMTSOLUTION -h -a STATIONS -s 1.0 -l 0/4000 -f -t 40/500 -p -x bp SEM/*.BX?.semd
+</code></pre>
+</div>
+
+<p>which will convolve the synthetics with a triangular source-time function from the <code class="highlighter-rouge">CMTSOLUTION</code> file, convert the synthetics into SAC format, add event and station information into the SAC headers, resample the SAC files with a sampling rate of 1 seconds, cut them between 0 and 4000 seconds, filter them between 40 and 500 seconds with the same filter used for the observed data, pick the first P and S arrivals, and add the suffix ‘<code class="highlighter-rouge">bp</code>’ to the file names.</p>
+
+<p>More options are available for this script, such as adding time shift to the origin time of the synthetics, convolving the synthetics with a triangular source time function with a given half duration, etc. Type <code class="highlighter-rouge">process_syn.pl</code> without any argument for a detailed usage.</p>
+
+<p>In order to convert between SAC format and ASCII files, useful scripts are provided in the subdirectories
+<code class="highlighter-rouge">utils/sac2000_alpha_convert/</code> and <code class="highlighter-rouge">utils/seis_process/asc2sac/</code>.</p>
+
+<h3 id="script-rotatepl">Script <code class="highlighter-rouge">rotate.pl</code></h3>
+
+<p>The original data and synthetics have three components: vertical (BHZ resp. BXZ), north (BHN resp. BXN) and east (BHE resp. BXE). However, for most seismology applications, transverse and radial components are also desirable. Therefore, we need to rotate the horizontal components of both the data and the synthetics to the transverse and radial direction, and <code class="highlighter-rouge">rotate.pl</code><span> can be used to accomplish this:</span></p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>rotate.pl -l 0 -L 180 -d DATA/*.BHE.SAC.bp
+rotate.pl -l 0 -L 180 SEM/*.BXE.semd.sac.bp
+</code></pre>
+</div>
+
+<p>where the first command performs rotation on the SAC data obtained through Seismogram Transfer Program (STP) , while the second command rotates the processed SEM synthetics.</p>
+
+<h2 id="collect-synthetic-seismograms">Collect Synthetic Seismograms</h2>
+
+<p>The forward and adjoint simulations generate synthetic seismograms in the <code class="highlighter-rouge">OUTPUT_FILES/</code> directory by default. For the forward simulation, the files are named like <code class="highlighter-rouge">NT.STA.BX?.semd</code> for two-column time series, or <code class="highlighter-rouge">NT.STA.BX?.semd.sac</code> for ASCII SAC format, where NT and STA are the network code and station name, and <code class="highlighter-rouge">BX?</code> stands for the component name. Please see the Appendix [cha:Coordinates] and [cha:channel-codes] for further details.</p>
+
+<p>The adjont simulations generate synthetic seismograms with the name <code class="highlighter-rouge">NT.S?????.S??.sem</code> (refer to Section [sec:Adjoint-simulation-sources] for details). The kernel simulations output the back-reconstructed synthetic seismogram in the name <code class="highlighter-rouge">NT.STA.BX?.semd</code>, mainly for the purpose of checking the accuracy of the reconstruction. Refer to Section [sec:Adjoint-simulation-finite] for further details.</p>
+
+<p>You do have further options to change this default output behavior, given in the main constants file <code class="highlighter-rouge">constants.h</code> located in <code class="highlighter-rouge">src/shared/</code> directory:</p>
+
+<p><span><code class="highlighter-rouge">SEISMOGRAMS_BINARY</code></span><br />
+set to <code class="highlighter-rouge">.true.</code> to have seismograms written out in binary format.</p>
+
+<p><span><code class="highlighter-rouge">WRITE_SEISMOGRAMS_BY_MASTER</code></span><br />
+Set to <code class="highlighter-rouge">.true.</code> to have only the master process writing out seismograms. This can be useful on a cluster, where only the master process node has access to the output directory.</p>
+
+<p><span><code class="highlighter-rouge">USE_OUTPUT_FILES_PATH</code></span><br />
+Set to <code class="highlighter-rouge">.false.</code> to have the seismograms output to <code class="highlighter-rouge">LOCAL_PATH</code> directory specified in the main parameter file <code class="highlighter-rouge">DATA/Par_file</code>. In this case, you could collect the synthetics onto the frontend using the <code class="highlighter-rouge">collect_seismo_lsf_multi.pl</code> script located in the <code class="highlighter-rouge">utils/Cluster/lsf/</code> directory. The usage of the script would be e.g.:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>collect_seismo.pl machines DATA/Par_file
+</code></pre>
+</div>
+
+<p>where <code class="highlighter-rouge">machines</code> is a file containing the node names and <code class="highlighter-rouge">DATA/Par_file</code> the parameter file used to extract the <code class="highlighter-rouge">LOCAL_PATH</code> directory used for the simulation.</p>
+
+<h2 id="clean-local-database">Clean Local Database</h2>
+
+<p>After all the simulations are done, the seismograms are collected, and the useful database files are copied to the frontend, you may need to clean the local scratch disk for the next simulation. This is especially important in the case of kernel simulation, where very large files are generated for the absorbing boundaries to help with the reconstruction of the regular forward wavefield. A sample script is provided in <code class="highlighter-rouge">utils/</code>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>cleanbase.pl machines
+</code></pre>
+</div>
+
+<p>where <code class="highlighter-rouge">machines</code> is a file containing the node names.</p>
+
+<h2 id="plot-movie-snapshots-and-synthetic-shakemaps">Plot Movie Snapshots and Synthetic Shakemaps</h2>
+
+<h3 id="script-movie2gifgmtpl">Script <code class="highlighter-rouge">movie2gif.gmt.pl</code></h3>
+
+<p>With the movie data saved in <code class="highlighter-rouge">OUTPUT_FILES/</code> at the end of a movie simulation (<code class="highlighter-rouge">MOVIE_SURFACE=.true.</code><span>), you can run the </span><code class="highlighter-rouge">`create_movie_shakemap_AVS_DX_GMT</code><span>’ code to convert these binary movie data into GMT xyz files for futher processing. A sample script </span><code class="highlighter-rouge">movie2gif.gmt.pl</code><span> is provided to do this conversion, and then plot the movie snapshots in GMT, for example:</span></p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>movie2gif.gmt.pl -m CMTSOLUTION -g -f 1/40 -n -2 -p
+</code></pre>
+</div>
+
+<p>which for the first through the 40th movie frame, converts the <code class="highlighter-rouge">moviedata</code> files into GMT xyz files, interpolates them using the ’nearneighbor’ command in GMT, and plots them on a 2D topography map. Note that ‘<code class="highlighter-rouge">-2</code>’ and ‘<code class="highlighter-rouge">-p</code>’ are both optional.</p>
+
+<h3 id="script-plot_shakemapgmtpl">Script <code class="highlighter-rouge">plot_shakemap.gmt.pl</code></h3>
+
+<p>With the shakemap data saved in <code class="highlighter-rouge">OUTPUT_FILES/</code> at the end of a shakemap simulation
+(<code class="highlighter-rouge">CREATE_SHAKEMAP=.true.</code>), you can also run <code class="highlighter-rouge">`create_movie_shakemap_AVS_DX_GMT</code>’ code to convert the binary shakemap data into GMT xyz files. A sample script <code class="highlighter-rouge">plot_shakemap.gmt.pl</code> is provided to do this conversion, and then plot the shakemaps in GMT, for example:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>plot_shakemap.gmt.pl data _dir type(1,2,3) CMTSOLUTION
+</code></pre>
+</div>
+
+<p>where <code class="highlighter-rouge">type=1</code> for a displacement shakemap, <code class="highlighter-rouge">2</code> for velocity, and <code class="highlighter-rouge">3</code> for acceleration.</p>
+
+<h2 id="map-local-database">Map Local Database</h2>
+
+<p>A sample program <code class="highlighter-rouge">remap_database</code> is provided to map the local database from a set of machines to another set of machines. This is especially useful when you want to run mesher and solver, or different types of solvers separately through a scheduler (refer to Chapter [cha:Scheduler]).</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>run_lsf.bash --gm-no-shmem --gm-copy-env remap_database old_machines 150
+</code></pre>
+</div>
+
+<p>where <code class="highlighter-rouge">old_machines</code> is the LSF machine file used in the previous simulation, and <code class="highlighter-rouge">150</code> is the number of processors in total.</p>
+
+<hr />
+<blockquote>
+  <p>This documentation has been automatically generated by <a href="http://www.pandoc.org">pandoc</a>
+based on the User manual (LaTeX version) in folder doc/USER_MANUAL/
+(Mar 10, 2020)</p>
+</blockquote>
+
+
+    </section>
+
+    <section class="page-footer">
+      <footer class="site-footer">
+        
+          <span class="site-footer-owner"><a href="http://github.com/danielpeter/specfem3d">specfem3d</a> is maintained by <a href="http://github.com/danielpeter">danielpeter</a></span>
+        
+        <span class="site-footer-credits">generated by <a href="https://pages.github.com">GitHub Pages</a></span>
+      </footer>
+    </section>
+
+    
+  </body>
+</html>

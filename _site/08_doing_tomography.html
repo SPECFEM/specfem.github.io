@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>SPECFEM3D_Cartesian</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#157878">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="/assets/css/style.css?v=e01eaeac25bebaede87fee4bc75f9f27dc55c330">
+  </head>
+  <body>
+    <section class="page-header">
+      <div class="parallax"><!-- parallax -->
+        <div class="parallax_layer parallax_layer_back">
+          <div class="img_background img1"></div>
+        </div>
+      <!-- </div> -->
+      <div class="parallax_layer parallax_layer_front">
+        <h1 class="project-name">SPECFEM3D_Cartesian</h1>
+        <h2 class="project-tagline">SPECFEM3D_Cartesian simulates acoustic (fluid), elastic (solid), coupled acoustic/elastic, poroelastic or seismic wave propagation in any type of conforming mesh of hexahedra (structured or not.)
+</h2>
+        
+          <a href="http://github.com/danielpeter/specfem3d" class="btn">View on GitHub</a>
+        
+        
+      </div><!-- end of parallax -->
+    </section>
+
+    <section class="main-content">
+      <p><strong>Table of Contents</strong></p>
+
+<ul>
+  <li><a href="#doing-tomography-ie-updating-the-model-based-on-the-sensitivity-kernels-obtained">Doing tomography, i.e., updating the model based on the sensitivity kernels obtained</a>
+    <ul>
+      <li><a href="#tomographic-full-waveform-inversion-fwi--imaging-using-the-sensitivity-kernels-obtained">Tomographic full waveform inversion (FWI) / imaging using the sensitivity kernels obtained</a>
+        <ul>
+          <li><a href="#principle">Principle</a></li>
+          <li><a href="#computation-of-the-gradient-based-on-the-adjoint-method">Computation of the gradient based on the adjoint method</a></li>
+        </ul>
+      </li>
+      <li><a href="#tomographic-tools">Tomographic tools</a>
+        <ul>
+          <li><a href="#summing-kernels">Summing kernels</a></li>
+          <li><a href="#smoothing-and-post-processing">Smoothing and post-processing</a></li>
+          <li><a href="#model-updating">Model updating</a></li>
+        </ul>
+      </li>
+      <li><a href="#old-version-of-the-section-will-soon-be-improved-and-enriched">OLD VERSION OF THE SECTION, WILL SOON BE IMPROVED AND ENRICHED</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="doing-tomography-ie-updating-the-model-based-on-the-sensitivity-kernels-obtained">Doing tomography, i.e., updating the model based on the sensitivity kernels obtained</h1>
+
+<p><em>ANNOUNCEMENT (June 2017): See also the next chapter (Chapter [cha:FWI]) about how to perform full waveform inversion (FWI) or source inversions.</em></p>
+
+<p>UNDER CONSTRUCTION (July 2015). New content will be added soon.</p>
+
+<h2 id="tomographic-full-waveform-inversion-fwi--imaging-using-the-sensitivity-kernels-obtained">Tomographic full waveform inversion (FWI) / imaging using the sensitivity kernels obtained</h2>
+
+<p>One of the fundamental reasons for computing sensitivity kernels (Section [sec:Adjoint-simulation-finite]) is to use them within a tomographic inversion, i.e., perform imaging. In other words, use recorded seismograms, make measurements with synthetic seismograms, and use the misfit between the two to iteratively improve the model described by (at least) (V_), (V_), and (\rho) as a function of space.</p>
+
+<p>As explained for instance in Monteiller et al. (2015), full waveform inversion means that one considers the observed seismograms (possibly filtered) as the basic observables that one wants to fit. One thus searches for the model that minimizes the mean squared difference between observed and synthetic seismograms. In other words, the goal is to find a structural model that can explain a larger portion of seismological records, and not simply the phase of a few seismic arrivals.</p>
+
+<p>Whatever misfit function you use for the tomographic inversion (you can find several examples in J. Tromp, Komatitsch, and Liu (2008) and J. Tromp, Tape, and Liu (2005)), you will weigh the sensitivity kernels with measurements. Furthermore, you will use as many measurements (stations, components, time windows) as possible per event; hence, we call these composite kernels “event kernels”, which are volumetric fields representing the gradient of the misfit function with respect to one of the variables ((V_)). The basic features of an adjoint-based tomographic inversion were illustrated in J. Tromp, Komatitsch, and Liu (2008) and Tape, Liu, and Tromp (2007) using a conjugate-gradient algorithm. Other, more powerful techniques such as the Limited-Memory Broyden-Fletcher-Goldfarb-Shanno (L-BFGS) method can now be used, as illustrated for instance in Monteiller et al. (2015).</p>
+
+<h3 id="principle">Principle</h3>
+
+<p>We want to minimize the classical waveform misfit function: [\chi \left( \boldm \right) = \sum_{s=1}^N\sum_{r=1}^M \int_0^T \frac{1}{2} |\boldu(\boldx_r, \boldx_s; t) - \boldd(\boldx_r, \boldx_s; t)| ^{2} \, dt .
+\label{misfit}] This functional quantifies the (L^2) difference between the observed waveforms (\boldd(\boldx_r, \boldx_s; t)) at receivers (\boldx_r), (r = 1, …, M) produced by sources at (\boldx_s), (s=1,…,N), and the corresponding synthetic seismograms (\boldu(\boldx_r, \boldx_s; t)) computed in model (\boldm). While this misfit function is indeed classical, it is worth mentioning that in the case of noisy real data other norms could be used, since in the oil industry for instance it is known that the (L^1) norm (Crase et al. (1990; Brossier, Operto, and Virieux 2010)), hybrid (L^1-L^2) norms (Bube and Langan (1997)), Hubert norm (Ha, Chung, and Shin (2009)), Student-t distribution (Aravkin, Leeuwen, and Herrmann (2011; Jeong et al. 2015)) etc… can be more robust that the (L^2) norm used here in the context of synthetic data with no noise. In the vicinity of (\boldm), the misfit function can be expanded into a Taylor series: [\chi(\boldm+ \delta\boldm) \approx \chi(\boldm)+\boldg(\boldm)\cdot\delta\boldm
++\delta\boldm\cdot\mathbf{H}(\boldm)\cdot\delta\boldm \, ,
+\label{local_misfit}] where (\boldg(\boldm)) is the gradient of the waveform misfit function: [\boldg(\boldm) = \frac{\partial\chi(\boldm)}{\partial\boldm} \, ,] and (\mathbf{H}(\boldm)) the Hessian: [\mathbf{H}(\boldm) = \frac{\partial^2\chi(\boldm)}{\partial\boldm^2} \, .] In the following, for simplicity the dependence of the gradient and Hessian on the model will be implicitly assumed and omitted in the notations. The nearest minimum of (\chi) in ([local<sub>m</sub>isfit]) with respect to the model perturbation (\delta \boldm) is reached for [\delta \boldm = -\mathbf{H}^{-1} \cdot \boldg \, .
+\label{Newton}] The local minimum of ([misfit]) is thus given by perturbing the model in the direction of the gradient preconditioned by the inverse Hessian.</p>
+
+<h3 id="computation-of-the-gradient-based-on-the-adjoint-method">Computation of the gradient based on the adjoint method</h3>
+
+<p>A direct method to compute the gradient is to take the derivative of ([misfit]) with respect to model parameters: [\frac{\partial\chi(\boldm)}{\partial\boldm} = -\sum_{s=1}^N\sum_{r=1}^M \int_0^T
+\frac{\partial \boldu(\boldx_r, \boldx_s; t)}{\partial\boldm}\cdot\left[\boldu(\boldx_r, \boldx_s; t) - \boldd(\boldx_r, \boldx_s; t)\right] \, dt \, .
+\label{calc_gradient}] This equation can be reformulated as the matrix-vector product: [\boldg = -\mathbf{J}^* \cdot \delta \mathbf{d} \, ,
+\label{Jacobian}] where (\mathbf{J}^*) is the adjoint of the Jacobian matrix of the forward problem that contains the Fréchet derivatives of the data with respect to model parameters, and (\delta \mathbf{d}) is the vector that contains the data residuals. The determination of (\mathbf{J}) would require computing the Fréchet derivatives for each time step in the time window considered and for all the source-station pairs, which is completely prohibitive on current supercomputers (let us note that this situation may change one day). However, it is possible to obtain this gradient without computing the Jacobian matrix explicitly. The approach to determine the gradient without computing the Fréchet derivatives was introduced in nonlinear optimization by Chavent (1974) working with J. L. Lions, and later applied to seismic exploration problems by Bamberger, Chavent, and Lailly (1977), Bamberger et al. (1982), Lailly (1983) and Tarantola (1984). The idea is to resort to the adjoint state, which corresponds to the wavefield emitted and back-propagated from the receivers J. Tromp, Tape, and Liu (e.g., 2005; J. Tromp, Komatitsch, and Liu 2008; Plessix 2006; Fichtner, Bunge, and Igel 2006).</p>
+
+<p>Let us give an outline of the theory to compute the gradient based on the adjoint method, and refer the reader to e.g. J. Tromp, Tape, and Liu (2005) and J. Tromp, Komatitsch, and Liu (2008) for further details. The perturbation of the misfit function can be expressed as: [\delta \chi (\boldm) = \sum_{s=1}^N\sum_{r=1}^M \int_0^T \left[\boldu(\boldx_r, \boldx_s; t) - \boldd(\boldx_r, \boldx_s; t)\right]\cdot \delta
+\boldu(\boldx_r, \boldx_s; t) \, dt \, ,
+\label{dchi}] where (\delta\boldu) is the perturbation of displacement given by the first-order Born approximation Hudson (e.g., 1977): [\begin{aligned}
+\delta \boldu (\boldx_r, \boldx_s; t) &amp; = &amp; -\int_0^t \int_V
+\left[\delta\rho(\boldx)\mathbf{G}(\boldx_r,\boldx;t-t’)\cdot\partial^2<em>{t’}\boldu(\boldx,\boldx_s;t’) \right. \nonumber <br />
+&amp; + &amp; \left. \nabla \mathbf{G}(\boldx_r,\boldx;t-t’):\delta \boldc(\boldx): \nabla\boldu(\boldx;t’) \right] \, d^3\boldx \, dt’ \, .
+\label{Born}\end{aligned}] In this expression, (\mathbf{G}) is the Green’s tensor, (\delta\rho) the perturbation of density, (\delta c) the perturbation of the fourth-order elasticity tensor, and a colon denotes a double tensor contraction operation. Inserting ([Born]) into ([dchi]) we obtain [\begin{aligned}
+\delta \chi (\boldm) &amp; = &amp; -\sum</em>{s=1}^N\sum_{r=1}^M \int_0^T \left[\boldu(\boldx_r, \boldx_s; t) - \boldd(\boldx_r, \boldx_s; t)\right] \int_0^t \int_V
+\left[\delta\rho(\boldx)\mathbf{G}(\boldx_r,\boldx;t-t’)\cdot\partial^2<em>{t’}\boldu(\boldx,\boldx_s;t’) \right. \nonumber <br />
+&amp; + &amp; \left. \nabla \mathbf{G}(\boldx_r,\boldx;t-t’):\delta \boldc(\boldx):\nabla\boldu(\boldx,t’) \right] \, d^3\boldx \, dt’ \, dt \,.\end{aligned}] Defining the waveform adjoint source for each source (\boldx_s) [\boldf^\dagger(\boldx,\boldx_s;t) = \sum</em>{r=1}^M  \left[\boldu(\boldx_r, \boldx_s; T-t) - \boldd(\boldx_r, \boldx_s; T-t)\right] \delta(\boldx-\boldx_r) \, ,] and the corresponding adjoint wavefield [\boldu^\dagger(\boldx,\boldx_s;t) = \int_0^{t’}\int_V\mathbf{G}(\boldx,\boldx’;t’-t)\cdot\boldf^\dagger(\boldx’,\boldx_s;t)\, d^3\boldx’ \, dt \, ,] the perturbation of the misfit function may be expressed as: [\begin{aligned}
+\delta\chi(\boldm) &amp; = &amp; - \sum_{s=1}^N\nonumber \int_V \int_0^T \left[\delta\rho \, \boldu^\dagger(\boldx,\boldx_s;T-t)\cdot
+\partial^2<em>{t}\boldu(\boldx,\boldx_s;t) \right. \nonumber <br />
+&amp; +  &amp; \left. \nabla\boldu^\dagger(\boldx,\boldx_s;T-t):\delta \boldc: \nabla \boldu(\boldx,\boldx_s;t) \right] \, d^3\boldx \, dt \, .
+\label{dchi2}\end{aligned}] At this point, we make some assumptions on the nature of the elasticity tensor. A general fourth-order elasticity tensor is described by 21 elastic parameters, a very large number that makes its complete characterization way beyond the reach of any tomographic approach. For the time being, let us thus consider isotropic elasticity tensors, described by the two Lamé parameters (\lambda) and (\mu): [c</em>{ijkl} = \lambda \delta_{ij}\delta_{kl}+\mu(\delta_{ik}\delta_{jl}+\delta_{il}\delta_{jk}) \, .] In this case, ([dchi2]) can be written as: [\begin{aligned}
+\delta\chi(\boldm) &amp; = &amp; - \sum_{s=1}^N\nonumber \int_V \left[ K_\rho(\boldx,\boldx_s)\delta\ln\rho(\boldx)
++K_\lambda(\boldx,\boldx_s)\delta\ln\lambda(\boldx) \right. \nonumber <br />
+&amp; + &amp; \left. K_\mu(\boldx,\boldx_s)\delta\ln\mu(\boldx)\right] \, d^3\boldx \, ,
+\label{dchi2<em>1}\end{aligned}] where ln() is the natural logarithm and where the Fréchet derivatives with respect to the density and Lamé parameters are given by: [\begin{aligned}
+K</em>\rho(\boldx,\boldx_s) &amp; = &amp; - \int_0^T \rho(\boldx) \boldu^\dagger(\boldx,\boldx_s;T-t)\cdot \partial^2<em>{t}\boldu(\boldx,\boldx_s;t) \, dt <br />
+K</em>\lambda(\boldx,\boldx_s) &amp; = &amp; - \int_0^T \lambda(\boldx) \nabla\cdot\boldu^\dagger(\boldx,\boldx_s;T-t) \nabla\cdot\boldu(\boldx,\boldx_s;t) \, dt <br />
+K_\mu(\boldx,\boldx_s) &amp; = &amp; -2 \int_0^T \mu(\boldx) (\boldx) \nabla\boldu^\dagger(\boldx,\boldx_s;T-t) :\nabla\boldu(\boldx,\boldx_s;t)\, dt \, .\end{aligned}] Since the propagation of seismic waves mainly depends on compressional wave speed (\alpha) and shear wave speed (\beta), but also because these seismic velocities are easier to interpret, tomographic models are usually described based on these two parameters. With this new parametrization, the perturbation of the misfit function may be written as: [\begin{aligned}
+\delta\chi(\boldm) &amp; = &amp; - \sum_{s=1}^N\nonumber \int_V \left[ K’<em>\rho(\boldx,\boldx_s)\delta\ln\rho(\boldx)
++K’</em>\alpha(\boldx,\boldx_s)\delta\ln\alpha(\boldx) \right. \nonumber <br />
+&amp; + &amp; \left. K’<em>\beta(\boldx,\boldx_s)\delta\ln\beta(\boldx)\right] \, d^3\boldx \, ,\end{aligned}] where [\begin{aligned}
+K’</em>\rho(\boldx,\boldx_s) &amp; = &amp;  K_\rho(\boldx,\boldx_s)+K_\lambda(\boldx,\boldx_s)+K_\mu(\boldx,\boldx_s) <br />
+K’<em>\alpha(\boldx,\boldx_s) &amp; = &amp;  2 \left(\frac{\lambda+2\mu}{\lambda}\right) K</em>\lambda(\boldx,\boldx_s) <br />
+K’<em>\beta(\boldx,\boldx_s) &amp; = &amp; 2 K</em>\mu -\frac{4\mu}{\lambda} K_\lambda (\boldx,\boldx_s) \, .\end{aligned}]</p>
+
+<p>As can be seen from these expressions, the principle of the adjoint-state method is to correlate two wavefields: the direct (i.e. forward) field that propagates from the source to the receivers, and the adjoint field that propagates from all the receivers backward in time. The same approach can be followed for any type of seismic observable (phase, amplitude, envelope, time series…), provided the appropriate adjoint source is used J. Tromp, Tape, and Liu (2005; J. Tromp, Komatitsch, and Liu 2008). For example, for the cross-correlated traveltime of a seismic phase, the adjoint source is defined as the velocity of that synthetic phase weighted by the travel-time residual.</p>
+
+<p>Computing the gradient based on the adjoint-state method requires performing two simulations per source (forward and adjoint fields) regardless of the type of observable. However, to define the adjoint field one must know the adjoint source, and that source is computed from the results of the forward simulation. One must therefore perform the forward simulation before the adjoint simulation. A straightforward solution for time-domain methods would be to store the whole forward field to disk at each time step during the forward run and then read it back during the adjoint simulation to calculate the interaction of these two fields. In 2-D this is feasible but in the 3-D case for very short seismic periods and without lossy compression, downsampling, or a large amount of disk or memory checkpointing Fichtner et al. (e.g., 2009; Rubio Dalmau et al. 2014; Cyr, Shadid, and Wildey 2015) the amount of disk storage required would currently be too large.</p>
+
+<p>However let us note again that this situation will change in the future. In the mean time, a standard possible solution is to perform three simulations per source J. Tromp, Komatitsch, and Liu (2008; Peter et al. 2011), i.e., perform the forward calculation twice, once to compute the adjoint sources and once again at the same time as the adjoint simulation to correlate the two fields and sum their interaction on the fly over all the time steps. Doing so for an elastic Earth, one only needs a small amount of disk storage to store the last time step of the forward run, which is then used as an initial condition to redo the forward run backwards, as well as the field on the outer edges of the mesh for each time steps in order to be able to undo the absorbing boundary conditions.</p>
+
+<h2 id="tomographic-tools">Tomographic tools</h2>
+
+<p>Besides the ability to compute adjoint sensitivity kernels, the SPECFEM3D package provides a number of tools useful for post-processing kernels, gradients and conducting tomographic model updates. The tomographic and post-processing tools can be compiled by typing in the main directory:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>make tomography
+make postprocess
+</code></pre>
+</div>
+
+<p>You can modify specific settings affecting, e.g., the (isotropic) parameterization or directory setup structure in file <code class="highlighter-rouge">setup/constants_tomography.h</code>. The compiled binaries can be found in directory <code class="highlighter-rouge">bin/</code>.</p>
+
+<p>The iterative inversion workflow may comprise three main steps for which tools are provided:</p>
+
+<ol>
+  <li>
+    <p>Summing event kernels, e.g. (K_{\alpha,\beta,\rho}), to build the misfit gradient (\boldg(\boldm))</p>
+  </li>
+  <li>
+    <p>Smoothing and post-processing of the gradient (\boldg(\boldm))</p>
+  </li>
+  <li>
+    <p>Updating the model (\boldm_{i+1} = \boldm_i + \delta\boldm).</p>
+  </li>
+</ol>
+
+<p>Please note that the tomographic routines are very similar for both SPECFEM3D_Cartesian and SPECFEM3D_GLOBE versions. Some differences occur, e.g., when reading in mesh files and when the maximum of the gradient is taken for the update step length. Also note that currently only the binary database format is supported, no ADIOS file format support is implemented yet. In future, we plan to extend and merge these into the same set of tools within a common SPECFEM function library.</p>
+
+<h3 id="summing-kernels">Summing kernels</h3>
+
+<p>For summing different event kernels, the executables <code class="highlighter-rouge">xsum_kernels</code> and <code class="highlighter-rouge">xsum_preconditioned_kernels</code> can be used. The binaries sum up either a set of isotropic or transversely isotropic kernel files, depending on the setting in file <code class="highlighter-rouge">setup/constants_tomography.h</code>. The following parameterizations can be chosen:</p>
+
+<ol>
+  <li>
+    <p>isotropic kernels (K_{\alpha,\beta,\rho}) or</p>
+  </li>
+  <li>
+    <p>isotropic bulk kernels (K_{c,\beta,\rho}), or</p>
+  </li>
+  <li>
+    <p>transversely isotropic bulk kernels (K_{c,\beta_v,\beta_h,\eta}).</p>
+  </li>
+</ol>
+
+<p>The tools for summing event kernels can be used in parallel, using the same number of processes (<code class="highlighter-rouge">NPROC</code>) as the forward/kernel simulations. The summation tools use the following input/output format (see Fig. [fig:tomo-dir-struct] for the default directory structure):</p>
+
+<ul>
+  <li>
+    <p><span><strong>Input:</strong></span> Input is provided by a list of event directories, given in file <code class="highlighter-rouge">kernels_list.txt</code> (default setting for <code class="highlighter-rouge">KERNEL_FILE_LIST</code> in <code class="highlighter-rouge">constants_tomography.h</code>). The file lists all event kernel directories which should be summed together. All event directories have to be located in directory <code class="highlighter-rouge">INPUT_KERNELS/</code>, which can be setup as links to all individual event kernel directories.</p>
+  </li>
+  <li>
+    <p><span><strong>Output:</strong></span> The summed kernels will be stored in corresponding kernel files in output directory <code class="highlighter-rouge">OUTPUT_SUM/</code>.</p>
+  </li>
+</ul>
+
+<p><img src="figures/tomo_dir_struct.pdf" alt=" Example directory structure when using tomographic tools for summation. Event directory names (red) can be chosen freely with corresponding name entries in file `kernels_list.txt`&lt;span data-label=&quot;fig:tomo-dir-struct&quot;&gt;&lt;/span&gt;" /></p>
+<div class="figcaption" style="text-align:justify;font-size:80%"><span style="color:#9A9A9A">Figure:  Example directory structure when using tomographic tools for summation. Event directory names (red) can be chosen freely with corresponding name entries in file `kernels_list.txt`<span data-label="fig:tomo-dir-struct"></span></span></div>
+
+<p>Kernel summation:<br />
+As example with a total of 4 MPI processes</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>mpirun -np 4 ./bin/xsum_kernels
+</code></pre>
+</div>
+
+<p>adds sensitivity kernels (K) from different events together, i.e. outputs (\boldg) where [\boldg = \Sum^{N}_i K^{i} \nonumber] for events (i = 1,..,N) as specified in file <code class="highlighter-rouge">kernel_list.txt</code>.</p>
+
+<p>Kernel Summation with Preconditioning:<br />
+As example with a total of 4 MPI processes</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>mpirun -np 4 ./bin/xsum_preconditioned_kernels
+</code></pre>
+</div>
+
+<p>adds sensitivity kernels (K) together from different events and “preconditions” the sum by dividing with the sum of the corresponding approximate Hessians (\tilde{H}), i.e. outputs (\boldg) where [\boldg = \frac{1}{\Sum_i \tilde{H}^{i}} \; \Sum_i  K^{i} \nonumber] In this case, the factor (\frac{1}{\Sum_i \tilde{H}^{i}}) acts as preconditioner, approximating the inverse of the Hessian (\mathbf{H}^{-1}).</p>
+
+<p><span><strong>Kernel names</strong></span>: The summation tool will look for kernels with following names:</p>
+
+<ul>
+  <li>
+    <p>for an <span><em>isotropic</em></span> model parameterization, kernel names are:</p>
+
+    <p><span> c c </span></p>
+
+    <p><span>3in</span></p>
+
+    <div class="highlighter-rouge"><pre class="highlight"><code>## Cartesian version
+proc***_alpha_kernel.bin
+proc***_beta_kernel.bin
+proc***_rho_kernel.bin
+</code></pre>
+    </div>
+
+    <p>&amp;</p>
+
+    <p><span>3in</span></p>
+
+    <div class="highlighter-rouge"><pre class="highlight"><code>## GLOBE version
+proc***_reg1_alpha_kernel.bin
+proc***_reg1_beta_kernel.bin
+proc***_reg1_rho_kernel.bin
+</code></pre>
+    </div>
+  </li>
+  <li>
+    <p>for an <span><em>isotropic bulk</em></span> model parameterization, kernel names are:</p>
+
+    <p><span> c c </span></p>
+
+    <p><span>3in</span></p>
+
+    <div class="highlighter-rouge"><pre class="highlight"><code>## Cartesian version
+proc***_bulk_kernel.bin
+proc***_bulk_beta_kernel.bin
+proc***_rho_kernel.bin
+</code></pre>
+    </div>
+
+    <p>&amp;</p>
+
+    <p><span>3in</span></p>
+
+    <div class="highlighter-rouge"><pre class="highlight"><code>## GLOBE version
+proc***_reg1_bulk_kernel.bin
+proc***_reg1_bulk_beta_kernel.bin
+proc***_reg1_rho_kernel.bin
+</code></pre>
+    </div>
+  </li>
+  <li>
+    <p>for a <span><em>transversely isotropic</em></span> model parameterization, kernel names are:</p>
+
+    <p><span> c c </span></p>
+
+    <p><span>3in</span></p>
+
+    <div class="highlighter-rouge"><pre class="highlight"><code>## Cartesian version
+proc***_bulk_c_kernel.bin
+proc***_bulk_betav_kernel.bin
+proc***_bulk_betah_kernel.bin
+proc***_eta_kernel.bin
+</code></pre>
+    </div>
+
+    <p>&amp;</p>
+
+    <p><span>3in</span></p>
+
+    <div class="highlighter-rouge"><pre class="highlight"><code>## GLOBE version
+proc***_reg1_bulk_c_kernel.bin
+proc***_reg1_bulk_betav_kernel.bin
+proc***_reg1_bulk_betah_kernel.bin
+proc***_reg1_eta_kernel.bin
+</code></pre>
+    </div>
+
+    <p>Note that these event kernels are stored after a kernel simulation (<code class="highlighter-rouge">SIMULATION_TYPE = 3</code>) in the <code class="highlighter-rouge">LOCAL_PATH</code> directory, which by default points to directory <code class="highlighter-rouge">DATABASES_MPI/</code>. Isotropic kernels will be created by default. To create transversely isotropic kernels, you set <code class="highlighter-rouge">ANISOTROPIC_KL</code> and <code class="highlighter-rouge">SAVE_TRANSVERSE_KL</code> to <code class="highlighter-rouge">.true.</code> in the parameter file <code class="highlighter-rouge">DATA/Par_file</code>.</p>
+  </li>
+  <li>
+    <p>for preconditioning, the approximate Hessian kernels taken for summation are:</p>
+
+    <p><span> c c </span></p>
+
+    <p><span>3in</span></p>
+
+    <div class="highlighter-rouge"><pre class="highlight"><code>## Cartesian version
+proc***_hess_kernel.bin
+</code></pre>
+    </div>
+
+    <p>&amp;</p>
+
+    <p><span>3in</span></p>
+
+    <div class="highlighter-rouge"><pre class="highlight"><code>## GLOBE version
+proc***_reg1_hess_kernel.bin
+</code></pre>
+    </div>
+
+    <p>These Hessian kernels approximate the diagonal elements of the Hessian matrix and can be used as preconditioner in a gradient optimization scheme. To create these kernels, you have to set <code class="highlighter-rouge">APPROXIMATE_HESS_KL</code> to <code class="highlighter-rouge">.true.</code> in the parameter file <code class="highlighter-rouge">DATA/Par_file</code>.</p>
+  </li>
+</ul>
+
+<p>For SPECFEM3D_GLOBE, by default only kernels in the crust/mantle region (“reg1”) will be considered for summation. You can change the default by setting parameter <code class="highlighter-rouge">REG</code> in file <code class="highlighter-rouge">constants_tomography.h</code> to the region of interest.</p>
+
+<p>Note that although we provide the preconditioned summation here, we recommend to smooth first both, the summed kernels and summed approximate Hessians, before inverting the summed Hessian and applying it as preconditioner to the gradient. From experience, we prefer doing [\boldg =  \frac{1}{\mathcal{F}<em>{smooth} \left( \Sum^{N}_i \tilde{H}^{i} \right) }  \; \mathcal{F}</em>{smooth} \left( \Sum_i K^{i}  \right) \nonumber] rather than [\boldg = \mathcal{F}_{smooth} \left( \frac{1}{\Sum^{N}_i \tilde{H}^{i}}  \;  \Sum_i K^{i}  \right) : . \nonumber] Due to the large sensitivity kernel values close to source and receiver locations, the inverse of the thresholded summed Hessian becomes better balanced in the former.</p>
+
+<h3 id="smoothing-and-post-processing">Smoothing and post-processing</h3>
+
+<p>For additional smoothing and post-processing of kernels, gradients, or models, we provide tools useful for gradient and model preparation. These additional tools for post-processing sensitivity kernels are provided together with the main package. For compilation of these tools, you type in the main directory:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>make postprocess
+</code></pre>
+</div>
+
+<p>The following tools are provided:</p>
+
+<ol>
+  <li>
+    <p><code class="highlighter-rouge">xsmooth_sem</code> is used for smoothing with a gaussian function.</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">xclip_sem</code> is used to threshold a kernel, gradient or model, clipping to a minimum and maximum value.</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">xcombine_sem</code> is used to combine different event kernels, gradient or model files, summing all individually specified files together (similar to <code class="highlighter-rouge">xsum_kernels</code> but more flexible).</p>
+  </li>
+</ol>
+
+<p>The post-processing tools are primarily intented to be used to process kernel files. They can be used though on any scalar field of dimension <code class="highlighter-rouge">(NGLLX,NGLLY,NGLLZ,NSPEC)</code>. The tools are parallel programs – they must be invoked with mpirun or other appropriate utility. Operations are performed in embarrassingly-parallel fashion.</p>
+
+<p>Smoothing:<br />
+To smooth a kernel, gradient or model file, use</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>mpirun -np NPROC bin/xsmooth_sem SIGMA_H SIGMA_V KERNEL_NAME INPUT_DIR OUPUT_DIR
+</code></pre>
+</div>
+
+<p>with command line arguments: <code class="highlighter-rouge">SIGMA_H</code> horizontal smoothing radius, <code class="highlighter-rouge">SIGMA_V</code> vertical smoothing radius, <code class="highlighter-rouge">KERNEL_NAME</code> kernel name, e.g. <code class="highlighter-rouge">alpha_kernel</code>, <code class="highlighter-rouge">INPUT_DIR</code> directory from which kernels are read, <code class="highlighter-rouge">OUTPUT_DIR</code> directory to which smoothed kernels are written.</p>
+
+<p>Smooths kernels by convolution with a Gaussian. Writes the resulting smoothed kernels to <code class="highlighter-rouge">OUTPUT_DIR</code>.</p>
+
+<p>Files written to <code class="highlighter-rouge">OUTPUT_DIR</code> have the suffix ’smooth’ appended, e.g. <code class="highlighter-rouge">proc***alpha_kernel.bin</code> becomes <code class="highlighter-rouge">proc***alpha_kernel_smooth.bin</code>.</p>
+
+<p>Clipping:<br />
+Values in a kernel, gradient or model binary file can be clipped with a minimum/maximum threshold value using</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>mpirun -np NPROC bin/xclip_sem MIN_VAL MAX_VAL KERNEL_NAMES INPUT_FILE OUTPUT_DIR
+</code></pre>
+</div>
+
+<p>with command line arguments: <code class="highlighter-rouge">MIN_VAL</code> threshold below which array values are clipped, <code class="highlighter-rouge">MAX_VAL</code> threshold above which array values are clipped, <code class="highlighter-rouge">KERNEL_NAMES</code> one or more kernel names separated by commas, <code class="highlighter-rouge">INPUT_DIR</code> directory from which arrays are read, <code class="highlighter-rouge">OUTPUT_DIR</code> directory to which clipped array are written.</p>
+
+<p>For each name in <code class="highlighter-rouge">KERNEL_NAMES</code>, reads kernels from <code class="highlighter-rouge">INPUT_DIR</code>, applies thresholds, and writes the resulting clipped kernels to <code class="highlighter-rouge">OUTPUT_DIR</code>.</p>
+
+<p><code class="highlighter-rouge">KERNEL_NAMES</code> is a comma-delimited list of kernel names, e.g. <code class="highlighter-rouge">alphav_kernel,alphah_kernel</code>.</p>
+
+<ul>
+  <li>
+    <p>For example, in this case type</p>
+
+    <div class="highlighter-rouge"><pre class="highlight"><code>mpirun -np 4 ./bin/xclip_sem -0.1 0.1 alphav_kernel,alphah_kernel DIR1/ DIR1/
+</code></pre>
+    </div>
+
+    <p>to clip the corresponding kernels in directory <code class="highlighter-rouge">DIR1</code> to be in range ([-0.1,0.1]).</p>
+  </li>
+</ul>
+
+<p>Files written to <code class="highlighter-rouge">OUTPUT_DIR</code> have the suffix ’clip’ appended, e.g. <code class="highlighter-rouge">proc***alpha_kernel.bin</code> becomes <code class="highlighter-rouge">proc***alpha_kernel_clip.bin</code></p>
+
+<p>Combining:<br />
+To combine kernel values from different kernel directories, you can use</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>mpirun -np NPROC bin/xcombine_sem KERNEL_NAMES INPUT_FILE OUTPUT_DIR
+</code></pre>
+</div>
+
+<p>with command line arguments: <code class="highlighter-rouge">KERNEL_NAMES</code> one or more kernel names separated by commas, <code class="highlighter-rouge">INPUT_FILE</code> text file containing list of kernel directories, <code class="highlighter-rouge">OUTPUT_PATH</code> directory to which summed kernels are written.</p>
+
+<p>For each name in <code class="highlighter-rouge">KERNEL_NAMES</code>, sums kernels from directories specified in <code class="highlighter-rouge">INPUT_FILE</code>. Writes the resulting sums to <code class="highlighter-rouge">OUTPUT_DIR</code>.</p>
+
+<p><code class="highlighter-rouge">INPUT_FILE</code> is a text file containing a list of absolute or relative paths to kernel directories, one directory per line.</p>
+
+<p><code class="highlighter-rouge">KERNEL_NAMES</code> is a comma-delimited list of kernel names, e.g. <code class="highlighter-rouge">alpha_kernel,beta_kernel,rho_kernel</code>.</p>
+
+<h3 id="model-updating">Model updating</h3>
+
+<p>We provide (simple) tools for updating the current model (\boldm_i) using a gradient (\boldg) and steplength (\alpha):, i.e. [\boldm_{i+i} = \boldm_i + \delta \boldm  \nonumber] with [\delta \boldm = - \alpha \, \boldg \nonumber : .] The following tomographic tools are provided:</p>
+
+<ol>
+  <li><code class="highlighter-rouge">xadd_model_iso</code> can be used to update isotropic model files with a (summed &amp; smoothed) gradient. The gradient files are given for isotropic parameters or isotropic bulk parameters.</li>
+</ol>
+
+<p>Note that instead of using the density kernels (K_{\rho}) for model updates, setting <code class="highlighter-rouge">USE_RHO_SCALING</code> to <code class="highlighter-rouge">.true.</code> will ignore the density kernel and use density perturbations scaled from isotropic (V_s) pertubations.</p>
+
+<p>Isotropic model update:<br />
+The program <code class="highlighter-rouge">xadd_model_iso</code> can be used to update <span><em>isotropic</em></span> model files with (smoothed &amp; summed) event kernels:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>mpirun -np 4 bin/xadd_model_iso step_factor [INPUT-KERNELS-DIR/] [OUTPUT-MODEL-DIR/]
+</code></pre>
+</div>
+
+<p>with command line arguments: <code class="highlighter-rouge">step_factor</code> the step length to scale the gradient, e.g. (0.03) for a (\pm 3)% update, <code class="highlighter-rouge">INPUT-KERNELS-DIR/</code> (optional) directory which holds summed kernels (e.g. <code class="highlighter-rouge">proc***alpha_kernel.bin</code>,.., by default directory <code class="highlighter-rouge">INPUT_GRADIENT/</code> is used), <code class="highlighter-rouge">OUTPUT-MODEL-DIR/</code> (optional) directory which will hold new model files (e.g. <code class="highlighter-rouge">proc***vp_new.bin</code>,.., by default directory <code class="highlighter-rouge">OUTPUT_MODEL/</code> is used).</p>
+
+<p>The gradients are given for isotropic parameters <code class="highlighter-rouge">(alpha,beta,rho)</code> or <code class="highlighter-rouge">(bulk_c,beta,rho)</code>.</p>
+
+<p>The algorithm uses a steepest descent method with a step length determined by the given maximum update percentage.</p>
+
+<p>By default, the directory and file setup used is:</p>
+
+<ul>
+  <li>
+    <p>directory <code class="highlighter-rouge">INPUT_MODEL/</code> contains:</p>
+
+    <div class="highlighter-rouge"><pre class="highlight"><code>proc***_vs.bin
+proc***_vp.bin
+proc***_rho.bin
+</code></pre>
+    </div>
+  </li>
+  <li>
+    <p>directory <code class="highlighter-rouge">INPUT_GRADIENT/</code> contains:</p>
+
+    <div class="highlighter-rouge"><pre class="highlight"><code>proc***_bulk_c_kernel_smooth.bin
+proc***_bulk_beta_kernel_smooth.bin
+proc***_rho_kernel_smooth.bin
+</code></pre>
+    </div>
+
+    <p>or</p>
+
+    <div class="highlighter-rouge"><pre class="highlight"><code>proc***_alpha_kernel_smooth.bin
+proc***_beta_kernel_smooth.bin
+proc***_rho_kernel_smooth.bin
+</code></pre>
+    </div>
+
+    <p>depending on the model parameterization.</p>
+  </li>
+  <li>
+    <p>directory <code class="highlighter-rouge">topo/</code> contains:</p>
+
+    <div class="highlighter-rouge"><pre class="highlight"><code>proc***_external_mesh.bin
+</code></pre>
+    </div>
+
+    <p>for the Cartesian version, and</p>
+
+    <div class="highlighter-rouge"><pre class="highlight"><code>proc***_solver_data.bin
+</code></pre>
+    </div>
+
+    <p>for the GLOBE version.</p>
+  </li>
+</ul>
+
+<p>The new model files are stored in directory <code class="highlighter-rouge">OUTPUT_MODEL/</code> as</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>proc***_vp_new.bin
+proc***_vs_new.bin
+proc***_rho_new.bin
+</code></pre>
+</div>
+
+<p>Note that additional post-processing and model update tools are provided for the SPECFEM3D_GLOBE version and will be provided for the Cartesian version as well in future.</p>
+
+<h2 id="old-version-of-the-section-will-soon-be-improved-and-enriched">OLD VERSION OF THE SECTION, WILL SOON BE IMPROVED AND ENRICHED</h2>
+
+<p>There are many other versions of gradient-based inversion algorithms that could alternatively be used (see e.g. Virieux and Operto (2009; Monteiller et al. 2015) for a list). The tomographic inversion of Tape et al. (2009; Tape et al. 2010) used SPECFEM3D_Cartesian as well as several additional components which are also stored on the CIG svn server, described next.</p>
+
+<p>The directory containing external utilities for tomographic inversion using SPECFEM3D Cartesian (or other packages that evaluate misfit functions and gradients) is in directory <code class="highlighter-rouge">utils/ADJOINT_TOMOGRAPHY_TOOLS/</code>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>flexwin/     -- FLEXWIN algorithm for automated picking of time windows
+measure_adj/ -- reads FLEXWIN output file and makes measurements,
+                with the option for computing adjoint sources
+iterate_adj/ -- various tools for iterative inversion
+                (requires pre-computed "event kernels")
+</code></pre>
+</div>
+
+<p>This directory also contains a brief <code class="highlighter-rouge">README</code> file indicating the role of the three subdirectories, <code class="highlighter-rouge">flexwin</code> (A. Maggi et al. 2009), <code class="highlighter-rouge">measure_adj</code>, and <code class="highlighter-rouge">iterate_adj</code>. The components for making the model update are there; however, there are no explicit rules for computing the model update, just as with any optimization problem. There are options for computing a conjugate gradient step, as well as a source subspace projection step.</p>
+
+<p>The best single file to read is probably: <code class="highlighter-rouge">ADJOINT_TOMO/iterate_adj/cluster/README</code>.</p>
+
+<h2 id="references">References</h2>
+
+<p>Aravkin, Aleksandr, Tristan van Leeuwen, and Felix Herrmann. 2011. “Robust Full-Waveform Inversion Using the Student’s (t)-Distribution.” In <em>SEG Technical Program Expanded Abstracts 2011</em>, 2669–73. doi:<a href="http://dx.doi.org/10.1190/1.3627747">10.1190/1.3627747</a>.</p>
+
+<p>Bamberger, A., G. Chavent, and P. Lailly. 1977. “Une Application de La Théorie Du Contrôle À Un Problème Inverse de Sismique.” <em>Annales de Géophysique</em> 33 (1/2): 183–200.</p>
+
+<p>Bamberger, A., G. Chavent, Ch. Hemons, and P. Lailly. 1982. “Inversion of Normal Incidence Seismograms.” <em>Geophysics</em> 47 (5): 757–70.</p>
+
+<p>Brossier, R., S. Operto, and J. Virieux. 2010. “Which Data Residual Norm for Robust Elastic Frequency-Domain Full Waveform Inversion?” <em>Geophysics</em> 75 (3): R37–46.</p>
+
+<p>Bube, Kenneth P., and Robert T. Langan. 1997. “Hybrid (L^1/L^2) Minimization with Applications to Tomography.” <em>Geophysics</em> 62 (4): 1183–95. doi:<a href="http://dx.doi.org/10.1190/1.1444219">10.1190/1.1444219</a>.</p>
+
+<p>Chavent, G. 1974. “Identification of Function Parameters in Partial Differential Equations.” In <em>Identification of Parameter Distributed Systems</em>, edited by R. E. Goodson and M. Polis, 31–48. American Society of Mechanical Engineers.</p>
+
+<p>Crase, E., A. Pica, M. Noble, J. McDonald, and A. Tarantola. 1990. “Robust Elastic Non-Linear Waveform Inversion: Application to Real Data.” <em>Geophysics</em> 55: 527–38.</p>
+
+<p>Cyr, E. C., J. N. Shadid, and T. Wildey. 2015. “Towards Efficient Backward-in-Time Adjoint Computations Using Data Compression Techniques.” <em>Comput. Methods Appl. Mech. Eng.</em> 288: 24–44. doi:<a href="http://dx.doi.org/10.1016/j.cma.2014.12.001">10.1016/j.cma.2014.12.001</a>.</p>
+
+<p>Fichtner, A., H.-P. Bunge, and H. Igel. 2006. “The Adjoint Method in Seismology: I. Theory.” <em>Phys. Earth Planet. Inter.</em> 157 (1-2): 86–104. doi:<a href="http://dx.doi.org/10.1016/j.pepi.2006.03.016">10.1016/j.pepi.2006.03.016</a>.</p>
+
+<p>Fichtner, A., B. L. N. Kennett, H. Igel, and H. P. Bunge. 2009. “Full Seismic Waveform Tomography for Upper-Mantle Structure in the Australasian Region Using Adjoint Methods.” <em>Geophys. J. Int.</em> 179 (3): 1703–25.</p>
+
+<p>Ha, Taeyoung, Wookeen Chung, and Changsoo Shin. 2009. “Waveform Inversion Using a Back-Propagation Algorithm and a Huber Function Norm.” <em>Geophysics</em> 74 (3): R15–24. doi:<a href="http://dx.doi.org/10.1190/1.3112572">10.1190/1.3112572</a>.</p>
+
+<p>Hudson, J. A. 1977. “Scattered Waves in the Coda of (P).” <em>J. Geophys. Res.</em> 43: 359–74.</p>
+
+<p>Jeong, Woodon, Minji Kang, Shinwoong Kim, Dong-Joo Min, and Won-Ki Kim. 2015. “Full Waveform Inversion Using Student’s (t) Distribution: A Numerical Study for Elastic Waveform Inversion and Simultaneous-Source Method.” <em>Pure Appl. Geophys.</em> 172 (6): 1491–1509. doi:<a href="http://dx.doi.org/10.1007/s00024-014-1020-7">10.1007/s00024-014-1020-7</a>.</p>
+
+<p>Lailly, P. 1983. “The Seismic Inverse Problem as a Sequence of Before-Stack Migrations.” In <em>Proceedings of the Conference on Inverse Scattering, Theory and Application Expanded Abstracts</em>, edited by J. B. Bednar, R. Redner, E. Robinson, and A. Weglein, 206–20. Philadelphia, PA, USA: Society of Industrial; Applied Mathematics.</p>
+
+<p>Maggi, A., C. Tape, M. Chen, D. Chao, and J. Tromp. 2009. “An Automated Time-Window Selection Algorithm for Seismic Tomography.” <em>Geophys. J. Int.</em> 178: 257–81.</p>
+
+<p>Monteiller, Vadim, Sébastien Chevrot, Dimitri Komatitsch, and Yi Wang. 2015. “Three-Dimensional Full Waveform Inversion of Short-Period Teleseismic Wavefields Based Upon the SEM-DSM Hybrid Method.” <em>Geophys. J. Int.</em> 202 (2): 811–27. doi:<a href="http://dx.doi.org/10.1093/gji/ggv189">10.1093/gji/ggv189</a>.</p>
+
+<p>Peter, Daniel, Dimitri Komatitsch, Yang Luo, Roland Martin, Nicolas <span>Le Goff</span>, Emanuele Casarotti, Pieyre <span>Le Loher</span>, et al. 2011. “Forward and Adjoint Simulations of Seismic Wave Propagation on Fully Unstructured Hexahedral Meshes.” <em>Geophys. J. Int.</em> 186 (2): 721–39. doi:<a href="http://dx.doi.org/10.1111/j.1365-246X.2011.05044.x">10.1111/j.1365-246X.2011.05044.x</a>.</p>
+
+<p>Plessix, R. E. 2006. “A Review of the Adjoint-State Method for Computing the Gradient of a Functional with Geophysical Applications.” <em>Geophys. J. Int.</em> 167 (2): 495–503.</p>
+
+<p>Rubio Dalmau, F., M. Hanzich, J. de la Puente, and N. Gutiérrez. 2014. “Lossy Data Compression with DCT Transforms.” In <em>Proceedings of the EAGE Workshop on High Performance Computing for Upstream</em>, HPC30. Chania, Crete, Greece. doi:<a href="http://dx.doi.org/10.3997/2214-4609.20141939">10.3997/2214-4609.20141939</a>.</p>
+
+<p>Tape, Carl, Qinya Liu, and Jeroen Tromp. 2007. “Finite-Frequency Tomography Using Adjoint Methods - Methodology and Examples Using Membrane Surface Waves.” <em>Geophys. J. Int.</em> 168 (3): 1105–29. doi:<a href="http://dx.doi.org/10.1111/j.1365-246X.2006.03191.x">10.1111/j.1365-246X.2006.03191.x</a>.</p>
+
+<p>Tape, Carl, Qinya Liu, Alessia Maggi, and Jeroen Tromp. 2009. “Adjoint Tomography of the Southern California Crust.” <em>Science</em> 325: 988–92.</p>
+
+<p>———. 2010. “Seismic Tomography of the Southern California Crust Based on Spectral-Element and Adjoint Methods.” <em>Geophys. J. Int.</em> 180: 433–62.</p>
+
+<p>Tarantola, A. 1984. “Inversion of Seismic Reflection Data in the Acoustic Approximation.” <em>Geophysics</em> 49: 1259–66.</p>
+
+<p>Tromp, Jeroen, Dimitri Komatitsch, and Qinya Liu. 2008. “Spectral-Element and Adjoint Methods in Seismology.” <em>Communications in Computational Physics</em> 3 (1): 1–32.</p>
+
+<p>Tromp, Jeroen, Carl Tape, and Qinya Liu. 2005. “Seismic Tomography, Adjoint Methods, Time Reversal and Banana-Doughnut Kernels.” <em>Geophys. J. Int.</em> 160 (1): 195–216. doi:<a href="http://dx.doi.org/10.1111/j.1365-246X.2004.02453.x">10.1111/j.1365-246X.2004.02453.x</a>.</p>
+
+<p>Virieux, J., and S. Operto. 2009. “An Overview of Full-Waveform Inversion in Exploration Geophysics.” <em>Geophysics</em> 74 (6): WCC1–C26. doi:<a href="http://dx.doi.org/10.1190/1.3238367">10.1190/1.3238367</a>.</p>
+
+<hr />
+<blockquote>
+  <p>This documentation has been automatically generated by <a href="http://www.pandoc.org">pandoc</a>
+based on the User manual (LaTeX version) in folder doc/USER_MANUAL/
+(Mar 10, 2020)</p>
+</blockquote>
+
+
+    </section>
+
+    <section class="page-footer">
+      <footer class="site-footer">
+        
+          <span class="site-footer-owner"><a href="http://github.com/danielpeter/specfem3d">specfem3d</a> is maintained by <a href="http://github.com/danielpeter">danielpeter</a></span>
+        
+        <span class="site-footer-credits">generated by <a href="https://pages.github.com">GitHub Pages</a></span>
+      </footer>
+    </section>
+
+    
+  </body>
+</html>

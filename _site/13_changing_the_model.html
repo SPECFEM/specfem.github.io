@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>SPECFEM3D_Cartesian</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#157878">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="/assets/css/style.css?v=e01eaeac25bebaede87fee4bc75f9f27dc55c330">
+  </head>
+  <body>
+    <section class="page-header">
+      <div class="parallax"><!-- parallax -->
+        <div class="parallax_layer parallax_layer_back">
+          <div class="img_background img1"></div>
+        </div>
+      <!-- </div> -->
+      <div class="parallax_layer parallax_layer_front">
+        <h1 class="project-name">SPECFEM3D_Cartesian</h1>
+        <h2 class="project-tagline">SPECFEM3D_Cartesian simulates acoustic (fluid), elastic (solid), coupled acoustic/elastic, poroelastic or seismic wave propagation in any type of conforming mesh of hexahedra (structured or not.)
+</h2>
+        
+          <a href="http://github.com/danielpeter/specfem3d" class="btn">View on GitHub</a>
+        
+        
+      </div><!-- end of parallax -->
+    </section>
+
+    <section class="main-content">
+      <p><strong>Table of Contents</strong></p>
+
+<ul>
+  <li><a href="#changing-the-model">Changing the Model</a>
+    <ul>
+      <li><a href="#using-external-tomographic-earth-models">Using external tomographic Earth models</a>
+        <ul>
+          <li><a href="#example-external-tomography-file-with-variable-discretization-intervals">Example: External tomography file with variable discretization intervals</a></li>
+        </ul>
+      </li>
+      <li><a href="#external-anelastic-models">External (an)elastic Models</a></li>
+      <li><a href="#anisotropic-models">Anisotropic Models</a></li>
+      <li><a href="#using-external-sep-models">Using external SEP models</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="changing-the-model">Changing the Model</h1>
+
+<p>In this section we explain how to change the velocity model used for your simulations. These changes involve contributing specific subroutines that replace existing subroutines in the <code class="highlighter-rouge">SPECFEM3D Cartesian</code> package. Note that <code class="highlighter-rouge">SPECFEM3D Cartesian</code> can handle Earth models with material properties that vary within each spectral element.</p>
+
+<h2 id="using-external-tomographic-earth-models">Using external tomographic Earth models</h2>
+
+<p>To implement your own external tomographic model(s), you must provide your own external tomography file(s), and choose between two possible options:
+(1) set in the <code class="highlighter-rouge">Par_file</code> the model parameter <code class="highlighter-rouge">MODEL = tomo</code>,
+or for more user control:
+(2) set in the <code class="highlighter-rouge">Par_file</code> the model parameter <code class="highlighter-rouge">MODEL = default</code>, define the negative <code class="highlighter-rouge">material_ID</code> identifier for each element in the file <code class="highlighter-rouge">MESH/materials_file</code> and use the following format in the file <code class="highlighter-rouge">MESH/nummaterial_velocity_file</code> when using CUBIT to construct your mesh (see also section [subsec:Exporting-the-Mesh]):</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>domain_ID material_ID tomography elastic file_name 1
+</code></pre>
+</div>
+
+<p>where:
+<code class="highlighter-rouge">domain_ID</code> is 1 for acoustic or 2 for elastic materials,
+<code class="highlighter-rouge">material_ID</code> a negative, unique identifier (i.e., -1,-2,…),
+<code class="highlighter-rouge">tomography</code> keyword for tomographic material definition,
+<code class="highlighter-rouge">elastic</code> keyword for elastic material definition,
+<code class="highlighter-rouge">file_name</code> the name of the tomography file and 1 a positive unique identifier.</p>
+
+<p>The external tomographic model is represented by a grid of points with assigned material properties and homogeneous resolution along each spatial direction x, y and z. The ASCII file <code class="highlighter-rouge">file_name</code> that describe the tomography should be located in the <code class="highlighter-rouge">TOMOGRAPHY_PATH</code> directory, set in the <code class="highlighter-rouge">Par_file</code>. The format of the file, as read from <code class="highlighter-rouge">model_tomography.f90</code> located in the <code class="highlighter-rouge">src/generate_databases</code> directory, looks like Figure [fig:tomography<sub>f</sub>ile], starting with a header information where</p>
+
+<p><span><code class="highlighter-rouge">ORIG_X</code>, <code class="highlighter-rouge">END_X</code></span><br />
+are, respectively, the coordinates of the initial and final tomographic grid points along the x direction (in the mesh units, e.g., (m));</p>
+
+<p><span><code class="highlighter-rouge">ORIG_Y</code>, <code class="highlighter-rouge">END_Y</code></span><br />
+respectively the coordinates of the initial and final tomographic grid points along the y direction (in the mesh units, e.g., (m));</p>
+
+<p><span><code class="highlighter-rouge">ORIG_Z</code>, <code class="highlighter-rouge">END_Z</code></span><br />
+respectively the coordinates of the initial and final tomographic grid points along the z direction (in the mesh units, e.g., (m));</p>
+
+<p><span><code class="highlighter-rouge">SPACING_X</code>, <code class="highlighter-rouge">SPACING_Y</code>, <code class="highlighter-rouge">SPACING_Z</code></span><br />
+the spacing between the tomographic grid points along the x, y and z directions, respectively (in the mesh units, e.g., (m));</p>
+
+<p><span><code class="highlighter-rouge">NX</code>, <code class="highlighter-rouge">NY</code>, <code class="highlighter-rouge">NZ</code></span><br />
+the number of grid points along the spatial directions x, y and z, respectively; <code class="highlighter-rouge">NX</code> is given by <span>[</span>(<code class="highlighter-rouge">END_X</code> - <code class="highlighter-rouge">ORIG_X</code>)/<code class="highlighter-rouge">SPACING_X</code><span>]</span>+1; <code class="highlighter-rouge">NY</code> and <code class="highlighter-rouge">NZ</code> are the same as <code class="highlighter-rouge">NX</code>, but for the y and z directions, respectively;</p>
+
+<p><span><code class="highlighter-rouge">VP_MIN</code>, <code class="highlighter-rouge">VP_MAX</code>, <code class="highlighter-rouge">VS_MIN</code>, <code class="highlighter-rouge">VS_MAX</code>, <code class="highlighter-rouge">RHO_MIN</code>, <code class="highlighter-rouge">RHO_MAX</code></span><br />
+the minimum and maximum values of the wave speed <code class="highlighter-rouge">vp</code> and <code class="highlighter-rouge">vs</code> (in (m\, s^{-1})) and of the density <code class="highlighter-rouge">rho</code> (in (kg\, m^{-3})); these values could be the actual limits of the tomographic parameters in the grid or the minimum and maximum values to which we force the cut of velocity and density in the model.</p>
+
+<p>After the first four lines, the tomography file <code class="highlighter-rouge">file_name</code> lists the data record where all tomographic grid points are listed with the corresponding values of <code class="highlighter-rouge">vp</code>, <code class="highlighter-rouge">vs</code> and <code class="highlighter-rouge">rho</code> (and optionally (Q_{p}) and (Q_{s})), scanning the grid along the x coordinate (from <code class="highlighter-rouge">ORIG_X</code> to <code class="highlighter-rouge">END_X</code> with step of <code class="highlighter-rouge">SPACING_X</code>) for each given y (from <code class="highlighter-rouge">ORIG_Y</code> to <code class="highlighter-rouge">END_Y</code>, with step of <code class="highlighter-rouge">SPACING_Y</code>) and each given z (from <code class="highlighter-rouge">ORIG_Z</code> to <code class="highlighter-rouge">END_Z</code>, with step of <code class="highlighter-rouge">SPACING_Z</code>).</p>
+
+<p>Each data record line provides the velocity model values in a format like:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code># data record format: purely isotropic model
+x y z   vp    vs    rho
+..
+</code></pre>
+</div>
+
+<p>or</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code># data record format: anelastic isotropic model
+x y z   vp    vs    rho Qp  Qs
+..
+</code></pre>
+</div>
+
+<p>where <code class="highlighter-rouge">x</code>, <code class="highlighter-rouge">y</code>, <code class="highlighter-rouge">z</code> are the grid point position, <code class="highlighter-rouge">vp</code>, <code class="highlighter-rouge">vs</code> and <code class="highlighter-rouge">rho</code> the P- and S-wave speeds and density, and <code class="highlighter-rouge">Qp</code> and <code class="highlighter-rouge">Qs</code> the quality factors for P- and S-wave speeds. The quality factors are optional and can be omitted for purely elastic models (the tomography routine will recognize both formats). Internally, the quality factors will be converted to bulk and shear attenuation values, (Q_{\kappa}) and (Q_{\mu}) respectively (Anderson and Hart 1978). Note that Qmu is always equal to Qs, but Qkappa is in general not equal to Qp. To convert one to the other see doc/note_on_Qkappa_versus_Qp.pdf and utils/attenuation/conversion_from_Qkappa_Qmu_to_Qp_Qs_from_Dahlen_Tromp_959_960.f90. For simulations with attenuation, please note that the Vp- and Vs-velocities of your model are given for a reference frequency. To change this reference frequency, you change the value of <code class="highlighter-rouge">ATTENUATION_f0_REFERENCE</code> in the main constants file <code class="highlighter-rouge">constants.h</code> found in subdirectory <code class="highlighter-rouge">src/shared/</code>.</p>
+
+<p>The code uses a constant (Q) quality factor, write(IMAIN,*) “but approximated based on a series of Zener standard linear solids (SLS). The approximation is thus performed in a given frequency band determined based on that <code class="highlighter-rouge">ATTENUATION_f0_REFERENCE</code> reference frequency.</p>
+
+<p><img src="figures/tomo_file.jpg" alt="Tomography file `file_name` that describes an external, purely elastic Earth model. The coordinates x, y and z of the grid, their limits ORIG_X, ORIG_Y, ORIG_Z, END_X, END_Y, END_Z and the grid spacings SPACING_X, SPACING_Y, SPACING_Z should be in the units of the constructed mesh (e.g., UTM coordinates in meters).&lt;span data-label=&quot;fig:tomographyfile&quot;&gt;&lt;/span&gt;" /></p>
+<div class="figcaption" style="text-align:justify;font-size:80%"><span style="color:#9A9A9A">Figure: Tomography file `file_name` that describes an external, purely elastic Earth model. The coordinates x, y and z of the grid, their limits ORIG\_X, ORIG\_Y, ORIG\_Z, END\_X, END\_Y, END\_Z and the grid spacings SPACING\_X, SPACING\_Y, SPACING\_Z should be in the units of the constructed mesh (e.g., UTM coordinates in meters).<span data-label="fig:tomographyfile"></span></span></div>
+
+<p>The user can implement his own interpolation algorithm for the tomography model by changing the routine <code class="highlighter-rouge">model_tomography.f90</code> located in the <code class="highlighter-rouge">src/generate_databases/</code> directory. Moreover, for models that involve both fully defined materials and a tomography description, the <code class="highlighter-rouge">nummaterial_velocity_file</code> has multiple lines each with the corresponding suitable format described above.</p>
+
+<h4 id="example-external-tomography-file-with-variable-discretization-intervals">Example: External tomography file with variable discretization intervals</h4>
+
+<p>The example in Figure [fig:tomography<sub>f</sub>ile] is for an external tomography file with uniform spacing in the (x), (y), and (z) directions. (Note that (\Delta x), (\Delta y), and (\Delta z) need not be the same as in the example.) In that example, the <code class="highlighter-rouge">nummaterial_velocity_file</code> is</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>2  -1 tomography elastic tomography_model.xyz 1
+</code></pre>
+</div>
+
+<p>and the file <code class="highlighter-rouge">tomography_model.xyz</code> will need to reside in <code class="highlighter-rouge">DATA/</code>. All entries in the second column of <code class="highlighter-rouge">materials_file</code> will be <code class="highlighter-rouge">-1</code>, which means that each element in the mesh will be interpolated according to the values in <code class="highlighter-rouge">tomography_model.xyz</code>.</p>
+
+<p>In some cases it may be desirable to have an external tomography model that is described in more than one file. For example, in cases like southern California, the length scale of variation in the structure of the wave speed model is much shorter in the sedimentary basin models within the upper 15 km. Therefore one might want to use an external tomography file that is sampled with, say, (\Delta x = 1000) m, (\Delta y = 1000) m, and (\Delta z = 250) m in the uppermost 15 km, and then use (\Delta x = 2000) m, (\Delta y = 2000) m, and (\Delta z = 1000) m below a depth of 15 km. If these intervals are chosen appropriately, then it will result in a pair of external tomography file that is much smaller than the alternative of having a single file with the fine discretization. In this case <code class="highlighter-rouge">nummaterial_velocity_file</code> is</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>2  -1 tomography elastic file_above_15km.xyz 1
+2  -2 tomography elastic file_below_15km.xyz 1
+</code></pre>
+</div>
+
+<p>and the files <code class="highlighter-rouge">file_above_15km.xyz</code> and <code class="highlighter-rouge">file_below_15km.xyz</code> will need to reside in <code class="highlighter-rouge">DATA/</code>. All entries in the second column of <code class="highlighter-rouge">materials_file</code> will need to be either <code class="highlighter-rouge">-1</code> or <code class="highlighter-rouge">-2</code>, depending on whether the element is above or below 15 km depth. In this sense, the construction of the mesh and the discretization of the external model will generally be done in tandem.</p>
+
+<p>Other more complicated discretizations can be used following the same procedure. (In particular, there is no limit on the number of different external files that are used.)</p>
+
+<h2 id="external-anelastic-models">External (an)elastic Models</h2>
+
+<p>To use your own external model, you can set in the <code class="highlighter-rouge">Par_file</code> the model parameter <code class="highlighter-rouge">MODEL = external</code>. Three-dimensional acoustic and/or (an)elastic (attenuation) models may then be superimposed onto the mesh based upon your subroutine in <code class="highlighter-rouge">model_external_values.f90</code> located in directory <code class="highlighter-rouge">src/generate_databases</code>. The call to this routine would be as follows</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>call model_external_values(xmesh, ymesh, zmesh, &amp;
+            rho, vp, vs, qkappa_atten, qmu_atten, iflag_aniso, idomain_id)
+</code></pre>
+</div>
+
+<p>Input to this routine consists of:</p>
+
+<p><span><code class="highlighter-rouge">xmesh,ymesh,zmesh</code></span><br />
+location of mesh point</p>
+
+<p>Output to this routine consists of:</p>
+
+<p><span><code class="highlighter-rouge">rho,vp,vs</code></span><br />
+isotropic model parameters for density (\rho) ((kg/m^{3})), (v_{p}) ((m/s)) and (v_{s}) ((m/s))</p>
+
+<p><span><code class="highlighter-rouge">qkappa_atten,qmu_atten</code></span><br />
+Bulk and shear wave quality factor: (0&lt;Q_{\kappa,\mu}&lt;9000). Note that Qmu is always equal to Qs, but Qkappa is in general not equal to Qp. To convert one to the other see doc/note_on_Qkappa_versus_Qp.pdf and utils/attenuation/conversion_from_Qkappa_Qmu_to_Qp_Qs_from_Dahlen_Tromp_959_960.f90.</p>
+
+<p><span><code class="highlighter-rouge">iflag_aniso</code></span><br />
+anisotropic model flag, (0) indicating no anisotropy or (1) using anisotropic model parameters as defined in routine file <code class="highlighter-rouge">model_aniso.f90</code></p>
+
+<p><span><code class="highlighter-rouge">idomain_id</code></span><br />
+domain identifier, (1) for acoustic, (2) for elastic, (3) for poroelastic materials.</p>
+
+<p>Note that the resolution and maximum value of anelastic models are truncated. This speeds the construction of the standard linear solids during the meshing stage. To change the resolution, currently at one significant figure following the decimal, or the maximum value (9000), consult <code class="highlighter-rouge">shared/constants.h</code>.</p>
+
+<h2 id="anisotropic-models">Anisotropic Models</h2>
+
+<p>To use your anisotropic models, you can either set in the <code class="highlighter-rouge">Par_file</code> the model parameter <code class="highlighter-rouge">ANISOTROPY</code> to <code class="highlighter-rouge">.true.</code> or set the model parameter <code class="highlighter-rouge">MODEL = aniso</code>. Three-dimensional anisotropic models may be superimposed on the mesh based upon the subroutine in file <code class="highlighter-rouge">model_aniso.f90</code> located in directory <code class="highlighter-rouge">src/generate_databases</code>. The call to this subroutine is of the form</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>call model_aniso(iflag_aniso, rho, vp, vs, &amp;
+                 c11,c12,c13,c14,c15,c16,c22,c23,c24,c25,c26, &amp;
+                 c33,c34,c35,c36,c44,c45,c46,c55,c56,c66)
+</code></pre>
+</div>
+
+<p>Input to this routine consists of:</p>
+
+<p><span><code class="highlighter-rouge">iflag_aniso</code></span><br />
+flag indicating the type of the anisotropic model, i.e. (0) for no superimposed anisotropy, (1) or (2) for generic pre-defined anisotropic models.</p>
+
+<p><span><code class="highlighter-rouge">rho,vp,vs</code></span><br />
+reference isotropic model parameters for density (\rho), (v_{p}) and (v_{s}).</p>
+
+<p>Output from the routine consists of the following non-dimensional model parameters:</p>
+
+<p><span><code class="highlighter-rouge">c11,..,c66</code></span><br />
+21 dimensionalized anisotropic elastic parameters.</p>
+
+<p>You can replace the <code class="highlighter-rouge">model_aniso.f90</code> file by your own version <em>provided you do not change the call structure of the routine</em>, i.e., the new routine should take exactly the same input and produce the required relative output.</p>
+
+<h2 id="using-external-sep-models">Using external SEP models</h2>
+
+<p>Stanford Exploration Project (SEP) models consists of two files per variables, one header file (<code class="highlighter-rouge">.H</code>) and one binary file (<code class="highlighter-rouge">.H@</code>). Among other information, the header file indicates, for each dimension, the offset (<code class="highlighter-rouge">o1</code>, <code class="highlighter-rouge">o2</code> and <code class="highlighter-rouge">o3</code> fields), the spatial step size (<code class="highlighter-rouge">d1</code>, <code class="highlighter-rouge">d2</code> and <code class="highlighter-rouge">d3</code> fields) and the number of samples (<code class="highlighter-rouge">n1</code>, <code class="highlighter-rouge">n2</code> and <code class="highlighter-rouge">n3</code>) necessary to read the linked binary file (<code class="highlighter-rouge">in</code> field).</p>
+
+<p>SEP model reading occurs during database generation. It it the user responsibility to ensure that proper interfaces between acoustic and elastic domains are set up during the meshing phase. For more information, refer to section [cha:Running-the-Mesher-Meshfem3D].</p>
+
+<p>In <code class="highlighter-rouge">DATA/Par_file</code>, <code class="highlighter-rouge">MODEL</code> should be set to <code class="highlighter-rouge">sep</code>, and <code class="highlighter-rouge">SEP_MODEL_DIRECTORY</code> should point to wherever your sep model files reside.</p>
+
+<p>Note that in order not to overload the parameter file, SEP header files should be named <code class="highlighter-rouge">vp.H</code>, <code class="highlighter-rouge">vs.H</code> and <code class="highlighter-rouge">rho.H</code>. The <code class="highlighter-rouge">in</code> field in these binary files can be any path as long as it is relative to the previously set <code class="highlighter-rouge">SEP_MODEL_DIRECTORY</code>. We also assume that any dimensional value inside SEP header files is given in meters and that binary files are single precision floating point numbers stored in little endian format. There is currently only support for <code class="highlighter-rouge">vp</code>, <code class="highlighter-rouge">vs</code> and <code class="highlighter-rouge">rho</code> variables.</p>
+
+<p>An example demonstrating the use SEP models is given in: <code class="highlighter-rouge">EXAMPLES/meshfem3D_examples/sep_bathymetry</code>.</p>
+
+<h2 id="references">References</h2>
+
+<p>Anderson, Don L., and R. S. Hart. 1978. “(Q) Of the Earth.” <em>J. Geophys. Res.</em> 83 (B12).</p>
+
+<hr />
+<blockquote>
+  <p>This documentation has been automatically generated by <a href="http://www.pandoc.org">pandoc</a>
+based on the User manual (LaTeX version) in folder doc/USER_MANUAL/
+(Mar 10, 2020)</p>
+</blockquote>
+
+
+    </section>
+
+    <section class="page-footer">
+      <footer class="site-footer">
+        
+          <span class="site-footer-owner"><a href="http://github.com/danielpeter/specfem3d">specfem3d</a> is maintained by <a href="http://github.com/danielpeter">danielpeter</a></span>
+        
+        <span class="site-footer-credits">generated by <a href="https://pages.github.com">GitHub Pages</a></span>
+      </footer>
+    </section>
+
+    
+  </body>
+</html>

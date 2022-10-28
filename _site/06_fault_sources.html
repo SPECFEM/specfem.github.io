@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>SPECFEM3D_Cartesian</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#157878">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="/assets/css/style.css?v=e01eaeac25bebaede87fee4bc75f9f27dc55c330">
+  </head>
+  <body>
+    <section class="page-header">
+      <div class="parallax"><!-- parallax -->
+        <div class="parallax_layer parallax_layer_back">
+          <div class="img_background img1"></div>
+        </div>
+      <!-- </div> -->
+      <div class="parallax_layer parallax_layer_front">
+        <h1 class="project-name">SPECFEM3D_Cartesian</h1>
+        <h2 class="project-tagline">SPECFEM3D_Cartesian simulates acoustic (fluid), elastic (solid), coupled acoustic/elastic, poroelastic or seismic wave propagation in any type of conforming mesh of hexahedra (structured or not.)
+</h2>
+        
+          <a href="http://github.com/danielpeter/specfem3d" class="btn">View on GitHub</a>
+        
+        
+      </div><!-- end of parallax -->
+    </section>
+
+    <section class="main-content">
+      <p><strong>Table of Contents</strong></p>
+
+<ul>
+  <li><a href="#kinematic-and-dynamic-fault-sources">Kinematic and dynamic fault sources</a>
+    <ul>
+      <li><a href="#mesh-generation-with-split-nodes">Mesh Generation with Split Nodes</a></li>
+      <li><a href="#cubit-python-scripts-for-faults">CUBIT-Python Scripts for Faults</a></li>
+      <li><a href="#examples">Examples</a></li>
+      <li><a href="#sign-convention-for-fault-quantities">Sign Convention for Fault Quantities</a></li>
+      <li><a href="#input-files">Input Files</a></li>
+      <li><a href="#setting-the-kelvin-voigt-damping-parameter">Setting the Kelvin-Voigt Damping Parameter</a></li>
+      <li><a href="#output-files">Output Files</a></li>
+      <li><a href="#post-processing-and-visualization">Post-processing and Visualization</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="kinematic-and-dynamic-fault-sources">Kinematic and dynamic fault sources</h1>
+
+<p>SPECFEM3D can handle finite fault sources of two kinds:</p>
+
+<ol>
+  <li>
+    <p><em>Kinematic</em>: the spatio-temporal distribution of slip rate is prescribed along the fault surface</p>
+  </li>
+  <li>
+    <p><em>Dynamic</em>: a friction law and initial stresses are prescribed on the fault, a spontaneous rupture process is computed.</p>
+  </li>
+</ol>
+
+<h2 id="mesh-generation-with-split-nodes">Mesh Generation with Split Nodes</h2>
+
+<p>Faults need to be handled in a special way during mesh generation. A fault surface must lie at the interface between elements (the mesh must honor the fault surfaces). Moreover, a fault is made of two surfaces in contact. Each of these two surfaces needs a separate set of nodes. This approach is known as split nodes. Currently faults can only be run with <code class="highlighter-rouge">xdecompose_mesh</code> and <code class="highlighter-rouge">CUBIT</code>. <code class="highlighter-rouge">xmeshfem3D</code> is not yet ready to handle faults.</p>
+
+<p>To facilitate the mesh generation with split nodes in CUBIT, we need to separate the two fault surfaces by a small distance, effectively creating a tiny opening of the fault (Figure [fig:examples.splitnodes], [fig:examples.splitnodes-surfacetrace]). Note that the opening distance should not be too small especially in single precision simulations (For example, if your fault is at (y=y_0) plane, then the opening distance should be at least (10^{-6}y_0) since single precision can ensure precision within only 7 digits). Note that only the interior of the fault must be opened, its edges must remain closed (except the edge on the free surface). The fault is automatically closed later by SPECFEM3D.</p>
+
+<p>Here is an example CUBIT script to generate a mesh with split nodes for a buried vertical strike-slip fault:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code> reset
+ brick x 10 y 10 z 10
+ webcut volume all with plane xplane
+ webcut volume all with plane yplane
+ webcut volume all with plane xplane offset 3
+ webcut volume all with plane zplane offset 3
+ webcut volume all with plane zplane offset -3
+ imprint all
+ merge all
+ unmerge surf 160
+ mesh vol all
+ set node constraint off
+ node in surf 168 move X 0 Y 0.01 Z 0
+ node in surf 160 move X 0 Y -0.01 Z 0
+</code></pre>
+</div>
+
+<p><img src="figures/faultmesh.jpg" alt="Screenshots of the CUBIT example for the embedded fault with split nodes: The entire mesh is decomposed into several volumes bounding the fault (top), the fault surface 168 is shown as orange squares (middle) and split nodes of the fault shown as orange dots(bottom). Note that only interior nodes of the fault are split while those on the edges of the fault surface are touching each other.&lt;span data-label=&quot;fig:examples.splitnodes&quot;&gt;&lt;/span&gt;" title="fig:" /></p>
+<div class="figcaption" style="text-align:justify;font-size:80%"><span style="color:#9A9A9A">Figure: Screenshots of the CUBIT example for the embedded fault with split nodes: The entire mesh is decomposed into several volumes bounding the fault (top), the fault surface 168 is shown as orange squares (middle) and split nodes of the fault shown as orange dots(bottom). Note that only interior nodes of the fault are split while those on the edges of the fault surface are touching each other.<span data-label="fig:examples.splitnodes"></span></span></div>
+<p><img src="figures/surf168.jpg" alt="Screenshots of the CUBIT example for the embedded fault with split nodes: The entire mesh is decomposed into several volumes bounding the fault (top), the fault surface 168 is shown as orange squares (middle) and split nodes of the fault shown as orange dots(bottom). Note that only interior nodes of the fault are split while those on the edges of the fault surface are touching each other.&lt;span data-label=&quot;fig:examples.splitnodes&quot;&gt;&lt;/span&gt;" title="fig:" /> &lt;div class="figcaption" style="text-align:justify;font-size:80%"&gt;<span style="color:#9A9A9A">Figure: Screenshots of the CUBIT example for the embedded fault with split nodes: The entire mesh is decomposed into several volumes bounding the fault (top), the fault surface 168 is shown as orange squares (middle) and split nodes of the fault shown as orange dots(bottom). Note that only interior nodes of the fault are split while those on the edges of the fault surface are touching each other.<span data-label="fig:examples.splitnodes"></span></span>&lt;/div&gt; <img src="figures/splitnodes.jpg" alt="Screenshots of the CUBIT example for the embedded fault with split nodes: The entire mesh is decomposed into several volumes bounding the fault (top), the fault surface 168 is shown as orange squares (middle) and split nodes of the fault shown as orange dots(bottom). Note that only interior nodes of the fault are split while those on the edges of the fault surface are touching each other.&lt;span data-label=&quot;fig:examples.splitnodes&quot;&gt;&lt;/span&gt;" title="fig:" /></p>
+<div class="figcaption" style="text-align:justify;font-size:80%"><span style="color:#9A9A9A">Figure: Screenshots of the CUBIT example for the embedded fault with split nodes: The entire mesh is decomposed into several volumes bounding the fault (top), the fault surface 168 is shown as orange squares (middle) and split nodes of the fault shown as orange dots(bottom). Note that only interior nodes of the fault are split while those on the edges of the fault surface are touching each other.<span data-label="fig:examples.splitnodes"></span></span></div>
+
+<p><img src="figures/splitnodes_surfacetrace.pdf" alt="Screenshots of a CUBIT example showing split nodes for a fault reaching the surface. Surface trace of the fault is shown in orange. Note that the edges of the fault are not split while the interior nodes are offset by a small distance on either side of the fault&lt;span data-label=&quot;fig:examples.splitnodes-surfacetrace&quot;&gt;&lt;/span&gt;" /></p>
+<div class="figcaption" style="text-align:justify;font-size:80%"><span style="color:#9A9A9A">Figure: Screenshots of a CUBIT example showing split nodes for a fault reaching the surface. Surface trace of the fault is shown in orange. Note that the edges of the fault are not split while the interior nodes are offset by a small distance on either side of the fault<span data-label="fig:examples.splitnodes-surfacetrace"></span></span></div>
+
+<p>The CUBIT scripts (<span>*</span>.jou and <span>*</span>.py) in the directory <code class="highlighter-rouge">EXAMPLES</code> generate more complicated meshes. The <span>*</span>.py files are Python scripts that execute CUBIT commands and use the CUBIT-python interface for SPECFEM3D (see next section). The Python language allows to define and manipulate variables to parameterize the mesh. Alternatively, the Python script can call a CUBIT journal file (<span>*</span>.jou), which looks like the example above. Variables can be defined and manipulated there using the (\mathtt{APREPRO}) language built in CUBIT.</p>
+
+<p>Note that you should avoid gaps in the list of indices of mesh objects with the following CUBIT command:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>compress ids hex face edge node
+</code></pre>
+</div>
+
+<p>(otherwise you will get a segmentation fault during domain decomposition)</p>
+
+<h2 id="cubit-python-scripts-for-faults">CUBIT-Python Scripts for Faults</h2>
+
+<p>The mesh generated in CUBIT needs to be processed and exported in a format compatible with SPECFEM3D. This is achieved in the Python scripts by calling the Python-CUBIT interface functions defined in the CUBIT directory:</p>
+
+<ol>
+  <li>
+    <p>Function (\mathtt{define_bc}) (or (\mathtt{boundary_definition.py})) must be called to set up the absorbing boundaries database</p>
+  </li>
+  <li>
+    <p>Function (\mathtt{fault_input}) must be called once for each fault to set up the fault database</p>
+  </li>
+  <li>
+    <p>Function (\mathtt{cubit2specfem3d.export2SPECFEM3D}) must be called at the very end of the script to export the mesh in a SPECFEM3D format.</p>
+  </li>
+</ol>
+
+<p>The functions in #1 and #3 are for the bulk and are documented in Section [subsec:Exporting-the-Mesh]. We focus here on #2:</p>
+
+<p><span>Function:</span><br />
+(\mathtt{fault_input})</p>
+
+<p><span>Purpose:</span><br />
+export a fault mesh database from CUBIT to a SPECFEM3D-compliant file</p>
+
+<p><span>Syntax:</span><br />
+fault_input(id_fault, ids_surf_1, ids_surf_2)</p>
+
+<p><span>Inputs:</span></p>
+
+<ul>
+  <li>
+    <p>id_fault integer index assigned to the fault. (The user must number all the faults, starting at 1, with unit increments)</p>
+  </li>
+  <li>
+    <p>ids_surf_1 list of CUBIT ids of all surfaces that form side 1 of the fault.</p>
+  </li>
+  <li>
+    <p>ids_surf_2 list of CUBIT ids of all surfaces that form side 2 of the fault. (The user must decide which side of the fault is side 1. This choice affects the sign conventions of fault quantities as explained in Section [sec:Sign-Convention-for]).</p>
+  </li>
+</ul>
+
+<p><span>Outputs:</span><br />
+file (\mathtt{fault_file_X.dat}), where X is the fault id (id_fault).</p>
+
+<p><span>Example:</span><br />
+For the example in Section [sec:Mesh-Generation-with]:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>  A1 = [168]
+  A2 = [160]
+  fault_input(1,A1,A2)
+</code></pre>
+</div>
+
+<h2 id="examples">Examples</h2>
+
+<p>The package includes examples, the SCEC benchmark problems:</p>
+
+<ul>
+  <li>
+    <p>TPV5, a planar vertical strike-slip fault</p>
+  </li>
+  <li>
+    <p>TPV14 and TPV15, vertical strike-slip fault system with a fault branch</p>
+  </li>
+  <li>
+    <p>TPV102 and TPV103, rate-and-state benchmarks</p>
+  </li>
+  <li>
+    <p>TPV22 and TPV23, step-over benchmarks</p>
+  </li>
+  <li>
+    <p>TPV16, heterogenous initial stress</p>
+  </li>
+</ul>
+
+<p>and</p>
+
+<ul>
+  <li>Splay fault models from Wendt et al. (2009)</li>
+</ul>
+
+<p>Read the documents in the directory <code class="highlighter-rouge">EXAMPLES/*/description</code>. They contain a description of the example and additional instructions to run it. Visualize the results with the Matlab scripts in the directory (\mathtt{EXAMPLES/*/post})</p>
+
+<h2 id="sign-convention-for-fault-quantities">Sign Convention for Fault Quantities</h2>
+
+<p>During mesh generation, the fault is defined by two surfaces in contact. Let’s denote as <em>side 1</em> the SECOND surface declared by the user in the call to the python function <em>fault_input</em>, and the FIRST surface as <em>side 2</em>. The local coordinate system on the fault is defined as the right-handed coordinate system defined by (strike, dip, normal), where <em>normal</em> is the normal vector outgoing from side 1, <em>dip</em> is parallel to the along-dip direction pointing downwards, and <em>strike</em> is the horizontal along-strike vector such that the system is right-handed. In places where the fault plane is horizontal, we define the alone strike direction to be (1,0,0).</p>
+
+<p>Slip is defined as displacement on side 2 minus displacement on side 1. In the local coordinate system on the fault, positive along-strike slip is right-lateral and positive along-dip slip is thrust if side 1 is on the hanging wall (normal faulting if side 1 is on the foot wall).</p>
+
+<p>Traction is defined as the stress induced on side 1 by side 2, which is the stress tensor times the normal vector outgoing from side 1. In the local coordinate system on the fault, the normal traction is negative in compression, positive along-strike traction generates right-lateral slip and positive along-dip traction generates thrust slip if side 1 is on the hanging wall (normal faulting if side 1 is on the foot wall).</p>
+
+<h2 id="input-files">Input Files</h2>
+
+<p>Three additional input files are required in the <code class="highlighter-rouge">DATA/</code> directory for dynamic and kinematic faults. They are (\mathtt{Par_file_faults}), (\mathtt{FAULT_STATIONS}) and (\mathtt{input_file.txt}) or (\mathtt{rsf_hete_input_file.txt})(optional). If the former does not exist, the code assumes that there are no faults.</p>
+
+<p><span>00.00.0000</span></p>
+
+<p>contains parameters of the fault. The first part of this file has a strict format:</p>
+
+<p><span>Line</span><br />
+1: Number of faults (NF)</p>
+
+<p><span>Lines</span><br />
+2 to NF+1: Kelvin Voigt damping (in seconds) for each fault. (See below how to set this parameter)</p>
+
+<p><span>Line</span><br />
+NF+2: Type of simulation (1=dynamic , 2 = kinematic)</p>
+
+<p><span>Line</span><br />
+NF+3: Number of time steps between updates of the time series outputs at selected fault points (see DATA/FAULT_STATIONS), usually a large number (100s or 1000s). Note that the sampling rate of the time series is usually much higher.</p>
+
+<p><span>Line</span><br />
+NF+4: Number of time steps between fault snapshot outputs (quantities at every fault point exported at regular times), usually a large number (100s or 1000s).</p>
+
+<p><span>Line</span><br />
+NF+5: Slip velocity threshold below which frictional healing is set (friction coefficient is reset to its static value). If this value is negative healing is disabled.</p>
+
+<p><span>Line</span><br />
+NF+6: Slip velocity threshold to define the rupture front. Only used for outputs.</p>
+
+<p>The rest of this file is made of namelist input blocks (see namelist in a Fortran 9x manual). The input for each fault has the following sequence (arguments in <span>[</span>brackets<span>]</span> are optional):</p>
+
+<p>&amp;<strong>RUPTURE_SWITCHES</strong> / RATE_AND_STATE ,TPV16 ,HETE_RSF ,TPV10X ,TWF</p>
+
+<p>&amp;<strong>BEGIN_FAULT</strong> /</p>
+
+<p>&amp;<strong>STRESS_TENSOR</strong> Sigma = (\sigma_{xx}),(\sigma_{yy}),(\sigma_{zz}),(\sigma_{xy}),(\sigma_{xz}),(\sigma_{yz}) /</p>
+
+<p>&amp;<strong>INIT_STRESS</strong> S1, S2, S3 <span>[</span>,n1, n2, n3<span>]</span> /</p>
+
+<p>followed by (n1+n2+n3) &amp;<strong>DIST2D</strong> blocks</p>
+
+<p>&amp;<strong>SWF</strong> mus, mud, dc <span>[</span>, nmus, nmud, ndc<span>]</span> /</p>
+
+<p>&amp;<strong>TWF</strong> nuc_x, nuc_y, nuc_z, nuc_r, nuc_t0, nuc_v /</p>
+
+<p>&amp;<strong>RSF</strong> V0,f0,a,b,L,V_init,theta_init,C,StateLaw <span>[</span> nV0,nf0,na,nb,nL,nV_init,ntheta_init,nC <span>]</span> /</p>
+
+<p>followed by (nV0+nf0+na+nb+nL+nV_init+ntheta_init+nC) &amp;<strong>DIST2D</strong> blocks</p>
+
+<p><span>00.00.0000</span></p>
+
+<p>input block sets some switches in the simulation process.</p>
+
+<p><span>RATE_AND_STATE</span><br />
+= .TRUE. use rate and state friction,=.FALSE. use slip weakening friction</p>
+
+<p><span>TPV16</span><br />
+=.TRUE turn on heterogeneity fault property input for slip weakening friction from DATAinput_file.txt, =.FALSE. turn off such feature</p>
+
+<p><span>HETE_RSF</span><br />
+=.TRUE. turn on heterogeneity fault property input for rate and state friction using input from DATArsf_hete_input_filr.txt, =.FALSE. turn off such feature</p>
+
+<p><span>TPV10X</span><br />
+=.TRUE. turn on some ad hoc features for TPV101-104 simulations, a rate strengthening layer surrounding the rate weakening region. =.FALSE. turn off such feature</p>
+
+<p><span>TWF</span><br />
+=.TRUE. turn on time-weakening nucleation. This function is activated only when RATE_AND_STATE=.FALSE. and TWF=.TRUE.</p>
+
+<p>input block sets the initial fault stresses by projecting a uniform regional stress field onto the fault plane.So that the tractions (\tau = \sigma : n) while (n) is the local norm of the fault plane. Sigma = (\sigma_{xx}),(\sigma_{yy}),(\sigma_{zz}),(\sigma_{xy}),(\sigma_{xz}),(\sigma_{yz}) (in Pa)</p>
+
+<p>input block sets the initial fault stresses relative to the foot-wall side of the fault. Initial stresses are composed of a constant background value possibly overwritten in prescribed regions by heterogeneous distributions (see &amp;<strong>DIST2D</strong> blocks below):</p>
+
+<p><span>S1</span><br />
+= constant background value of along-strike shear stress (positive in the usual strike direction)</p>
+
+<p><span>S2</span><br />
+= constant background value of along-dip shear (positive is down-dip, normal faulting)</p>
+
+<p><span>S3</span><br />
+= constant background value of normal stress (negative in compression)</p>
+
+<p><span>n1</span><br />
+= number of heterogeneous items for along-strike shear stress <span>[</span>default is 0<span>]</span></p>
+
+<p><span>n2</span><br />
+= number of heterogeneous items for along-dip shear stress <span>[</span>default is 0<span>]</span></p>
+
+<p><span>n3</span><br />
+= number of heterogeneous items for normal stress <span>[</span>default is 0<span>]</span></p>
+
+<p>input block sets the slip-weakening friction parameters of the fault:</p>
+
+<p><span>mus</span><br />
+= constant background value of static friction coefficient</p>
+
+<p><span>mud</span><br />
+= constant background value of dynamic friction coefficient</p>
+
+<p><span>dc</span><br />
+= constant background value of critical slip-weakening distance</p>
+
+<p><span>C</span><br />
+= constant background value of cohesion (in Pa)</p>
+
+<p><span>nmus</span><br />
+= number of heterogeneous items for static friction coefficient <span>[</span>default is 0<span>]</span></p>
+
+<p><span>nmud</span><br />
+= number of heterogeneous items for dynamic friction coefficient <span>[</span>default is 0<span>]</span></p>
+
+<p><span>ndc</span><br />
+= number of heterogeneous items for critical slip-weakening distance <span>[</span>default is 0<span>]</span></p>
+
+<p><span>nC</span><br />
+= number of heterogeneous items for cohesion</p>
+
+<p>input block sets the time-weakening friction parameters of the fault:</p>
+
+<p><span>nuc_x</span><br />
+= x coordinate of the hypocenter (in m)</p>
+
+<p><span>nuc_y</span><br />
+= y coordinate of the hypocenter (in m)</p>
+
+<p><span>nuc_z</span><br />
+= z coordinate of the hypocenter (in m)</p>
+
+<p><span>nuc_r</span><br />
+= the radius of time-weakening nucleation (in m)</p>
+
+<p><span>nuc_t0</span><br />
+= the cohesive time. The friction linearly decreases from static friction to dynamic friction during this time (in s)</p>
+
+<p><span>nuc_v</span><br />
+= the time-weakening nucleation speed (in m/s)</p>
+
+<p>input block sets the rate and state friction parameters of the fault:</p>
+
+<p>We refer to the well known rate and state friction formula: [\mu = f_0 + a* log(\frac{v}{v_0}) + b* log(\frac{v_0}{\theta L}))]</p>
+
+<p><span>V0</span><br />
+= constant background value of (V_0)</p>
+
+<p><span>f0</span><br />
+= constant background value of (f_0)</p>
+
+<p><span>a</span><br />
+= constant background value of (a)</p>
+
+<p><span>b</span><br />
+= constant background value of (b)</p>
+
+<p><span>L</span><br />
+= constant background value of (L)</p>
+
+<p><span>V_init</span><br />
+= constant background value of along strike right lateral slip rate at time 0</p>
+
+<p><span>theta_init</span><br />
+= constant background value of state variable (\theta) at time 0</p>
+
+<p><span>C</span><br />
+= constant background value of cohesion (in Pa)</p>
+
+<p><span>StateLaw</span><br />
+= 1 or 2. 1 for aging law , 2 for slip law with strong dynamic weakening.</p>
+
+<p><span>n**</span><br />
+= number of heterogeneous items for quantity **</p>
+
+<p>input blocks modify (overwrite) the value of a fault parameter by a heterogeneous spatial distribution:</p>
+
+<p>&amp;<strong>DIST2D</strong> shapeval=’(\mathtt{square})’, val, xc, yc, zc, l /</p>
+
+<p>(\;)sets a constant value (val) within a cube with center (xc,yc,zc) and edge size l.</p>
+
+<p>&amp;<strong>DIST2D</strong> shapeval=’(\mathtt{rectangle})’, val, xc, yc, zc, lx, ly, lz /</p>
+
+<p>(\;)sets a constant value (val) within a rectangular prism with center (xc,yc,zc) and edge sizes (lx,ly,lz).</p>
+
+<p>&amp;<strong>DIST2D</strong> shapeval=’(\mathtt{rectangle-taper})’, val, valh, xc, yc, zc, lx, ly, lz /</p>
+
+<p>(\;)sets a vertical linear gradient within a rectangular prism with center (xc,yc,zc) and edge sizes (lx,ly,lz). Values vary linearly as a function of vertical position z between value val at z = zc-lz/2 and value valh at z = zc+lz/2 .</p>
+
+<p>&amp;<strong>DIST2D</strong> shapeval=’(\mathtt{circular})’, val, xc, yc, zc, r /</p>
+
+<p>(\;)sets a constant value (val) within a sphere with center (xc,yc,zc) and radius r.</p>
+
+<p><span>00.00.0000</span></p>
+
+<p>Stations in the fault plane.</p>
+
+<p><strong>Line 1</strong> : number of stations.</p>
+
+<p><strong>Line 2 to end</strong>: 5 columns: X, Y, Z (-depth), station name, fault-id</p>
+
+<p>The fault-id identifies the fault that contains the station. It is the index of appearance in the faults list after line 2 of Par_file_faults</p>
+
+<p><span>00.00.0000</span></p>
+
+<p>Heterogeneous stresses and friction for linear slip weakening friction parameters are documented in page 10 of</p>
+
+<p><span>00.00.0000</span></p>
+
+<p>To activate this feature, in Par_file_faults name list &amp;<strong>RUPTURE_SWITCHES</strong>, set TPV16=.TRUE..</p>
+
+<p><span>00.00.0000</span></p>
+
+<p>Heterogeneous stresses and friction input for rate and state friction. To activate this feature, in Par_file_faults name list &amp;<strong>RUPTURE_SWITCHES</strong>, set RSF_HETE=.TRUE.. The format of <span><strong>DATA/rsf_hete_input_file.txt</strong></span> is as such, in the first line there are four integers that are sequentially documenting the number of divisions along strike, number of divisions along dip, cell size along strike , cell size along dip. Then the following N (N=NumberOfDivisionsAlongStrike * NumberOfDivisionsAlongDip) lines will document the stress and friction properties on the grid. There are a total of 13 columns.</p>
+
+<ol>
+  <li>
+    <p><span>Column1</span> = Along strike distance(m)</p>
+  </li>
+  <li>
+    <p><span>Column2</span> = Along dip distances(m) The distance should be negative for points at depth</p>
+  </li>
+  <li>
+    <p><span>Column3</span> = Normal stress(Pa)</p>
+  </li>
+  <li>
+    <p><span>Column4</span> = Horizontal right-lateral shear stress(Pa)</p>
+  </li>
+  <li>
+    <p><span>Column5</span> = Vertical up-dip shear stress(Pa)</p>
+  </li>
+  <li>
+    <p><span>Column6</span> = (V_0) value in RSF(m/s)</p>
+  </li>
+  <li>
+    <p><span>Column7</span> = (f_0) value in RSF</p>
+  </li>
+  <li>
+    <p><span>Column8</span> = a value in RSF</p>
+  </li>
+  <li>
+    <p><span>Column9</span> = b value in RSF</p>
+  </li>
+  <li>
+    <p><span>Column10</span> = L value in RSF</p>
+  </li>
+  <li>
+    <p><span>Column11</span> = Initial slip velocity(m/s)</p>
+  </li>
+  <li>
+    <p><span>Column12</span> = State variable (\theta)</p>
+  </li>
+  <li>
+    <p><span>Column13</span> = Cohesion(Pa)</p>
+  </li>
+</ol>
+
+<p>Note that the input grid file do not have to coincide with the mesh. For each fault node on the mesh, they will use the value from the nearest node on the input grid.</p>
+
+<h2 id="setting-the-kelvin-voigt-damping-parameter">Setting the Kelvin-Voigt Damping Parameter</h2>
+
+<p>The purpose of the Kelvin-Voigt viscosity in the dynamic fault solver is to damp spurious oscillations generated by the fault slip at frequencies that are too high to be resolved by the mesh. The viscosity (\mathtt{eta}) (in seconds) depends on the size of the elements on the fault. Here is how to set it:</p>
+
+<ol>
+  <li>
+    <p>Determine the average linear size of the elements on the fault plane, (\mathtt{h_fault}). Usually this value is prescribed by the user during mesh generation. Otherwise it can be found by inspection of the mesh inside the CUBIT GUI.</p>
+  </li>
+  <li>
+    <p>Use the Matlab function (\mathtt{utils/critical_timestep.m}) to compute
+(\mathtt{dtc_fault}=\mathtt{critical_timestep\left(c_{p},h_fault,ngll\right)}).
+This is the critical time step in an elastic medium for a hypothetical element of cubic shape with size equal to (\mathtt{h_fault}).</p>
+  </li>
+  <li>
+    <p>Set (\mathtt{eta}) in (\mathtt{Par_file_faults}) to (0.1 to 0.3)(\ensuremath{\times}\mathtt{dtc_fault}). A larger (\mathtt{eta}) damps high-frequencies more aggressively but it might also affect lower frequencies and rupture speed.</p>
+  </li>
+</ol>
+
+<p>Viscosity reduces numerical stability: the critical timestep in a simulation with Kelvin-Voigt damping needs to be smaller than that in a purely elastic simulation. Here is how to set the time step accordingly:</p>
+
+<ol>
+  <li>
+    <p>Run a test simulation without viscosity ((\mathtt{eta})=0 and only a few time steps)</p>
+  </li>
+  <li>
+    <p>Look for the maximum suggested time step in <code class="highlighter-rouge">OUTPUT_FILES/output_mesher.txt</code>. This is the critical timestep of a purely elastic simulation, (\mathtt{dtc_bulk}).</p>
+  </li>
+  <li>
+    <p>Reset the timestep of the simulation with a Kelvin-Voigt material to a value smaller than
+(\mathtt{dtc_kv}=\mathtt{eta}\left(\sqrt{1+\mathtt{dtc_bulk^{2}}/\mathtt{eta^{2}}}-1\right))</p>
+  </li>
+</ol>
+
+<p>Note that in general (\mathtt{dtc_bulk}) is smaller than (\mathtt{dtc_fault}), because elements off the fault might be smaller or more distorted than element faces on the fault.</p>
+
+<h2 id="output-files">Output Files</h2>
+
+<p>Several output files are saved in <code class="highlighter-rouge">OUTPUT_FILES/</code>:</p>
+
+<ol>
+  <li>
+    <p>Seismograms for each station on the fault plane given in <code class="highlighter-rouge">DATA/FAUL_STATIONS</code>. One output file is generated for each station, named after the station. The files are ascii and start with a header (22 lines long) followed by a data block with the following format, one line per time sample:</p>
+
+    <p>Column 1 = Time (s)</p>
+
+    <p>Column 2 = horizontal right-lateral slip (m)</p>
+
+    <p>Column 3 = horizontal right-lateral slip rate (m/s)</p>
+
+    <p>Column 4 = horizontal right-lateral shear stress (MPa)</p>
+
+    <p>Column 5 = vertical up-dip slip (m)</p>
+
+    <p>Column 6 = vertical up-dip slip rate (m/s)</p>
+
+    <p>Column 7 = vertical up-dip shear stress (MPa)</p>
+
+    <p>Column 8 = normal stress (MPa)</p>
+
+    <p>The stresses are relative to the footwall side of the fault (this convention controls their sign, but not their amplitude). Slip is defined as displacement of the hanging wall relative to the footwall.</p>
+  </li>
+  <li>
+    <p>Seismograms at stations in the bulk (out of the fault plane) given in <code class="highlighter-rouge">DATA/STATIONS</code>.</p>
+  </li>
+  <li>
+    <p>Rupture time files are named (\mathtt{Rupture_time_FAULT})-(\mathtt{id}). One file is generated for each fault. The files are ascii and start with a header (12 lines long) followed by a data block with the following format, one line per fault node:</p>
+
+    <p>Column 1 = horizontal coordinate, distance along strike (m)</p>
+
+    <p>Column 2 = vertical coordinate, distance down-dip (m)</p>
+
+    <p>Column 3 = rupture time (s)</p>
+  </li>
+  <li>
+    <p>Fault quantities (slip, slip rate, stresses, etc) at regular times are stored in binary data files called (\mathtt{Snapshot#it#.bin}), where #it# is the timestep number. These can be read in Matlab with the function (\mathtt{utils/FSEM3D_snapshot.m})</p>
+  </li>
+</ol>
+
+<h2 id="post-processing-and-visualization">Post-processing and Visualization</h2>
+
+<p>Some Matlab functions for post-processing and visualization are included in directory (\mathtt{utils}). The functions are internally documented (see their matlab help).</p>
+
+<p><code class="highlighter-rouge">FSEM3D_snapshot</code> reads a fault data snapshot</p>
+
+<p>The directories <code class="highlighter-rouge">EXAMPLES/*/post</code> contain additional Matlab scripts to generate figures specific to each example.</p>
+
+<hr />
+<blockquote>
+  <p>This documentation has been automatically generated by <a href="http://www.pandoc.org">pandoc</a>
+based on the User manual (LaTeX version) in folder doc/USER_MANUAL/
+(Mar 10, 2020)</p>
+</blockquote>
+
+
+    </section>
+
+    <section class="page-footer">
+      <footer class="site-footer">
+        
+          <span class="site-footer-owner"><a href="http://github.com/danielpeter/specfem3d">specfem3d</a> is maintained by <a href="http://github.com/danielpeter">danielpeter</a></span>
+        
+        <span class="site-footer-credits">generated by <a href="https://pages.github.com">GitHub Pages</a></span>
+      </footer>
+    </section>
+
+    
+  </body>
+</html>

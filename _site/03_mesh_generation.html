@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>SPECFEM3D_Cartesian</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#157878">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="/assets/css/style.css?v=e01eaeac25bebaede87fee4bc75f9f27dc55c330">
+  </head>
+  <body>
+    <section class="page-header">
+      <div class="parallax"><!-- parallax -->
+        <div class="parallax_layer parallax_layer_back">
+          <div class="img_background img1"></div>
+        </div>
+      <!-- </div> -->
+      <div class="parallax_layer parallax_layer_front">
+        <h1 class="project-name">SPECFEM3D_Cartesian</h1>
+        <h2 class="project-tagline">SPECFEM3D_Cartesian simulates acoustic (fluid), elastic (solid), coupled acoustic/elastic, poroelastic or seismic wave propagation in any type of conforming mesh of hexahedra (structured or not.)
+</h2>
+        
+          <a href="http://github.com/danielpeter/specfem3d" class="btn">View on GitHub</a>
+        
+        
+      </div><!-- end of parallax -->
+    </section>
+
+    <section class="main-content">
+      <p><strong>Table of Contents</strong></p>
+
+<ul>
+  <li><a href="#mesh-generation">Mesh Generation</a>
+    <ul>
+      <li><a href="#meshing-with-cubit">Meshing with <code class="highlighter-rouge">CUBIT</code></a>
+        <ul>
+          <li><a href="#creating-the-mesh-with-cubit">Creating the Mesh with CUBIT</a></li>
+          <li><a href="#exporting-the-mesh-with-run_cubit2specfem3dpy">Exporting the Mesh with <code class="highlighter-rouge">run_cubit2specfem3d.py</code></a></li>
+          <li><a href="#partitioning-the-mesh-with-xdecompose_mesh">Partitioning the Mesh with <code class="highlighter-rouge">xdecompose_mesh</code></a></li>
+        </ul>
+      </li>
+      <li><a href="#meshing-with-xmeshfem3d">Meshing with <code class="highlighter-rouge">xmeshfem3D</code></a></li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="mesh-generation">Mesh Generation</h1>
+
+<p>The first step in running a spectral-element simulation consists of constructing a high-quality mesh for the region under consideration. We provide two possibilities to do so: (1) relying on the external, hexahedral mesher CUBIT, or (2) using the provided, internal mesher <code class="highlighter-rouge">xmeshfem3D</code>. In the following, we explain these two approaches.</p>
+
+<h2 id="meshing-with-cubit">Meshing with <code class="highlighter-rouge">CUBIT</code></h2>
+
+<p>CUBIT is a meshing tool suite for the creation of finite-element meshes for arbitrarily shaped models. It has been developed and maintained at Sandia National Laboratories and can be purchased for a small academic institutional fee at <a href="http://cubit.sandia.gov">http://cubit.sandia.gov</a>. Our experience showed that using CUBIT greatly facilitates and speeds up the generation and preparation of hexahedral, conforming meshes for a variety of geophysical models with increasing complexity.</p>
+
+<p><img src="figures/mount-cubit.jpg" alt="Example of the graphical user interface of CUBIT. The hexahedral mesh shown in the main display consists of a hexahedral discretization of a single volume with topography.&lt;span data-label=&quot;fig:mount.cubit&quot;&gt;&lt;/span&gt;" /></p>
+<div class="figcaption" style="text-align:justify;font-size:80%"><span style="color:#9A9A9A">Figure: Example of the graphical user interface of CUBIT. The hexahedral mesh shown in the main display consists of a hexahedral discretization of a single volume with topography.<span data-label="fig:mount.cubit"></span></span></div>
+
+<p>The basic steps in creating a load-balanced, partitioned mesh with CUBIT are:</p>
+
+<p><span>1.</span><br />
+setting up a hexahedral mesh with CUBIT,</p>
+
+<p><span>2.</span><br />
+exporting the CUBIT mesh into a SPECFEM3D Cartesian file format and</p>
+
+<p><span>3.</span><br />
+partitioning the SPECFEM3D Cartesian mesh files for a chosen number of cores.</p>
+
+<p>Examples are provided in the SPECFEM3D Cartesian package in the subdirectory <code class="highlighter-rouge">EXAMPLES/</code>. We strongly encourage you to contribute your own example to this package by contacting the CIG Computational Seismology Mailing List .</p>
+
+<h3 id="creating-the-mesh-with-cubit">Creating the Mesh with CUBIT</h3>
+
+<p>For the installation and handling of the CUBIT meshing tool suite, please refer to the CUBIT user manual and documentation. In order to give you a basic understanding of how to use CUBIT for our purposes, examples are provided in the SPECFEM3D Cartesian package in the subdirectory <code class="highlighter-rouge">EXAMPLES/</code>:</p>
+
+<p><span><code class="highlighter-rouge">homogeneous_halfspace</code></span><br />
+Creates a single block model and assigns elastic material parameters.</p>
+
+<p><span><code class="highlighter-rouge">layered_halfspace</code></span><br />
+Combines two different, elastic material volumes and creates a refinement layer between the two. This example can be compared for validation against the solutions provided in subdirectory
+<code class="highlighter-rouge">VALIDATION_3D_SEM_SIMPLER_LAYER_SOURCE_DEPTH/</code>.</p>
+
+<p><span><code class="highlighter-rouge">waterlayered_halfspace</code></span><br />
+Combines an acoustic and elastic material volume as in a schematic marine survey example.</p>
+
+<p><span><code class="highlighter-rouge">tomographic_model</code></span><br />
+Creates a single block model whose material properties will have to be read in from a tomographic model file during the databases creation by <code class="highlighter-rouge">xgenerate_databases</code>.</p>
+
+<p><img src="figures/example-homogeneous.jpg" alt="Screenshots of the CUBIT examples provided in subdirectory `EXAMPLES/`: homogeneous halfspace (top-left), layered halfspace (top-right), water layered halfspace (bottom-left) and tomographic model (bottom-right).&lt;span data-label=&quot;fig:examples.cubit&quot;&gt;&lt;/span&gt;" title="fig:" /> &lt;div class="figcaption" style="text-align:justify;font-size:80%"&gt;<span style="color:#9A9A9A">Figure: Screenshots of the CUBIT examples provided in subdirectory <code class="highlighter-rouge">EXAMPLES/</code>: homogeneous halfspace (top-left), layered halfspace (top-right), water layered halfspace (bottom-left) and tomographic model (bottom-right).<span data-label="fig:examples.cubit"></span></span>&lt;/div&gt; <img src="figures/example-2layers.jpg" alt="Screenshots of the CUBIT examples provided in subdirectory `EXAMPLES/`: homogeneous halfspace (top-left), layered halfspace (top-right), water layered halfspace (bottom-left) and tomographic model (bottom-right).&lt;span data-label=&quot;fig:examples.cubit&quot;&gt;&lt;/span&gt;" title="fig:" /></p>
+<div class="figcaption" style="text-align:justify;font-size:80%"><span style="color:#9A9A9A">Figure: Screenshots of the CUBIT examples provided in subdirectory `EXAMPLES/`: homogeneous halfspace (top-left), layered halfspace (top-right), water layered halfspace (bottom-left) and tomographic model (bottom-right).<span data-label="fig:examples.cubit"></span></span></div>
+<p><img src="figures/example-water.jpg" alt="Screenshots of the CUBIT examples provided in subdirectory `EXAMPLES/`: homogeneous halfspace (top-left), layered halfspace (top-right), water layered halfspace (bottom-left) and tomographic model (bottom-right).&lt;span data-label=&quot;fig:examples.cubit&quot;&gt;&lt;/span&gt;" title="fig:" /> &lt;div class="figcaption" style="text-align:justify;font-size:80%"&gt;<span style="color:#9A9A9A">Figure: Screenshots of the CUBIT examples provided in subdirectory <code class="highlighter-rouge">EXAMPLES/</code>: homogeneous halfspace (top-left), layered halfspace (top-right), water layered halfspace (bottom-left) and tomographic model (bottom-right).<span data-label="fig:examples.cubit"></span></span>&lt;/div&gt; <img src="figures/example-tomo.jpg" alt="Screenshots of the CUBIT examples provided in subdirectory `EXAMPLES/`: homogeneous halfspace (top-left), layered halfspace (top-right), water layered halfspace (bottom-left) and tomographic model (bottom-right).&lt;span data-label=&quot;fig:examples.cubit&quot;&gt;&lt;/span&gt;" title="fig:" /></p>
+<div class="figcaption" style="text-align:justify;font-size:80%"><span style="color:#9A9A9A">Figure: Screenshots of the CUBIT examples provided in subdirectory `EXAMPLES/`: homogeneous halfspace (top-left), layered halfspace (top-right), water layered halfspace (bottom-left) and tomographic model (bottom-right).<span data-label="fig:examples.cubit"></span></span></div>
+
+<p>In each example subdirectory you will find a <code class="highlighter-rouge">README</code> file, which explains in a step-by-step tutorial the workflow for the example. Please feel free to contribute your own example to this package by contacting the CIG Computational Seismology Mailing List .</p>
+
+<p>In some cases, to re-create the meshes for the examples given, just type</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>claro ./create_mesh.py
+</code></pre>
+</div>
+
+<p>or similar from the command line (<code class="highlighter-rouge">claro</code> is the command to run CUBIT from the command line).</p>
+
+<p><span><em>IMPORTANT:</em></span> In order to correctly set up GEOCUBIT and run the examples, please read the file called <code class="highlighter-rouge">EXAMPLES/README</code>; in particular, please make sure you correctly set up the Python paths as indicated in that file.</p>
+
+<p>Concerning the script <code class="highlighter-rouge">create_mesh.py</code>, you may find the option <code class="highlighter-rouge">use_explicit</code> which chooses how to assign the material properties for the volume (or domain):</p>
+
+<ul>
+  <li>
+    <p>one way is to explicitly assign block attributes to the block of the corresponding volume, by commands like:</p>
+
+    <div class="highlighter-rouge"><pre class="highlight"><code>cubit.cmd('block '+str(id_block)+' attribute index 2 2800') # vp
+</code></pre>
+    </div>
+
+    <p>This is done when using <code class="highlighter-rouge">use_explicit = 1</code> in the script. The final command:</p>
+
+    <div class="highlighter-rouge"><pre class="highlight"><code>cubit2specfem3d.export2SPECFEM3D('MESH/')
+</code></pre>
+    </div>
+
+    <p>will then create the corresponding <code class="highlighter-rouge">MESH/nummaterial_velocity_file</code> for all such defined block volumes/domains.</p>
+  </li>
+  <li>
+    <p>the other option with <code class="highlighter-rouge">use_explicit = 0</code> is to let GEOCUBIT deal with a dummy entry and then overwrite the <code class="highlighter-rouge">nummaterial_velocity_file</code> at the end with a corresponding command section:</p>
+
+    <div class="highlighter-rouge"><pre class="highlight"><code>f = open(nummaterial_velocity_file,'w')
+</code></pre>
+    </div>
+
+    <p>This second way is chosen by default because GEOCUBIT can handle partitions for several processes and glues everything together automatically. Thus, it adds some more sophistication when the model gets more complicated than just this single volume example.</p>
+  </li>
+</ul>
+
+<p>You will find out by experimenting what is easier for your case.</p>
+
+<h3 id="exporting-the-mesh-with-run_cubit2specfem3dpy">Exporting the Mesh with <code class="highlighter-rouge">run_cubit2specfem3d.py</code></h3>
+
+<p>Once the geometric model volumes in CUBIT are meshed, you prepare the model for exportation with the definition of material blocks and boundary surfaces. Thus, prior to exporting the mesh, you need to define blocks specifying the materials and absorbing boundaries in CUBIT. This process could be done automatically using the script <code class="highlighter-rouge">run_cubit2specfem3d.py</code> if the mesh meets some conditions or manually, following the block convention:</p>
+
+<p><span>material_name</span><br />
+Each material should have a specific block defined by a unique name. The name convention of the material is to start with either <strong>’elastic’</strong> or <strong>’acoustic’</strong>. It must be then followed by a unique identifier, e.g. <strong>’elastic 1’</strong>, <strong>’elastic 2’</strong>, etc. The additional attributes to the block define the material description.</p>
+
+<p>For an elastic material:</p>
+
+<p><span>material_id</span><br />
+An integer value which is unique for this material.</p>
+
+<p><span>Vp</span><br />
+P-wave speed of the material (given in m/s).</p>
+
+<p><span>Vs</span><br />
+S-wave speed of the material (given in m/s).</p>
+
+<p><span>rho</span><br />
+density of the material (given in kg/m(^{3})).</p>
+
+<p><span>Q</span><br />
+quality factor to use in case of a simulation with attenuation turned on. It should be between 1 and 9000. In case no attenuation information is available, it can be set to zero. You can either specify a single Q value, in which case it will be assumed to be pure shear attenuation (Q_{\mu}), or two separate values for bulk and shear attenuation, (Q_{\kappa}) and (Q_{\mu}) respectively. Note that Qmu is always equal to Qs, but Qkappa is in general not equal to Qp. To convert one to the other see doc/note_on_Qkappa_versus_Qp.pdf and utils/attenuation/conversion_from_Qkappa_Qmu_to_Qp_Qs_from_Dahlen_Tromp_959_960.f90.</p>
+
+<p>Please note that your Vp- and Vs-speeds are given for a reference frequency. To change this reference frequency, you change the value of <code class="highlighter-rouge">ATTENUATION_f0_REFERENCE</code> in the main constants file <code class="highlighter-rouge">constants.h</code> found in subdirectory <code class="highlighter-rouge">src/shared/</code>. The code uses a constant (Q) quality factor, write(IMAIN,*) “but approximated based on a series of Zener standard linear solids (SLS). The approximation is thus performed in a given frequency band determined based on that <code class="highlighter-rouge">ATTENUATION_f0_REFERENCE</code> reference frequency.</p>
+
+<p><span>anisotropic_flag</span><br />
+Flag describing the anisotropic model to use in case an anisotropic simulation should be conducted. See the file <code class="highlighter-rouge">model_aniso.f90</code> in subdirectory <code class="highlighter-rouge">src/generate_databases/</code> for an implementation of the anisotropic models. In case no anisotropy is available, it can be set to zero.</p>
+
+<p>Note that this material block has to be defined using all the volumes which belong to this elastic material. For volumes belonging to another, different material, you will need to define a new material block.</p>
+
+<p>For an acoustic material:</p>
+
+<p><span>material_id</span><br />
+An integer value which is unique for this material.</p>
+
+<p><span>Vp</span><br />
+P-wave speed of the material (given in m/s).</p>
+
+<p><span>0</span><br />
+S-wave speed of the material is ignored.</p>
+
+<p><span>rho</span><br />
+density of the material (given in kg/m(^{3})).</p>
+
+<p><span>face_topo</span><br />
+Block definition for the surface which defines the free surface (which can have topography). The name of this block must be ’face_topo’, the block has to be defined using all the surfaces which constitute the complete free surface of the model.</p>
+
+<p><span>face_abs_xmin</span><br />
+Block definition for the faces on the absorbing boundaries, one block for each surface with x=Xmin.</p>
+
+<p><span>face_abs_xmax</span><br />
+Block definition for the faces on the absorbing boundaries, one block for each surface with x=Xmax.</p>
+
+<p><span>face_abs_ymin</span><br />
+Block definition for the faces on the absorbing boundaries, one block for each surface with y=Ymin.</p>
+
+<p><span>face_abs_ymax</span><br />
+Block definition for the faces on the absorbing boundaries, one block for each surface with y=Ymax.</p>
+
+<p><span>face_abs_bottom</span><br />
+Block definition for the faces on the absorbing boundaries, one block for each surface with z=bottom.</p>
+
+<p><img src="figures/mount-surface.jpg" alt="Example of the block definitions for the free surface ’face_topo’ (left) and the absorbing boundaries, defined in a single block ’face_abs_xmin’ (right) in CUBIT.&lt;span data-label=&quot;fig:mount.abs&quot;&gt;&lt;/span&gt;" title="fig:" /> &lt;div class="figcaption" style="text-align:justify;font-size:80%"&gt;<span style="color:#9A9A9A">Figure: Example of the block definitions for the free surface ’face_topo’ (left) and the absorbing boundaries, defined in a single block ’face_abs_xmin’ (right) in CUBIT.<span data-label="fig:mount.abs"></span></span>&lt;/div&gt; <img src="figures/mount-abs.jpg" alt="Example of the block definitions for the free surface ’face_topo’ (left) and the absorbing boundaries, defined in a single block ’face_abs_xmin’ (right) in CUBIT.&lt;span data-label=&quot;fig:mount.abs&quot;&gt;&lt;/span&gt;" title="fig:" /></p>
+<div class="figcaption" style="text-align:justify;font-size:80%"><span style="color:#9A9A9A">Figure: Example of the block definitions for the free surface ’face\_topo’ (left) and the absorbing boundaries, defined in a single block ’face\_abs\_xmin’ (right) in CUBIT.<span data-label="fig:mount.abs"></span></span></div>
+
+<p>Optionally, instead of specifying for each surface at the boundaries a single block like mentioned above, you can also specify a single block for all boundary surfaces and name it as one of the absorbing blocks above, e.g. ’face_abs_xmin’.</p>
+
+<p>After the block definitions are done, you export the mesh using the script <code class="highlighter-rouge">cubit2specfem3d.py</code> provided in each of the example directories (linked to the common script <code class="highlighter-rouge">CUBIT_GEOCUBIT/cubit2specfem3d.py</code>). If the export was successful, you should find the following files in a subdirectory <code class="highlighter-rouge">MESH/</code>:</p>
+
+<p><span>absorbing_cpml_file</span><br />
+<strong>(only needed in case of C-PML absorbing conditions)</strong> Contains on the first line the total number of C-PML spectral elements in the mesh, and then on the following line the list of all these C-PML elements with two numbers per line: first the spectral element number, and then a C-PML flag indicating to which C-PML layer(s) that element belongs, according to the following convention:</p>
+
+<ul>
+  <li>
+    <p>Flag = 1 : element belongs to a X CPML layer only (either in Xmin or in Xmax),</p>
+  </li>
+  <li>
+    <p>Flag = 2 : element belongs to a Y CPML layer only (either in Ymin or in Ymax),</p>
+  </li>
+  <li>
+    <p>Flag = 3 : element belongs to a Z CPML layer only (either in Zmin or in Zmax),</p>
+  </li>
+  <li>
+    <p>Flag = 4 : element belongs to a X CPML layer and also to a Y CPML layer,</p>
+  </li>
+  <li>
+    <p>Flag = 5 : element belongs to a X CPML layer and also to a Z CPML layer,</p>
+  </li>
+  <li>
+    <p>Flag = 6 : element belongs to a Y CPML layer and also to a Z CPML layer,</p>
+  </li>
+  <li>
+    <p>Flag = 7 : element belongs to a X, to a Y and to a Z CPML layer, i.e., it belongs to a CPML corner.</p>
+  </li>
+</ul>
+
+<p>Note that it does not matter whether an element belongs to a Xmin or to a Xmax CPML, the flag is the same in both cases; the same is true for Ymin and Ymax, and also Zmin and Zmax.</p>
+
+<p>When you have an existing CUBIT (or similar) mesh stored in SPECFEM3D format, i.e., if you have existing <code class="highlighter-rouge">nodes_coords_file</code> and <code class="highlighter-rouge">mesh_file</code> files but do not know how to assign CPML flags to them, we have created a small serial Fortran program that will do that automatically for you, i.e., which will create the <code class="highlighter-rouge">absorbing_cpml_file</code> for you. That program is:
+<code class="highlighter-rouge">utils/CPML/convert_external_layers_of_a_given_mesh_to_CPML_layers.f90</code>,
+and a small Makefile is provided in that directory (utils/CPML).</p>
+
+<p>IMPORTANT: it is your responsibility to make sure that in the input CUBIT (or similar) mesh that this code will read in SPECFEM3D format from files <code class="highlighter-rouge">nodes_coords_file</code> and <code class="highlighter-rouge">mesh_file</code> you have created layers of elements that constitute a layer of constant thickness aligned with the coordinate grid axes (X, Y and/or Z), so that this code can assign CPML flags to them. This code does NOT check that (because it cannot, in any easy way). The mesh inside these CPML layers does not need to be structured nor regular, any non-structured mesh is fine as long as it has flat PML inner and outer faces, parallel to the axes, and thus of a constant thickness. The thickness can be different for the X, Y and Z sides. But for X it must not vary, for Y it must not vary, and for Z it must not vary. If you do not know the exact thickness, you can use a slightly LARGER value in this code (say 2% to 5% more) and this code will fix that and will adjust it; never use a SMALLER value otherwise this code will miss some CPML elements.</p>
+
+<p>Note: in a future release we will remove the constraint of having CPML layers aligned with the coordinate axes; we will allow for meshes that are titled by any constant angle in the horizontal plane. However this is not implemented yet.</p>
+
+<p>Note: in the case of fluid-solid layers in contact, the fluid-solid interface currently needs to be flat and horizontal inside the CPML layer (i.e., bathymetry should become flat and horizontal when entering the CPML); this (small) constraint will probably remain in the code for a while because it makes fluid-solid matching inside the CPML much easier.</p>
+
+<p><span>materials_file</span><br />
+Contains the material associations for each element. The format is:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>element_ID material_ID
+</code></pre>
+</div>
+
+<p>where <code class="highlighter-rouge">element_ID</code> is the element identifier and <code class="highlighter-rouge">material_ID</code> is a unique identifier, positive (for materials taken from this list of materials, i.e. for which each spectral element has constant material properties taken from this list) or negative (for tomographic models, i.e. for spectral element whose real velocities and density will be assigned later by calling an external function to define model variations, for instance in the case of tomographic models; in such a case, material properties can vary inside each spectral element, i.e. be different at each of its Gauss-Lobatto-Legendre grid points).</p>
+
+<p><span>nummaterial_velocity_file</span><br />
+Defines the material properties.</p>
+
+<ul>
+  <li>
+    <p>For classical materials (i.e., spectral elements for which the velocity and density model will not be assigned by calling an external function to define for instance a tomographic model), the format is:</p>
+
+    <div class="highlighter-rouge"><pre class="highlight"><code>domain_ID material_ID rho vp vs Qkappa Qmu anisotropy_flag
+</code></pre>
+    </div>
+
+    <p>where <code class="highlighter-rouge">domain_ID</code> <strong>is 1 for acoustic and 2 for elastic or viscoelastic materials,</strong> <code class="highlighter-rouge">material_ID</code> a unique identifier, <code class="highlighter-rouge">rho</code> the density in (kg\, m^{-3}), <code class="highlighter-rouge">vp</code> the P-wave speed in (m\, s^{-1}), <code class="highlighter-rouge">vs</code> the S-wave speed in (m\, s^{-1}), <code class="highlighter-rouge">Q</code> the quality factor and <code class="highlighter-rouge">anisotropy_flag</code> an identifier for anisotropic models. Note that both <code class="highlighter-rouge">Qkappa</code> and <code class="highlighter-rouge">Qmu</code> are ignored by the code unless <code class="highlighter-rouge">ATTENUATION</code> is set. If you want a model with no <code class="highlighter-rouge">Qmu</code> attenuation, both set <code class="highlighter-rouge">ATTENUATION</code> to <code class="highlighter-rouge">.false.</code> in the <code class="highlighter-rouge">Par_file</code> and set <code class="highlighter-rouge">Qmu</code> to 9999 here. If you want a model with no <code class="highlighter-rouge">Qkappa</code> attenuation, set <code class="highlighter-rouge">Qkappa</code> to 9999 here. Note that Qmu is always equal to Qs, but Qkappa is in general not equal to Qp. To convert one to the other see doc/note_on_Qkappa_versus_Qp.pdf and utils/attenuation/conversion_from_Qkappa_Qmu_to_Qp_Qs_from_Dahlen_Tromp_959_960.f90.</p>
+  </li>
+  <li>
+    <p>For tomographic velocity models, please read Chapter [cha:-Changing-the] and Section [sec:Using-tomographic] ‘Using external tomographic Earth models’ for further details.</p>
+  </li>
+</ul>
+
+<p><span>nodes_coords_file</span><br />
+Contains the point locations in Cartesian coordinates of the mesh element corners.</p>
+
+<p><span>mesh_file</span><br />
+Contains the mesh element connectivity. The hexahedral elements can have 8 or 27 nodes.
+See picture doc/mesh_numbering_convention/numbering_convention_27_nodes.jpg to see
+in which (standard) order the points must be cited. In the case of 8 nodes, just include the first 8 points.</p>
+
+<p><span>free_or_absorbing_surface_file_zmax</span><br />
+Contains the free surface connectivity or
+the surface connectivity of the absorbing boundary surface at the top (Zmax),
+depending on whether the top surface is defined as free or absorbing (<code class="highlighter-rouge">STACEY_INSTEAD_OF_FREE_SURFACE</code> in <code class="highlighter-rouge">DATA/Par_file</code>).
+You should put both the surface of acoustic regions and of elastic regions in that file; that is, list all the element faces that constitute the surface of the model in that file.</p>
+
+<p><span>absorbing_surface_file_xmax</span><br />
+Contains the surface connectivity of the absorbing boundary surface at Xmax
+(also needed in the case of C-PML absorbing conditions, in order for the code to be able to impose Dirichlet conditions on their outer edge).</p>
+
+<p><span>absorbing_surface_file_xmin</span><br />
+Contains the surface connectivity of the absorbing boundary surface at Xmin
+(also needed in the case of C-PML absorbing conditions, in order for the code to be able to impose Dirichlet conditions on their outer edge).</p>
+
+<p><span>absorbing_surface_file_ymax</span><br />
+Contains the surface connectivity of the absorbing boundary surface at Ymax
+(also needed in the case of C-PML absorbing conditions, in order for the code to be able to impose Dirichlet conditions on their outer edge).</p>
+
+<p><span>absorbing_surface_file_ymin</span><br />
+Contains the surface connectivity of the absorbing boundary surface at Ymin
+(also needed in the case of C-PML absorbing conditions, in order for the code to be able to impose Dirichlet conditions on their outer edge).</p>
+
+<p><span>absorbing_surface_file_bottom</span><br />
+Contains the surface connectivity of the absorbing boundary surface at the bottom (Zmin)
+(also needed in the case of C-PML absorbing conditions, in order for the code to be able to impose Dirichlet conditions on their outer edge).</p>
+
+<p>These mesh files are needed as input files for the partitioner <code class="highlighter-rouge">xdecompose_mesh</code> to load-balance the mesh. Please see the next section for further details.</p>
+
+<p>In directory “CUBIT_GEOCUBIT/” we provide a script that can help doing the above tasks of exporting a CUBIT mesh to SPECFEM3D format automatically for you: “run_cubit2specfem3d.py”. Just edit them to indicate the path to your local installation of CUBIT and also the name of the *.cub existing CUBIT mesh file that you want to export to SPECFEM3D format. These scripts will do the conversion for you automatically except assigning material properties to the different mesh layers. To do so, you will then need to edit the file called “nummaterial_velocity_file” that will have just been created and change it from the prototype created:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>0 1 vol1 --&gt; syntax: #material_domain_id #material_id #rho #vp #vs #Q_kappa #Q_mu #anisotropy
+0 2 vol2 --&gt; syntax: #material_domain_id #material_id #rho #vp #vs #Q_kappa #Q_mu #anisotropy
+</code></pre>
+</div>
+
+<p>(where “vol1” and “vol2” here represent the volume labels that you have set while creating the mesh in CUBIT) to for instance</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>2 1 1500 2300 1800 9999.0 9999.0 0
+2 2 1600 2500 20000 9999.0 9999.0 0
+</code></pre>
+</div>
+
+<h4 id="checking-the-mesh-quality">Checking the mesh quality</h4>
+
+<p>The quality of the mesh may be inspected more precisely based upon the serial code in the file <code class="highlighter-rouge">check_mesh_quality_</code>
+<code class="highlighter-rouge">CUBIT_Abaqus.f90</code> located in the directory <code class="highlighter-rouge">src/check_mesh_quality_CUBIT_Abaqus/</code>. Running this code is optional because no information needed by the solver is generated.</p>
+
+<p>Prior to running and compiling this code, you have to export your mesh in CUBIT to an ABAQUS (.inp) format. For example, export mesh block IDs belonging to volumes in order to check the quality of the hexahedral elements. You also have to determine a number of parameters of your mesh, such as the number of nodes and number of elements and modify the header of the <code class="highlighter-rouge">check_mesh_quality_CUBIT_Abaqus.f90</code> source file in directory <code class="highlighter-rouge">src/check_mesh_quality_CUBIT_Abaqus/</code>.</p>
+
+<p>Then, in the main directory, type</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>make xcheck_mesh_quality
+</code></pre>
+</div>
+
+<p>and use</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>./bin/xcheck_mesh_quality
+</code></pre>
+</div>
+
+<p>to generate an OpenDX output file (<code class="highlighter-rouge">DX_mesh_quality.dx</code><span>) that can be used to investigate mesh quality, e.g. skewness of elements, and a Gnuplot histogram (</span><code class="highlighter-rouge">mesh_quality_histogram.txt</code><span>) that can be plotted with gnuplot (type `</span><code class="highlighter-rouge">gnuplot plot_mesh_quality_histogram.gnu</code><span>’). The histogram is also printed to the screen. Analyze that skewness histogram of mesh elements to make sure no element has a skewness above approximately 0.75, otherwise the mesh is of poor quality (and if even a single element has a skewness value above 0.80, then you must definitely improve the mesh). If you want to start designing your own meshes, this tool is useful for viewing your creations. You are striving for meshes with elements with ‘cube-like’ dimensions, e.g., the mesh should contain no very elongated or skewed elements.</span></p>
+
+<h3 id="partitioning-the-mesh-with-xdecompose_mesh">Partitioning the Mesh with <code class="highlighter-rouge">xdecompose_mesh</code></h3>
+
+<p>The SPECFEM3D Cartesian software package performs large scale simulations in a parallel ’Single Process Multiple Data’ way. The spectral-element mesh created with CUBIT needs to be distributed on the processors. This partitioning is executed once and for all prior to the execution of the solver so it is referred to as a static mapping.</p>
+
+<p>An efficient partitioning is important because it leverages the overall running time of the application. It amounts to balance the number of elements in each slice while minimizing the communication costs resulting from the placement of adjacent elements on different processors. <code class="highlighter-rouge">decompose_mesh</code> depends on the SCOTCH library (Pellegrini and Roman 1996), which provides efficient static mapping, graph and mesh partitioning routines. SCOTCH is a free software package developed by François Pellegrini et al. from LaBRI and INRIA in Bordeaux, France, downloadable from the web page <a href="https://gforge.inria.fr/projects/scotch/">https://gforge.inria.fr/projects/scotch/</a>.</p>
+
+<p>In most cases, the configuration with <code class="highlighter-rouge">./configure FC=ifort</code> should be sufficient. During the configuration process, the script tries to find existing SCOTCH installations. In case your system has no pre-existing SCOTCH installation, we provide the source code of SCOTCH, which is released open source under the French CeCILL-C version 1 license, in directory <code class="highlighter-rouge">src/decompose_mesh/scotch_5.1.12b</code>. This version gets bundled with the compilation of the SPECFEM3D Cartesian package if no libraries could have been found. If this automatic compilation of the SCOTCH libraries fails, please refer to file INSTALL.txt in that directory to see further details how to compile it on your system. In case you want to use a pre-existing installation, make sure you have correctly specified the path of the SCOTCH library when using the option <code class="highlighter-rouge">--with-scotch-dir</code> with the <code class="highlighter-rouge">./configure</code> script. In the future you should be able to find more recent versions at <a href="http://www.labri.fr/perso/pelegrin/scotch/scotch_en.html">http://www.labri.fr/perso/pelegrin/scotch/scotch_en.html</a>.</p>
+
+<p><img src="figures/mount-partitions.jpg" alt="Example of a mesh partitioning onto four cores. Each single core partition is colored differently. The executable `xdecompose_mesh` can equally distribute the mesh on any arbitrary number of cores. Domain decomposition is explained in detail in Martin et al. (2008), and excellent scaling up to 150,000 processor cores in shown for instance in Carrington et al. (2008; Komatitsch, Labarta, and Michéa 2008; Martin et al. 2008; Komatitsch et al. 2010; Komatitsch 2011).&lt;span data-label=&quot;fig:mount.partitions&quot;&gt;&lt;/span&gt;" title="fig:" /> &lt;div class="figcaption" style="text-align:justify;font-size:80%"&gt;<span style="color:#9A9A9A">Figure: Example of a mesh partitioning onto four cores. Each single core partition is colored differently. The executable <code class="highlighter-rouge">xdecompose_mesh</code> can equally distribute the mesh on any arbitrary number of cores. Domain decomposition is explained in detail in Martin et al. (2008), and excellent scaling up to 150,000 processor cores in shown for instance in Carrington et al. (2008; Komatitsch, Labarta, and Michéa 2008; Martin et al. 2008; Komatitsch et al. 2010; Komatitsch 2011).<span data-label="fig:mount.partitions"></span></span>&lt;/div&gt; <img src="figures/mount-partitions2.jpg" alt="Example of a mesh partitioning onto four cores. Each single core partition is colored differently. The executable `xdecompose_mesh` can equally distribute the mesh on any arbitrary number of cores. Domain decomposition is explained in detail in Martin et al. (2008), and excellent scaling up to 150,000 processor cores in shown for instance in Carrington et al. (2008; Komatitsch, Labarta, and Michéa 2008; Martin et al. 2008; Komatitsch et al. 2010; Komatitsch 2011).&lt;span data-label=&quot;fig:mount.partitions&quot;&gt;&lt;/span&gt;" title="fig:" /></p>
+<div class="figcaption" style="text-align:justify;font-size:80%"><span style="color:#9A9A9A">Figure: Example of a mesh partitioning onto four cores. Each single core partition is colored differently. The executable `xdecompose_mesh` can equally distribute the mesh on any arbitrary number of cores. Domain decomposition is explained in detail in Martin et al. (2008), and excellent scaling up to 150,000 processor cores in shown for instance in Carrington et al. (2008; Komatitsch, Labarta, and Michéa 2008; Martin et al. 2008; Komatitsch et al. 2010; Komatitsch 2011).<span data-label="fig:mount.partitions"></span></span></div>
+
+<p>When you are ready to compile, in the main directory type</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>make xdecompose_mesh
+</code></pre>
+</div>
+
+<p>If all paths and flags have been set correctly, the executable <code class="highlighter-rouge">bin/xdecompose_mesh</code> should be produced.</p>
+
+<p>The partitioning is done in serial for now (in the next release we will provide a parallel version of that code). It needs to be run in the main directory because it expects the <code class="highlighter-rouge">./DATA/Par_file</code>. The synopsis is:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>./bin/xdecompose_mesh nparts input_directory output_directory
+</code></pre>
+</div>
+
+<p>where</p>
+
+<ul>
+  <li>
+    <p><code class="highlighter-rouge">nparts</code> is the number of partitions, i.e., the number of cores for the parallel simulations,</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">input_directory</code> is the directory which holds all the files generated by the Python script <code class="highlighter-rouge">cubit2specfem3d.py</code> explained in the previous Section [subsec:Exporting-the-Mesh], e.g. <code class="highlighter-rouge">./MESH/</code>, and</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">output_directory</code> is the directory for the output of this partitioner which stores ACII-format files named like <code class="highlighter-rouge">proc******_Database</code> for each partition. These files will be needed for creating the distributed databases, and have to reside in the directory <code class="highlighter-rouge">LOCAL_PATH</code> specified in the main <code class="highlighter-rouge">Par_file</code>, e.g. in directory <code class="highlighter-rouge">./OUTPUT_FILES/DATABASES_MPI</code>. Please see Chapter [cha:Creating-Distributed-Databases] for further details.</p>
+  </li>
+</ul>
+
+<p>Note that all the files generated by the Python script <code class="highlighter-rouge">cubit2specfem3d.py</code> must be placed in the <code class="highlighter-rouge">input_directory</code> folder before running the program.</p>
+
+<h2 id="meshing-with-xmeshfem3d">Meshing with <code class="highlighter-rouge">xmeshfem3D</code></h2>
+
+<p>In case you successfully ran the configuration script, you are also ready to compile the internal mesher. This is an alternative to CUBIT for the mesh generation of relatively simple models.</p>
+
+<p><img src="figures/socal_map_mpi.pdf" alt="For parallel computing purposes, the model block is subdivided in (\nprocxi\times\nproceta) slices of elements. In this example we use (5^{2}=25) processors. &lt;span data-label=&quot;fig:For-parallel-computing&quot;&gt;&lt;/span&gt;" /></p>
+<div class="figcaption" style="text-align:justify;font-size:80%"><span style="color:#9A9A9A">Figure: For parallel computing purposes, the model block is subdivided in \(\nprocxi\times\nproceta\) slices of elements. In this example we use \(5^{2}=25\) processors. <span data-label="fig:For-parallel-computing"></span></span></div>
+
+<p>In the main directory, type</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>make xmeshfem3D
+</code></pre>
+</div>
+
+<p>If all paths and flags have been set correctly, the mesher should now compile and produce the executable <code class="highlighter-rouge">bin/xmeshfem3D</code>. Please note that <code class="highlighter-rouge">xmeshfem3D</code> must be called directly from the main directory, as most of the binaries of the package.</p>
+
+<p>Input for the mesh generation program is provided through the parameter file <code class="highlighter-rouge">Mesh_Par_file</code>, which resides in the subdirectory <code class="highlighter-rouge">DATA/meshfem3D_files/</code>. (to see how to use it, see the EXAMPLES specific to the internal mesher in directory <code class="highlighter-rouge">EXAMPLES/meshfem3D_examples/</code>. Before running the mesher, a number of parameters need to be set in the <code class="highlighter-rouge">Mesh_Par_file</code>. This requires a basic understanding of how the SEM is implemented, and we encourage you to read D. Komatitsch and Vilotte (1998; D. Komatitsch and Tromp 1999) and Komatitsch et al. (2004).</p>
+
+<p>The mesher and the solver use UTM coordinates internally, therefore you need to define the zone number for the UTM projection (e.g., zone 11 for Los Angeles). Use decimal values for latitude and longitude (no minutes/seconds). These values are approximate; the mesher will round them off to define a square mesh in UTM coordinates. When running benchmarks on rectangular models, turn the UTM projection off by using the flag <code class="highlighter-rouge">SUPPRESS_UTM_PROJECTION</code>, in which case all ‘longitude’ parameters simply refer to the (x) axis, and all ‘latitude’ parameters simply refer to the (y) axis. To run the mesher for a global simulation, the following parameters need to be set in the <code class="highlighter-rouge">Mesh_Par_file</code>:</p>
+
+<p><span><code class="highlighter-rouge">LATITUDE_MIN</code></span><br />
+Minimum latitude in the block (negative for South).</p>
+
+<p><span><code class="highlighter-rouge">LATITUDE_MAX</code></span><br />
+Maximum latitude in the block.</p>
+
+<p><span><code class="highlighter-rouge">LONGITUDE_MIN</code></span><br />
+Minimum longitude in the block (negative for West).</p>
+
+<p><span><code class="highlighter-rouge">LONGITUDE_MAX</code></span><br />
+Maximum longitude in the block.</p>
+
+<p><span><code class="highlighter-rouge">DEPTH_BLOCK_KM</code></span><br />
+Depth of bottom of mesh in kilometers.</p>
+
+<p><span><code class="highlighter-rouge">UTM_PROJECTION_ZONE</code></span><br />
+UTM projection zone in which your model resides, only valid when <code class="highlighter-rouge">SUPPRESS_UTM_PROJECTION</code> is <code class="highlighter-rouge">.false.</code>. Use a negative zone number for the Southern hemisphere: the Northern hemisphere corresponds to zones +1 to +60, the Southern hemisphere to zones -1 to -60.</p>
+
+<p>We use the WGS84 (World Geodetic System 1984) reference ellipsoid for the UTM projection. If you prefer to use the Clarke 1866 ellipsoid, edit file <code class="highlighter-rouge">src/shared/utm_geo.f90</code>, uncomment that ellipsoid and recompile the code.</p>
+
+<p>From <a href="http://en.wikipedia.org/wiki/Universal_Transverse_Mercator_coordinate_system">http://en.wikipedia.org/wiki/Universal_Transverse_Mercator_coordinate_system</a>:
+The Universal Transverse Mercator coordinate system was developed by the United States Army Corps of Engineers in the 1940s. The system was based on an ellipsoidal model of Earth. For areas within the contiguous United States the Clarke Ellipsoid of 1866 was used. For the remaining areas of Earth, including Hawaii, the International Ellipsoid was used. The WGS84 ellipsoid is now generally used to model the Earth in the UTM coordinate system, which means that current UTM northing at a given point can be 200+ meters different from the old one. For different geographic regions, other datum systems (e.g.: ED50, NAD83) can be used.</p>
+
+<p><span><code class="highlighter-rouge">SUPPRESS_UTM_PROJECTION</code></span><br />
+set to be <code class="highlighter-rouge">.false.</code> when your model range is specified in geographical coordinates, and needs to be <code class="highlighter-rouge">.true.</code> when your model is specified in Cartesian coordinates.</p>
+
+<p><span><code class="highlighter-rouge">INTERFACES_FILE </code></span><br />
+File which contains the description of the topography and of the interfaces between the different layers of the model, if any. The number of spectral elements in the vertical direction within each layer is also defined in this file.</p>
+
+<p><span><code class="highlighter-rouge">NEX_XI</code></span><br />
+The number of spectral elements along one side of the block. This number <em>must</em> be 8 (\times) a multiple of (\nprocxi) defined below. Based upon benchmarks against semi-analytical discrete wavenumber synthetic seismograms (Komatitsch et al. 2004), determined that a (\nexxi=288) run is accurate to a shortest period of roughly 2 s. Therefore, since accuracy is determined by the number of grid points per shortest wavelength, for any particular value of (\nexxi) the simulation will be accurate to a shortest period determined by [\mbox{shortest period (s)}=(288/\nexxi)\times2.\label{eq:shortest_period}] The number of grid points in each orthogonal direction of the reference element, i.e., the number of Gauss-Lobatto-Legendre points, is determined by <code class="highlighter-rouge">NGLLX</code> in the <code class="highlighter-rouge">constants.h</code> file. We generally use (\mbox{\texttt{NGLLX\/}}=5), for a total of (5^{3}=125) points per elements. We suggest not to change this value.</p>
+
+<p><span><code class="highlighter-rouge">NEX_ETA</code></span><br />
+The number of spectral elements along the other side of the block. This number <em>must</em> be 8 (\times) a multiple of (\nproceta) defined below.</p>
+
+<p><span><code class="highlighter-rouge">NPROC_XI</code></span><br />
+The number of processors or slices along one side of the block (see Figure [fig:For-parallel-computing]); we must have (\nexxi=8\times c\times\nprocxi), where (c\ge1) is a positive integer.</p>
+
+<p><span><code class="highlighter-rouge">NPROC_ETA</code></span><br />
+The number of processors or slices along the other side of the block; we must have (\nexeta=8\times c\times\nproceta), where (c\ge1) is a positive integer.</p>
+
+<p><span><code class="highlighter-rouge">USE_REGULAR_MESH</code></span><br />
+set to be <code class="highlighter-rouge">.true.</code> if you want a perfectly regular mesh or <code class="highlighter-rouge">.false.</code> if you want to add doubling horizontal layers to coarsen the mesh. In this case, you also need to provide additional information by setting up the next three parameters.</p>
+
+<p><span><code class="highlighter-rouge">NDOUBLINGS</code></span><br />
+The number of horizontal doubling layers. Must be set at least to <code class="highlighter-rouge">1</code> if <code class="highlighter-rouge">USE_REGULAR_MESH</code> is set to <code class="highlighter-rouge">.true.</code>. Multiple mesh doublings can be chosen, for which each an <code class="highlighter-rouge">NZ_DOUBLING_*</code> entry must be given. By default, we only provide two possible entries in the <code class="highlighter-rouge">Mesh_Par_file</code>. For higher numbers of doubling layers, additional entries must be added.</p>
+
+<p><span><code class="highlighter-rouge">NZ_DOUBLING_1</code></span><br />
+The position of the first doubling layer (only interpreted if <code class="highlighter-rouge">USE_REGULAR_MESH</code> is set to <code class="highlighter-rouge">.true.</code>).</p>
+
+<p><span><code class="highlighter-rouge">NZ_DOUBLING_2</code></span><br />
+The position of the second doubling layer (only interpreted if <code class="highlighter-rouge">USE_REGULAR_MESH</code> is set to <code class="highlighter-rouge">.true.</code> and if <code class="highlighter-rouge">NDOUBLINGS</code> is set to <code class="highlighter-rouge">2</code>). Doubling layers must be at least <code class="highlighter-rouge">2</code> layers apart. The layer count starts from the bottom layer. More entries must be listed by the user if <code class="highlighter-rouge">NDOUBLINGS</code> is larger than <code class="highlighter-rouge">2</code>.</p>
+
+<p><span><code class="highlighter-rouge">CREATE_ABAQUS_FILES</code></span><br />
+Set this flag to <code class="highlighter-rouge">.true.</code> to save Abaqus FEA mesh files for subsequent viewing. Turning the flag on generates files in the <code class="highlighter-rouge">LOCAL_PATH</code> directory. See Section [sec:Mesh-graphics] for a discussion of mesh viewing features.</p>
+
+<p><span><code class="highlighter-rouge">CREATE_DX_FILES</code></span><br />
+Set this flag to <code class="highlighter-rouge">.true.</code> to save OpenDX mesh files for subsequent viewing.</p>
+
+<p><span><code class="highlighter-rouge">LOCAL_PATH</code></span><br />
+Directory in which the partitions generated by the mesher will be written. Generally one uses a directory on the local disk of the compute nodes, although on some machines these partitions are written on a parallel (global) file system (see also the earlier discussion of the <code class="highlighter-rouge">LOCAL_PATH_IS_ALSO_GLOBAL</code> flag in Chapter [cha:Getting-Started]).</p>
+
+<p>The mesher generates the necessary partitions in parallel, one set for each of the (\nprocxi\times\nproceta) slices that constitutes the mesh (see Figure [fig:For-parallel-computing]). After the mesher finishes, you can log in to one of the compute nodes and view the contents of the <code class="highlighter-rouge">LOCAL_PATH</code> directory to see the files generated by the mesher. These files will be needed for creating the distributed databases, and have to reside in the directory <code class="highlighter-rouge">LOCAL_PATH</code> specified in the main <code class="highlighter-rouge">Par_file</code>, e.g. in directory <code class="highlighter-rouge">OUTPUT_FILES/DATABASES_MPI</code>. Please see Chapter [cha:Creating-Distributed-Databases] for further details.</p>
+
+<p><span><code class="highlighter-rouge">NMATERIALS</code></span><br />
+The number of different materials in your model. In the following lines, each material needs to be defined as:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>material_ID rho vp vs Q anisotropy_flag domain_ID
+</code></pre>
+</div>
+
+<p>where</p>
+
+<ul>
+  <li>
+    <p><code class="highlighter-rouge">Q</code> : quality factor (0=no attenuation) for shear attenuation (Q_{\mu})</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">anisotropy_flag</code> : 0=no anisotropy / 1,2,.. check with implementation in <code class="highlighter-rouge">aniso_model.f90</code></p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">domain_id</code> : 1=acoustic / 2=elastic</p>
+  </li>
+</ul>
+
+<p><span><code class="highlighter-rouge">NREGIONS</code></span><br />
+The number of regions in the mesh. In the following lines, because the mesh is regular or ’almost regular’, each region is defined as:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>NEX_XI_BEGIN NEX_XI_END NEX_ETA_BEGIN NEX_ETA_END NZ_BEGIN NZ_END material_ID
+</code></pre>
+</div>
+
+<p>The <code class="highlighter-rouge">INTERFACES_FILE</code> parameter of <code class="highlighter-rouge">Mesh_Par_File</code> defines the file which contains the settings of the topography grid and of the interfaces grids. Topography is defined as a set of elevation values on a regular 2D grid. It is also possible to define interfaces between the layers of the model in the same way. The file needs to define several parameters:</p>
+
+<ul>
+  <li>
+    <p>The number of interfaces, including the topography. This needs to be set at the first line. Then, from the bottom to the top of the model, you need to define the grids with:</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">SUPPRESS_UTM_PROJECTION</code> flag as described previously,</p>
+  </li>
+  <li>
+    <p>number of points along (x) and (y) direction (NXI and NETA),</p>
+  </li>
+  <li>
+    <p>minimal (x) and (y) coordinates (LONG_MIN and LAT_MIN),</p>
+  </li>
+  <li>
+    <p>spacing between points along (x) and (y) (SPACING_XI and SPACING_ETA) and</p>
+  </li>
+  <li>
+    <p>the name of the file which contains the elevation values (in (y).(x) increasing order).</p>
+  </li>
+</ul>
+
+<p>At the end of this file, you simply need to set the number of spectral elements in the vertical direction for each layer. We provide a few models in the <span><code class="highlighter-rouge">EXAMPLES/</code></span> directory.</p>
+
+<p>Finally, depending on your system, you might need to provide a file that tells MPI what compute nodes to use for the simulations. The file must have a number of entries (one entry per line) at least equal to the number of processors needed for the run. A sample file is provided in the file <code class="highlighter-rouge">mymachines</code>. This file is not used by the mesher or solver, but is required by the <code class="highlighter-rouge">go_mesher</code> and <code class="highlighter-rouge">go_solver</code> default job submission scripts. See Chapter [cha:Scheduler] for information about running the code on a system with a scheduler, e.g., LSF.</p>
+
+<p>Now that you have set the appropriate parameters in the <code class="highlighter-rouge">Mesh_Par_file</code> and have compiled the mesher, you are ready to launch it! This is most easily accomplished based upon the <code class="highlighter-rouge">go_mesher</code> script. When you run on a PC cluster, the script assumes that the nodes are named n001, n002, etc. If this is not the case, change the <code class="highlighter-rouge">tr -d n</code> line in the script. You may also need to edit the last command at the end of the script that invokes the <code class="highlighter-rouge">mpirun</code> command. See Chapter [cha:Scheduler] for information about running the code on a system with a scheduler, e.g., LSF.</p>
+
+<p>Mesher output is provided in the <code class="highlighter-rouge">OUTPUT_FILES</code> directory in <code class="highlighter-rouge">output_mesher.txt</code>; this file provides lots of details about the mesh that was generated. Please note that the mesher suggests a time step <code class="highlighter-rouge">DT</code> to run the solver with. The mesher output file also contains a table about the quality of the mesh to indicate possible problems with the distortions of elements. Alternatively, output can be directed to the screen instead by uncommenting a line in <code class="highlighter-rouge">constants.h</code>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>! uncomment this to write messages to the screen
+! integer, parameter :: IMAIN = ISTANDARD_OUTPUT
+</code></pre>
+</div>
+
+<p>To control the quality of the mesh, check the standard output (either on the screen or in the <code class="highlighter-rouge">OUTPUT_FILES</code> directory in <code class="highlighter-rouge">output_mesher.txt</code>) and analyze the skewness histogram of mesh elements to make sure no element has a skewness above approximately 0.75, otherwise the mesh is of poor quality (and if even a single element has a skewness value above 0.80, then you must definitely improve the mesh). To draw the skewness histogram on the screen, type <code class="highlighter-rouge">gnuplot plot_mesh_quality_histogram.gnu</code>.</p>
+
+<h2 id="references">References</h2>
+
+<p>Carrington, Laura, Dimitri Komatitsch, Michael Laurenzano, Mustafa Tikir, David Michéa, Nicolas <span>Le Goff</span>, Allan Snavely, and Jeroen Tromp. 2008. “High-Frequency Simulations of Global Seismic Wave Propagation Using SPECFEM3D_GLOBE on 62 Thousand Processor Cores.” In <em>Proceedings of the SC’08 ACM/IEEE Conference on Supercomputing</em>, 60:1–60:11. Austin, Texas, USA: IEEE Press. doi:<a href="http://dx.doi.org/10.1145/1413370.1413432">10.1145/1413370.1413432</a>.</p>
+
+<p>Komatitsch, D., and J. Tromp. 1999. “Introduction to the Spectral-Element Method for 3-D Seismic Wave Propagation.” <em>Geophys. J. Int.</em> 139 (3): 806–22. doi:<a href="http://dx.doi.org/10.1046/j.1365-246x.1999.00967.x">10.1046/j.1365-246x.1999.00967.x</a>.</p>
+
+<p>Komatitsch, D., and J. P. Vilotte. 1998. “The Spectral-Element Method: An Efficient Tool to Simulate the Seismic Response of 2D and 3D Geological Structures.” <em>Bull. Seism. Soc. Am.</em> 88 (2): 368–92.</p>
+
+<p>Komatitsch, Dimitri. 2011. “Fluid-Solid Coupling on a Cluster of GPU Graphics Cards for Seismic Wave Propagation.” <em>C. R. Acad. Sci., Ser. IIb Mec.</em> 339: 125–35. doi:<a href="http://dx.doi.org/10.1016/j.crme.2010.11.007">10.1016/j.crme.2010.11.007</a>.</p>
+
+<p>Komatitsch, Dimitri, Gordon Erlebacher, Dominik Göddeke, and David Michéa. 2010. “High-Order Finite-Element Seismic Wave Propagation Modeling with MPI on a Large GPU Cluster.” <em>J. Comput. Phys.</em> 229 (20): 7692–7714. doi:<a href="http://dx.doi.org/10.1016/j.jcp.2010.06.024">10.1016/j.jcp.2010.06.024</a>.</p>
+
+<p>Komatitsch, Dimitri, Jesús Labarta, and David Michéa. 2008. “A Simulation of Seismic Wave Propagation at High Resolution in the Inner Core of the Earth on 2166 Processors of MareNostrum.” <em>Lecture Notes in Computer Science</em> 5336: 364–77.</p>
+
+<p>Komatitsch, Dimitri, Qinya Liu, Jeroen Tromp, Peter Süss, Christiane Stidham, and John H. Shaw. 2004. “Simulations of Ground Motion in the Los Angeles Basin Based Upon the Spectral-Element Method.” <em>Bull. Seism. Soc. Am.</em> 94 (1): 187–206. doi:<a href="http://dx.doi.org/10.1785/0120030077">10.1785/0120030077</a>.</p>
+
+<p>Martin, Roland, Dimitri Komatitsch, Céline Blitz, and Nicolas <span>Le Goff</span>. 2008. “Simulation of Seismic Wave Propagation in an Asteroid Based Upon an Unstructured MPI Spectral-Element Method: Blocking and Non-Blocking Communication Strategies.” <em>Lecture Notes in Computer Science</em> 5336: 350–63.</p>
+
+<p>Pellegrini, F., and J. Roman. 1996. “SCOTCH: A Software Package for Static Mapping by Dual Recursive Bipartitioning of Process and Architecture Graphs.” <em>Lecture Notes in Computer Science</em> 1067: 493–98.</p>
+
+<hr />
+<blockquote>
+  <p>This documentation has been automatically generated by <a href="http://www.pandoc.org">pandoc</a>
+based on the User manual (LaTeX version) in folder doc/USER_MANUAL/
+(Mar 10, 2020)</p>
+</blockquote>
+
+
+    </section>
+
+    <section class="page-footer">
+      <footer class="site-footer">
+        
+          <span class="site-footer-owner"><a href="http://github.com/danielpeter/specfem3d">specfem3d</a> is maintained by <a href="http://github.com/danielpeter">danielpeter</a></span>
+        
+        <span class="site-footer-credits">generated by <a href="https://pages.github.com">GitHub Pages</a></span>
+      </footer>
+    </section>
+
+    
+  </body>
+</html>

@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>SPECFEM3D_Cartesian</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#157878">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="/assets/css/style.css?v=e01eaeac25bebaede87fee4bc75f9f27dc55c330">
+  </head>
+  <body>
+    <section class="page-header">
+      <div class="parallax"><!-- parallax -->
+        <div class="parallax_layer parallax_layer_back">
+          <div class="img_background img1"></div>
+        </div>
+      <!-- </div> -->
+      <div class="parallax_layer parallax_layer_front">
+        <h1 class="project-name">SPECFEM3D_Cartesian</h1>
+        <h2 class="project-tagline">SPECFEM3D_Cartesian simulates acoustic (fluid), elastic (solid), coupled acoustic/elastic, poroelastic or seismic wave propagation in any type of conforming mesh of hexahedra (structured or not.)
+</h2>
+        
+          <a href="http://github.com/danielpeter/specfem3d" class="btn">View on GitHub</a>
+        
+        
+      </div><!-- end of parallax -->
+    </section>
+
+    <section class="main-content">
+      <p><strong>Table of Contents</strong></p>
+
+<ul>
+  <li><a href="#creating-the-distributed-databases">Creating the Distributed Databases</a>
+    <ul>
+      <li><a href="#main-parameter-file-par_file">Main parameter file <code class="highlighter-rouge">Par_file</code></a></li>
+      <li><a href="#choosing-the-time-step-dt">Choosing the time step <code class="highlighter-rouge">DT</code></a></li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="creating-the-distributed-databases">Creating the Distributed Databases</h1>
+
+<p>After using <code class="highlighter-rouge">xmeshfem3D</code> or <code class="highlighter-rouge">xdecompose_mesh</code>, the next step in the workflow is to compile <code class="highlighter-rouge">xgenerate_</code>
+<code class="highlighter-rouge">databases</code>. This program is going to create all the missing information needed by the SEM solver.</p>
+
+<p><img src="figures/workflow.jpg" alt="Schematic workflow for a SPECFEM3D Cartesian simulation. The executable `xgenerate_databases` creates the GLL mesh points and assigns specific model parameters.&lt;span data-label=&quot;fig:workflow.databases&quot;&gt;&lt;/span&gt;" /></p>
+<div class="figcaption" style="text-align:justify;font-size:80%"><span style="color:#9A9A9A">Figure: Schematic workflow for a SPECFEM3D Cartesian simulation. The executable `xgenerate_databases` creates the GLL mesh points and assigns specific model parameters.<span data-label="fig:workflow.databases"></span></span></div>
+
+<p>In the main directory, type</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>make xgenerate_databases
+</code></pre>
+</div>
+
+<p>Input for the program is provided through the main parameter file <code class="highlighter-rouge">Par_file</code>, which resides in the subdirectory <code class="highlighter-rouge">DATA</code>. Please note that <code class="highlighter-rouge">xgenerate_databases</code> must be called directly from the main directory, as most of the binaries of the package.</p>
+
+<h2 id="main-parameter-file-par_file">Main parameter file <code class="highlighter-rouge">Par_file</code></h2>
+
+<p>Before running <code class="highlighter-rouge">xgenerate_databases</code>, a number of parameters need to be set in the main parameter <code class="highlighter-rouge">Par_file</code> located in the subdirectory <code class="highlighter-rouge">DATA</code>:</p>
+
+<p><span><code class="highlighter-rouge">SIMULATION_TYPE</code></span><br />
+is set to 1 for forward simulations, 2 for adjoint simulations (see Section [sec:Adjoint-simulation-finite]) and 3 for kernel simulations (see Section [sec:Finite-Frequency-Kernels]).</p>
+
+<p><span><code class="highlighter-rouge">SAVE_FORWARD</code></span><br />
+is only set to <code class="highlighter-rouge">.true.</code> for a forward simulation with the last frame of the simulation saved, as part of the finite-frequency kernel calculations (see Section [sec:Finite-Frequency-Kernels]). For a regular forward simulation, leave <code class="highlighter-rouge">SIMULATION_TYPE</code> and <code class="highlighter-rouge">SAVE_FORWARD</code> at their default values.</p>
+
+<p><span><code class="highlighter-rouge">UTM_PROJECTION_ZONE</code></span><br />
+UTM projection zone in which your model resides, only valid when <code class="highlighter-rouge">SUPPRESS_UTM_PROJECTION</code> is <code class="highlighter-rouge">.false.</code>.</p>
+
+<p><span><code class="highlighter-rouge">SUPPRESS_UTM_PROJECTION</code></span><br />
+set to be <code class="highlighter-rouge">.false.</code> when your model range is specified in the geographical coordinates, and needs to be <code class="highlighter-rouge">.true.</code> when your model is specified in a cartesian coordinates.</p>
+
+<p><span><code class="highlighter-rouge">NPROC</code></span><br />
+The number of MPI processors, each one is assigned one slice of the whole mesh.</p>
+
+<p><span><code class="highlighter-rouge">NSTEP</code></span><br />
+The number of time steps of the simulation. This controls the length of the numerical simulation, i.e., twice the number of time steps requires twice as much CPU time. This feature is not used at the time of generating the distributed databases but is required for the solver, i.e., you may change this parameter after running <code class="highlighter-rouge">xgenerate_databases</code>.</p>
+
+<p><span><code class="highlighter-rouge">DT</code></span><br />
+The length of each time step in seconds. This feature is not used at the time of generating the distributed databases but is required for the solver. Please see also Section [sec:Choosing-the-Time-Step] for further details.</p>
+
+<p><span><code class="highlighter-rouge">NGNOD</code></span><br />
+The number of nodes for 2D and 3D shape functions for hexahedra. We use either 8-node mesh elements (bricks) or 27-node elements. If you use the internal mesher, the only option is 8-node bricks (27-node elements are not supported). <code class="highlighter-rouge">CUBIT</code> does not support HEX27 elements either (it can generate them, but they are flat, i.e. identical to HEX8). To generate HEX27 elements with curvature properly taken into account, you can use Gmsh <a href="http://geuz.org/gmsh/">http://geuz.org/gmsh/</a></p>
+
+<p><span><code class="highlighter-rouge">MODEL</code></span><br />
+Must be set to one of the following:</p>
+
+<p><span><code class="highlighter-rouge">default</code></span><br />
+Uses model parameters as defined by meshing procedures described in the previous Chapter [cha:Mesh-Generation].</p>
+
+<p><span><code class="highlighter-rouge">1D_prem</code></span><br />
+Isotropic version of the spherically symmetric Preliminary Reference Earth Model (PREM) (Dziewoński and Anderson 1981).</p>
+
+<p><span><code class="highlighter-rouge">1D_socal</code></span><br />
+A standard isotropic 1D model for Southern California.</p>
+
+<p><span><code class="highlighter-rouge">1D_cascadia</code></span><br />
+Isotropic 1D profile for the Cascadia region.</p>
+
+<p><span><code class="highlighter-rouge">aniso</code></span><br />
+For a user-specified fully anisotropic model. Parameters are set up in routines located in file <code class="highlighter-rouge">model_aniso.f90</code> in directory <code class="highlighter-rouge">src/generate_databases/</code>. See Chapter [cha:-Changing-the] for a discussion on how to specify your own 3D model.</p>
+
+<p><span><code class="highlighter-rouge">external</code></span><br />
+For a user-specified isotropic model which uses externally defined model parameters. Uses external model definitions set up in routines located in file <code class="highlighter-rouge">model_external_values.f90</code> in directory <code class="highlighter-rouge">src/generate_databases/</code>. Please modify these generic template routines to use your own model definitions.</p>
+
+<p><span><code class="highlighter-rouge">gll</code></span><br />
+For a user-specified isotropic model which uses external binary files for (v_{p}), (v_{s}) and (\rho). Binary files are given in the same format as when outputted by the <code class="highlighter-rouge">xgenerate_databases</code> executable when using option <code class="highlighter-rouge">SAVE_MESH_FILES</code>. These binary files define the model parameters on all GLL points which can be used for iterative inversion procedures. Note that for simulation setups with attenuation, it will also read in the external binary mesh files for (Q_{\kappa}) and (Q_{\mu}). Note that Qmu is always equal to Qs, but Qkappa is in general not equal to Qp. To convert one to the other see doc/note_on_Qkappa_versus_Qp.pdf and utils/attenuation/conversion_from_Qkappa_Qmu_to_Qp_Qs_from_Dahlen_Tromp_959_960.f90.</p>
+
+<p><span><code class="highlighter-rouge">salton_trough</code></span><br />
+A 3D (V_{p}) model for Southern California. Users must provide the corresponding data file <code class="highlighter-rouge">regrid3_vel_p.bin</code> in directory <code class="highlighter-rouge">DATA/st_3D_block_harvard/</code>.</p>
+
+<p><span><code class="highlighter-rouge">tomo</code></span><br />
+For a user-specified 3D isotropic model which uses a tomographic model file <code class="highlighter-rouge">tomographic_model.xyz</code> in directory <code class="highlighter-rouge">DATA</code>. See Section [sec:Using-tomographic], for a discussion on how to specify your own 3D tomographic model.</p>
+
+<p><span><code class="highlighter-rouge">APPROXIMATE_OCEAN_LOAD</code></span><br />
+Set to <code class="highlighter-rouge">.true.</code> if the effect of the oceans on seismic wave propagation should be incorporated based upon the (rough) approximate treatment discussed in Komatitsch and Tromp (2002a). This feature is inexpensive from a numerical perspective, both in terms of memory requirements and CPU time. This approximation is accurate at periods of roughly 20 s and longer. At shorter periods the effect of water phases/reverberations is not taken into account, even when the flag is on. If you want to model the effect of a fluid-solid model at short periods, then set this flag to <code class="highlighter-rouge">.false.</code> and mesh the fluid layer explicitly in your mesher, so that it is computed accurately and without this approximation.</p>
+
+<p><span><code class="highlighter-rouge">TOPOGRAPHY</code></span><br />
+This feature is only effective if <code class="highlighter-rouge">APPROXIMATE_OCEAN_LOAD</code> is set to <code class="highlighter-rouge">.true.</code>. Set to <code class="highlighter-rouge">.true.</code> if topography and bathymetry should be read in based upon the topography file specified in the main constants file <code class="highlighter-rouge">constants.h</code> found in subdirectory <code class="highlighter-rouge">src/shared/</code> to evaluate elevations. If not set, elevations will be read from the numerical mesh.</p>
+
+<p><span><code class="highlighter-rouge">ATTENUATION</code></span><br />
+Set to <code class="highlighter-rouge">.true.</code> if attenuation should be incorporated. Turning this feature on increases the memory requirements significantly (roughly by a factor of 1.5), and is numerically fairly expensive. See Komatitsch and Tromp (1999; Komatitsch and Tromp 2002b) for a discussion on the implementation of attenuation based upon standard linear solids. Please note that the Vp- and Vs-velocities of your model are given for a reference frequency. To change this reference frequency, you change the value of <code class="highlighter-rouge">ATTENUATION_f0_REFERENCE</code> in the main constants file <code class="highlighter-rouge">constants.h</code> found in subdirectory <code class="highlighter-rouge">src/shared/</code>. The code uses a constant (Q) quality factor, write(IMAIN,*) “but approximated based on a series of Zener standard linear solids (SLS). The approximation is thus performed in a given frequency band determined based on that <code class="highlighter-rouge">ATTENUATION_f0_REFERENCE</code> reference frequency. Note that Qmu is always equal to Qs, but Qkappa is in general not equal to Qp. To convert one to the other see doc/note_on_Qkappa_versus_Qp.pdf and utils/attenuation/conversion_from_Qkappa_Qmu_to_Qp_Qs_from_Dahlen_Tromp_959_960.f90.</p>
+
+<p><span><code class="highlighter-rouge">ANISOTROPY</code></span><br />
+Set to <code class="highlighter-rouge">.true.</code> if you want to use an anisotropy model. Please see the file <code class="highlighter-rouge">model_aniso.f90</code> in subdirectory <code class="highlighter-rouge">src/generate_databases/</code> for the current implementation of anisotropic models.</p>
+
+<p><span><code class="highlighter-rouge">TOMOGRAPHY_PATH</code></span><br />
+Directory in which the tomography files are stored for using external tomographic Earth models (please read Chapter [cha:-Changing-the] and Section [sec:Using-tomographic] ‘Using external tomographic Earth models’ for further details.).</p>
+
+<p><span><code class="highlighter-rouge">USE_OLSEN_ATTENUATION</code></span><br />
+Set to <code class="highlighter-rouge">.true.</code> if you want to use the attenuation model that scaled from the S-wave speed model using Olsen’s empirical relation (see Olsen, Day, and Bradley (2003)).</p>
+
+<p><span><code class="highlighter-rouge">OLSEN_ATTENUATION_RATIO</code></span><br />
+Determines the Olsen’s constant in Olsen’s empirical relation (see Olsen, Day, and Bradley (2003)).</p>
+
+<p><span><code class="highlighter-rouge">PML_CONDITIONS</code></span><br />
+Set to <code class="highlighter-rouge">.true.</code> to turn on C-PML boundary conditions for a regional simulation. Both fluids and elastic solids are supported.</p>
+
+<p><span><code class="highlighter-rouge">PML_INSTEAD_OF_FREE_SURFACE</code></span><br />
+Set to <code class="highlighter-rouge">.true.</code> to turn on C-PML boundary conditions on the top surface instead of the usual free surface.</p>
+
+<p><span><code class="highlighter-rouge">f0_FOR_PML</code></span><br />
+Determines the dominant frequency that will be used in the calculation of PML damping profiles; <em>This should be set to the same (or similar) dominant frequency as that of the source that you will use in your simulation. It is <strong>VERY IMPORTANT</strong> to do that, otherwise the PML absorbing conditions can become unstable.</em> If you plan to use a Dirac source, then use the dominant frequency of the source wavelet with which you plan to convolve your seismograms later on in post-processing.</p>
+
+<p><span><code class="highlighter-rouge">STACEY_ABSORBING_CONDITIONS</code></span><br />
+Set to <code class="highlighter-rouge">.true.</code> to turn on Clayton-Enquist absorbing boundary conditions (see Komatitsch and Tromp (1999)). In almost all cases it is much better to use CPML absorbing layers (see the options above) and leave this flag to <code class="highlighter-rouge">.false.</code>.</p>
+
+<p><span><code class="highlighter-rouge">STACEY_INSTEAD_OF_FREE_SURFACE</code></span><br />
+Set to <code class="highlighter-rouge">.true.</code> to turn on absorbing boundary conditions on the top surface which by default constitutes a free surface of the model.</p>
+
+<p><span><code class="highlighter-rouge">BOTTOM_FREE_SURFACE</code></span><br />
+When STACEY_ABSORBING_CONDITIONS is set to .true. : absorbing conditions are defined in xmin, xmax, ymin, ymax and zmin this option BOTTOM_FREE_SURFACE can be set to .true. to make zmin free surface instead of absorbing condition.</p>
+
+<p><span><code class="highlighter-rouge">CREATE_SHAKEMAP</code></span><br />
+Set this flag to <code class="highlighter-rouge">.true.</code> to create a ShakeMap, i.e., a peak ground velocity map of the maximum absolute value of the two horizontal components of the velocity vector.</p>
+
+<p><span><code class="highlighter-rouge">MOVIE_SURFACE</code></span><br />
+Set to <code class="highlighter-rouge">.false.</code>, unless you want to create a movie of seismic wave propagation on the Earth’s surface. Turning this option on generates large output files. See Section [sec:Movies] for a discussion on the generation of movies. This feature is only relevant for the solver.</p>
+
+<p><span><code class="highlighter-rouge">MOVIE_TYPE</code></span><br />
+Set this flag to 1 to show the top surface (tomography + oceans) only, to 2 to show all external faces of the mesh (i.e. topography + vertical edges + bottom) in shakemaps and surface movies.</p>
+
+<p><span><code class="highlighter-rouge">MOVIE_VOLUME</code></span><br />
+Set to <code class="highlighter-rouge">.false.</code>, unless you want to create a movie of seismic wave propagation in the Earth’s interior. Turning this option on generates huge output files. See Section [sec:Movies] for a discussion on the generation of movies. This feature is only relevant for the solver.</p>
+
+<p><span><code class="highlighter-rouge">SAVE_DISPLACEMENT</code></span><br />
+Set this flag to <code class="highlighter-rouge">.true.</code> if you want to save the displacement instead of velocity for the movie frames.</p>
+
+<p><span><code class="highlighter-rouge">USE_HIGHRES_FOR_MOVIES</code></span><br />
+Set this flag to <code class="highlighter-rouge">.true.</code> if you want to save the values at all the NGLL grid points for the movie frames.</p>
+
+<p><span><code class="highlighter-rouge">NTSTEP_BETWEEN_FRAMES</code></span><br />
+Determines the number of timesteps between movie frames. Typically you want to save a snapshot every 100 timesteps. The smaller you make this number the more output will be generated! See Section [sec:Movies] for a discussion on the generation of movies. This feature is only relevant for the solver.</p>
+
+<p><span><code class="highlighter-rouge">HDUR_MOVIE</code></span><br />
+Determines the half duration of the source time function for the movie simulations. When this parameter is set to be 0, a default half duration that corresponds to the accuracy of the simulation is provided. Otherwise, it adds this half duration to the half duration specified in the source file <code class="highlighter-rouge">CMTSOLUTION</code>, thus simulates longer periods to make the movie images look smoother.</p>
+
+<p><span><code class="highlighter-rouge">SAVE_MESH_FILES</code></span><br />
+Set this flag to <code class="highlighter-rouge">.true.</code> to save ParaView mesh files for subsequent viewing. Turning the flag on generates large (distributed) files in the <code class="highlighter-rouge">LOCAL_PATH</code> directory. See Section [sec:Mesh-graphics] for a discussion of mesh viewing features.</p>
+
+<p><span><code class="highlighter-rouge">LOCAL_PATH</code></span><br />
+Directory in which the distributed databases will be written. Generally one uses a directory on the local disk of the compute nodes, although on some machines these databases are written on a parallel (global) file system (see also the earlier discussion of the <code class="highlighter-rouge">LOCAL_PATH_IS_ALSO_GLOBAL</code> flag in Chapter [cha:Getting-Started]). <code class="highlighter-rouge">xgenerate_databases</code> generates the necessary databases in parallel, one set for each of the <code class="highlighter-rouge">NPROC</code> slices that constitutes the mesh (see Figure [fig:mount.partitions] and Figure [fig:For-parallel-computing]). After the executable finishes, you can log in to one of the compute nodes and view the contents of the <code class="highlighter-rouge">LOCAL_PATH</code> directory to see the (many) files generated by <code class="highlighter-rouge">xgenerate_databases</code>. Please note that the <code class="highlighter-rouge">LOCAL_PATH</code> directory should already contain the output files of the partitioner, i.e. from <code class="highlighter-rouge">xdecompose_mesh</code> or <code class="highlighter-rouge">xmeshfem3D</code>.</p>
+
+<p><span><code class="highlighter-rouge">NTSTEP_BETWEEN_OUTPUT_INFO</code></span><br />
+This parameter specifies the interval at which basic information about a run is written to the file system (<code class="highlighter-rouge">timestamp*</code> files in the <code class="highlighter-rouge">OUTPUT_FILES</code> directory). If you have access to a fast machine, set <code class="highlighter-rouge">NTSTEP_BETWEEN_OUTPUT_INFO</code> to a relatively high value (e.g., at least 100, or even 1000 or more) to avoid writing output text files too often. This feature is not used at the time of meshing. One can set this parameter to a larger value than the number of time steps to avoid writing output during the run.</p>
+
+<p><span><code class="highlighter-rouge">NTSTEP_BETWEEN_OUTPUT_SEISMOS</code></span><br />
+This parameter specifies the interval at which synthetic seismograms are written in the <code class="highlighter-rouge">LOCAL_PATH</code> directory. If a run crashes, you may still find usable (but shorter than requested) seismograms in this directory. On a fast machine set <code class="highlighter-rouge">NTSTEP_BETWEEN_OUTPUT_SEISMOS</code> to a relatively high value to avoid writing to the seismograms too often. This feature is only relevant for the solver.</p>
+
+<p><span><code class="highlighter-rouge">USE_FORCE_POINT_SOURCE</code></span><br />
+Turn this flag on to use a (tilted) <code class="highlighter-rouge">FORCESOLUTION</code> force point source instead of a <code class="highlighter-rouge">CMTSOLUTION</code> moment-tensor source. When the force source does not fall exactly at a grid point, the solver interpolates the force between grid points using Lagrange interpolants. This can be useful e.g. for oil industry foothills simulations in which the source is a vertical force, normal force, tilted force, or an impact etc. Note that in the <code class="highlighter-rouge">FORCESOLUTION</code> file, you will need to edit the East, North and vertical components of an arbitrary (not necessarily unitary, the code will normalize it automatically) direction vector of the force vector; thus refer to Appendix [cha:Coordinates] for the orientation of the reference frame. This vector is made unitary internally in the solver and thus only its direction matters here; its norm is ignored and the norm of the force used is the factor force source times the source time function.</p>
+
+<p>When using this option, by default the code can locate the force source anywhere between mesh points in order to honor its exact location; this is more precise than using the closest GLL mesh point, but it is also a bit slower. If needed, you can change that default behavior and force the code to use the closest GLL mesh point instead by setting flag <code class="highlighter-rouge">USE_BEST_LOCATION</code> to <code class="highlighter-rouge">.false.</code> instead of <code class="highlighter-rouge">.true.</code> in file <code class="highlighter-rouge">src/shared/constants.h.in</code> and running the <code class="highlighter-rouge">configure</code> script again and recompiling the code.</p>
+
+<p><span><code class="highlighter-rouge">USE_RICKER_TIME_FUNCTION</code></span><br />
+Turn this flag on to use a Ricker source time function, i.e., the second derivative of a Gaussian, instead of the source time functions set by default to represent a (tilted) <code class="highlighter-rouge">FORCESOLUTION</code> force point source or a <code class="highlighter-rouge">CMTSOLUTION</code> moment-tensor source. Note that we use the standard definition of a Ricker, for a dominant frequency (f_0): (\mathrm{Ricker}(t) = (1 - 2 a t^2) e^{-a t^2}), with (a = \pi^2 f_0^2), whose Fourier transform is thus: (\frac{1}{2} \frac{\sqrt{\pi}\omega^2}{a^{3/2}}e^{-\frac{\omega^2}{4 a}}) This gives the wavelet of Figure [fig:RickerWavelet].</p>
+
+<p><img src="figures/Ricker_wavelet.png" alt="We use the standard definition of a Ricker (i.e., second derivative of a Gaussian). Image taken from &lt;http://subsurfwiki.org&gt;.&lt;span data-label=&quot;fig:RickerWavelet&quot;&gt;&lt;/span&gt;" /></p>
+<div class="figcaption" style="text-align:justify;font-size:80%"><span style="color:#9A9A9A">Figure: We use the standard definition of a Ricker (i.e., second derivative of a Gaussian). Image taken from &lt;http://subsurfwiki.org&gt;.<span data-label="fig:RickerWavelet"></span></span></div>
+
+<p>Originally, if a <code class="highlighter-rouge">CMTSOLUTION</code> moment-tensor source is used, a (pseudo) Heaviside step function with a very short half duration is defined for elastic cases to represent the permanent slip on the fault while in the acoustic case a Gaussian source time function with a similarly short half duration is defined to physically describe actions within the fluid. Otherwise, if a <code class="highlighter-rouge">FORCESOLUTION</code> force source is used, a (pseudo) Dirac delta source time function is defined by default. Any other source-time function may then be obtained by convolution.</p>
+
+<p><span><code class="highlighter-rouge">PRINT_SOURCE_TIME_FUNCTION</code></span><br />
+Turn this flag on to print information about the source time function in the file <code class="highlighter-rouge">OUTPUT_FILES/plot_source_time_function.txt</code>. This feature is only relevant for the solver.</p>
+
+<p><span><code class="highlighter-rouge">NUMBER_OF_SIMULTANEOUS_RUNS</code></span><br />
+adds the ability to run several calculations (several earthquakes) in an embarrassingly-parallel fashion from within the same run; this can be useful when using a very large supercomputer to compute many earthquakes in a catalog, in which case it can be better from a batch job submission point of view to start fewer and much larger jobs, each of them computing several earthquakes in parallel.</p>
+
+<p>To turn that option on, set parameter <code class="highlighter-rouge">NUMBER_OF_SIMULTANEOUS_RUNS</code> to a value greater than 1. To implement that, we create <code class="highlighter-rouge">NUMBER_OF_SIMULTANEOUS_RUNS</code> MPI sub-communicators, each of them being labeled <code class="highlighter-rouge">my_local_mpi_comm_world</code>, and we use them in all the routines in “src/shared/parallel.f90”, except in MPI_ABORT() because in that case we need to kill the entire run.</p>
+
+<p>When that option is on, of course the number of processor cores used to start the code in the batch system must be a multiple of <code class="highlighter-rouge">NUMBER_OF_SIMULTANEOUS_RUNS</code>, all the individual runs must use the same number of processor cores, which as usual is NPROC in the Par_file, and thus the total number of processor cores to request from the batch system should be <code class="highlighter-rouge">NUMBER_OF_SIMULTANEOUS_RUNS</code> * <code class="highlighter-rouge">NPROC</code>. All the runs to perform must be placed in directories called run0001, run0002, run0003 and so on (with exactly four digits).</p>
+
+<p>Imagine you have 10 independent calculations to do, each of them on 100 cores; you have three options:</p>
+
+<p>1/ submit 10 jobs to the batch system</p>
+
+<p>2/ submit a single job on 1000 cores to the batch, and in that script create a sub-array of jobs to start 10 jobs, each running on 100 cores (see e.g. <a href="http://www.schedmd.com/slurmdocs/job_array.html">http://www.schedmd.com/slurmdocs/job_array.html</a>)</p>
+
+<p>3/ submit a single job on 1000 cores to the batch, start SPECFEM3D on 1000 cores, create 10 sub-communicators, cd into one of 10 subdirectories (called e.g. run0001, run0002,… run0010) depending on the sub-communicator your MPI rank belongs to, and run normally on 100 cores using that sub-communicator.</p>
+
+<p>The option <code class="highlighter-rouge">NUMBER_OF_SIMULTANEOUS_RUNS</code> implements 3/.</p>
+
+<p><span><code class="highlighter-rouge">BROADCAST_SAME_MESH_AND_MODEL</code></span><br />
+if we perform simultaneous runs in parallel, if only the source and receivers vary between these runs but not the mesh nor the model (velocity and density) then we can also read the mesh and model files from a single run in the beginning and broadcast them to all the others; for a large number of simultaneous runs for instance when solving inverse problems iteratively this can DRASTICALLY reduce I/Os to disk in the solver (by a factor equal to <code class="highlighter-rouge">NUMBER_OF_SIMULTANEOUS_RUNS</code>), and reducing I/Os is crucial in the case of huge runs. Thus, always set this option to .true. if the mesh and the model are the same for all simultaneous runs. In that case there is no need to duplicate the mesh and model file database (the content of the DATABASES_MPI directories) in each of the run0001, run0002,… directories, it is sufficient to have one in run0001 and the code will broadcast it to the others).</p>
+
+<p><span><code class="highlighter-rouge">USE_FAILSAFE_MECHANISM</code></span><br />
+if one or a few of these simultaneous runs fail, kill all the runs or let the others finish using a fail-safe mechanism (in most cases, should be set to true).</p>
+
+<p>TODO / future work to do: currently the <code class="highlighter-rouge">BROADCAST_SAME_MESH_AND_MODEL</code> option assumes to have the (master) mesh files in <code class="highlighter-rouge">run0001/DATABASES_MPI</code> or <code class="highlighter-rouge">run0001/OUTPUT_FILES/DATABASES_MPI</code>. However, for adjoint runs you still need a <code class="highlighter-rouge">DATABASES_MPI/</code> folder in each of the sub-runs directories, e.g. <code class="highlighter-rouge">run0002/DATABASES_MPI</code>, etc. to store the forward wavefields, kernels etc. of each sub-run. This would not be needed for forward simulations.</p>
+
+<p>TODO / future work to do: the sensitivity kernel summing and smoothing tools in directory src/tomography are currently not ported to this new option to do many runs simultaneously, only the solver (src/specfem3d) is. Thus these tools should work, but in their current version will need to be run for each simulation result independently.</p>
+
+<p>More precisely, the current kernel summing and smoothing routines work fine, with the exception that you need to move out the mesh files (and also the parameters). This works because these routines consider multiple runs by design. You simply have to provide them the directories where the kernels are.</p>
+
+<p><span><code class="highlighter-rouge">GPU_MODE</code></span><br />
+Turn this flag on to use GPUs.</p>
+
+<p><code class="highlighter-rouge">ADIOS_ENABLED</code><br />
+Turn this flag on to enable ADIOS. If set to <code class="highlighter-rouge">.false.</code>, subsequent ADIOS parameters will not be considered.</p>
+
+<p><code class="highlighter-rouge">ADIOS_FOR_DATABASES</code><br />
+Turn this flag on to use ADIOS for xmeshfem3D output and xgenerate_database input.</p>
+
+<p><code class="highlighter-rouge">ADIOS_FOR_MESH</code><br />
+Turn this flag on to use ADIOS for generated databases.</p>
+
+<p><code class="highlighter-rouge">ADIOS_FOR_FORWARD_ARRAYS</code><br />
+Turn this flag on to read and write forward arrays using ADIOS.</p>
+
+<p><code class="highlighter-rouge">ADIOS_FOR_KERNELS</code><br />
+Turn this flag on to produce ADIOS kernels that can later be visualized with the ADIOS version of combine_vol_data.</p>
+
+<p>The present version of SPECFEM can handle fully saturated porous simulations, Christina Morency implemented Biot equation. But the code cannot calculate partially saturated cases in its state. Christina Morency is presently working on a dual porosity, dual permeability formulation, type Pride and Berryman, for an other project, but it will not be available for some time.</p>
+
+<p>The way we prescribe material property for porous material in SPECFEM3D is as follow: We use a file name “nummaterial_poroelastic_file”, which is located in the directory <code class="highlighter-rouge">MESH/</code>, the format is as follow:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code> rhos rhof phi c kxx kxy kxz kyy kyz kzz Ks Kf Kfr etaf mufr
+</code></pre>
+</div>
+
+<p>where
+<code class="highlighter-rouge">rho_s</code> = solid density,
+<code class="highlighter-rouge">rho_f</code> = fluid density,
+<code class="highlighter-rouge">phi</code> = porosity,
+<code class="highlighter-rouge">tort</code> = tortuosity,
+<code class="highlighter-rouge">kxx</code> = xx component of permeability tensor,
+<code class="highlighter-rouge">kxy</code> = xy,yx components of permeability tensor,
+<code class="highlighter-rouge">kyy</code> = yy component of permeability tensor,
+<code class="highlighter-rouge">kxz</code> = xz,zx components of permeability tensor,
+<code class="highlighter-rouge">kzz</code> = zz component of permeability tensor,
+<code class="highlighter-rouge">kappa_s</code> = solid bulk modulus,
+<code class="highlighter-rouge">kappa_f</code> = fluid bulk modulus,
+<code class="highlighter-rouge">kappa_fr</code> = frame bulk modulus,
+<code class="highlighter-rouge">eta_f</code> = fluid viscosity,
+<code class="highlighter-rouge">mu_fr</code> = frame shear modulus.</p>
+
+<p>Using an external mesh (for instance coming from CUBIT/TRELIS), poroelastic materials have the ID number 3, while 1 is acoustic and 2 is elastic (see the example in the package: EXAMPLES/homogeneous_poroelastic).</p>
+
+<p>If you use PML, the mesh elements that belong to the PML layers can be acoustic or elastic, but not viscoelastic nor poroelastic. Then, when defining your model, you should define these absorbing elements as either acoustic or elastic. In you forget to do that, the code will fix the problem by automatically converting the viscoelastic or poroelastic PML elements to elastic. This means that strictly speaking the PML layer will not be perfectly matched any more, since the physical model will change from viscoelastic or poroelastic to elastic at the entrance of the PML, but in practice this is sufficient and produces only tiny / negligible spurious reflections.</p>
+
+<p>If you use PML and an external mesh (created using an external meshing tool such as CUBIT/TRELIS or similar), try to have elements inside the PML as regular as possible, i.e. ideally non-deformed cubes obtained by ‘extrusion’ of regular surface mesh elements meshing the outer edges of the computational domain without PML; by doing so, the PMLs obtained will be far more stable in time (PML being weakly unstable from a mathematical point of view, very deformed mesh elements inside the PMLs can trigger instabilities much more quickly). <em>We have two utilities in directory utils/CPML that do that automatically and that are very fast</em>. To stabilize PMLs it also helps to add a transition layer of geometrically-regular non-PML elements, in which attenuation is also turned off (i.e. (Q_\kappa = Q_\mu = 9999) in that layer), as in the red layer of Figure [fig:mesh<sub>e</sub>xtrusion]. Our tools in directory utils/CPML implement that transition layer automatically.</p>
+
+<p>If you use PML and an external tomographic velocity and density model, you should be careful because mathematically a PML cannot handle heterogeneities along the normal to the PML edge inside the PML layer. This comes from the fact that the damping profile that is defined assumes a constant velocity and density model along the normal direction.</p>
+
+<p>Thus, you need to modify your velocity and density model in order for it to be 1D inside the PML, as shown in Figure [fig:modify<sub>e</sub>xternal<sub>v</sub>elocity<sub>m</sub>odel<sub>t</sub>o<sub>u</sub>se<sub>P</sub>ML].</p>
+
+<p>This applies to the bottom layer as well; there you should make sure that your model is 1D and thus constant along the vertical direction.</p>
+
+<p>To summarize, only use a 3D velocity and density model inside the physical region, and in all the PML layers extend it by continuity from its values along the inner PML edge.</p>
+
+<p><img src="figures/how_to_use_a_transition_mesh_layer_to_stabilize_PML.png" alt="Mesh extrusion for PML (green elements) and a non-PML stabilization layer (red elements).&lt;span data-label=&quot;fig:meshextrusion&quot;&gt;&lt;/span&gt;" /></p>
+<div class="figcaption" style="text-align:justify;font-size:80%"><span style="color:#9A9A9A">Figure: Mesh extrusion for PML (green elements) and a non-PML stabilization layer (red elements).<span data-label="fig:meshextrusion"></span></span></div>
+
+<p><img src="figures/how_to_use_PML_when_a_tomographic_velocity_model_is_used.png" alt="How to modify your external 3D velocity and density model in order to use PML. Such a modification is not needed when using Stacey absorbing boundary conditions (but such conditions are significantly less efficient).&lt;span data-label=&quot;fig:modifyexternalvelocitymodeltousePML&quot;&gt;&lt;/span&gt;" /></p>
+<div class="figcaption" style="text-align:justify;font-size:80%"><span style="color:#9A9A9A">Figure: How to modify your external 3D velocity and density model in order to use PML. Such a modification is not needed when using Stacey absorbing boundary conditions (but such conditions are significantly less efficient).<span data-label="fig:modifyexternalvelocitymodeltousePML"></span></span></div>
+
+<h2 id="choosing-the-time-step-dt">Choosing the time step <code class="highlighter-rouge">DT</code></h2>
+
+<p>The parameter <code class="highlighter-rouge">DT</code> sets the length of each time step in seconds. The value of this parameter is crucial for the stability of the spectral-element simulation. Your time step <code class="highlighter-rouge">DT</code> will depend on the minimum ratio between the distance (h) of neighboring mesh points and the wave speeds (v) defined in your model. The condition for the time step (\Delta t) is:</p>
+
+<p>(\Delta t&lt;C \mathrm{min}_{\Omega}( h/v ))</p>
+
+<p>where (C) is the so-called Courant number and (\Omega) denotes the model volume. The distance (h) depends on the mesh element size and the number of GLL points <code class="highlighter-rouge">NGLL</code> specified in the main constants file <code class="highlighter-rouge">constants.h</code> located in the <code class="highlighter-rouge">src/shared/</code> subdirectory. The wave speed (v) is determined based on your model’s P- (or S-) wave speed values.</p>
+
+<p>The database generator <code class="highlighter-rouge">xgenerate_databases</code>, as well as the internal mesher <code class="highlighter-rouge">xmeshfem3D</code>, are trying to evaluate the value of (\Delta t) for empirically chosen Courant numbers (C\sim0.3). If you used the mesher <code class="highlighter-rouge">xmeshfem3D</code> to generate your mesh, you should set the value suggested in <code class="highlighter-rouge">OUTPUT_FILES/output_mesher.txt</code> file, which is created after the mesher completed. In case you used CUBIT to create the mesh, you might use an arbitrary value when running <code class="highlighter-rouge">xgenerate_databases</code> and then use the value suggested in the
+<code class="highlighter-rouge">OUTPUT_FILES/output_mesher.txt</code> file after the database generation completed. Note that the implemented Newmark time scheme uses this time step globally, thus your simulations become more expensive for very small mesh elements in high wave-speed regions. Please be aware of this restriction when constructing your mesh in Chapter [cha:Mesh-Generation].</p>
+
+<h2 id="references">References</h2>
+
+<p>Dziewoński, A. M., and D. L. Anderson. 1981. “Preliminary Reference Earth Model.” <em>Phys. Earth Planet. Inter.</em> 25 (4): 297–356.</p>
+
+<p>Komatitsch, D., and J. Tromp. 1999. “Introduction to the Spectral-Element Method for 3-D Seismic Wave Propagation.” <em>Geophys. J. Int.</em> 139 (3): 806–22. doi:<a href="http://dx.doi.org/10.1046/j.1365-246x.1999.00967.x">10.1046/j.1365-246x.1999.00967.x</a>.</p>
+
+<p>———. 2002a. “Spectral-Element Simulations of Global Seismic Wave Propagation-II. 3-D Models, Oceans, Rotation, and Self-Gravitation.” <em>Geophys. J. Int.</em> 150 (1): 303–18. doi:<a href="http://dx.doi.org/10.1046/j.1365-246X.2002.01716.x">10.1046/j.1365-246X.2002.01716.x</a>.</p>
+
+<p>———. 2002b. “Spectral-Element Simulations of Global Seismic Wave Propagation-I. Validation.” <em>Geophys. J. Int.</em> 149 (2): 390–412. doi:<a href="http://dx.doi.org/10.1046/j.1365-246X.2002.01653.x">10.1046/j.1365-246X.2002.01653.x</a>.</p>
+
+<p>Olsen, K. B., S. M. Day, and C. R. Bradley. 2003. “Estimation of (Q) for Long-Period (&gt;2 Sec) Waves in the Los Angeles Basin.” <em>Bull. Seism. Soc. Am.</em> 93 (2): 627–38.</p>
+
+<hr />
+<blockquote>
+  <p>This documentation has been automatically generated by <a href="http://www.pandoc.org">pandoc</a>
+based on the User manual (LaTeX version) in folder doc/USER_MANUAL/
+(Mar 10, 2020)</p>
+</blockquote>
+
+
+    </section>
+
+    <section class="page-footer">
+      <footer class="site-footer">
+        
+          <span class="site-footer-owner"><a href="http://github.com/danielpeter/specfem3d">specfem3d</a> is maintained by <a href="http://github.com/danielpeter">danielpeter</a></span>
+        
+        <span class="site-footer-credits">generated by <a href="https://pages.github.com">GitHub Pages</a></span>
+      </footer>
+    </section>
+
+    
+  </body>
+</html>

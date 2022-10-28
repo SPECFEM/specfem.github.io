@@ -1,0 +1,145 @@
+---
+---
+
+@import "{{ site.theme }}";
+
+/* ------------------------------------------------------------ */
+/* header */
+/* ------------------------------------------------------------ */
+
+.page-header {
+  color: #fff;
+  text-align: center;
+  /*background-color: #2c2999;*/
+  /*background-image: linear-gradient(20deg, #303499, #a16e6b);*/
+  background-color: #000;
+  /*background-color: rgba(0, 0, 0, 0);*/
+  /*background-image: linear-gradient(20deg, #000, rgb(77, 52, 51) 80.25%, #6d696f);*/
+  /*background-image: linear-gradient(20deg, rgba(0, 0, 0, 0.01), #4d3433 80.25%, rgba(109, 105, 111, 0));*/
+  background-image: none;
+
+  padding: unset;
+}
+
+.main-content {
+  position: relative;
+  background-color: #FFF;
+}
+
+.main-content h1, .main-content h2, .main-content h3, .main-content h4, .main-content h5, .main-content h6 {
+  color: #6d696f;
+}
+
+.project-name {
+  padding-top: 6rem;
+}
+/* ------------------------------------------------------------ */
+/* header parallax */
+/* ------------------------------------------------------------ */
+
+.parallax {
+  scroll-behavior: smooth; /* Firefox */
+
+  /* based on: http://keithclark.co.uk/articles/pure-css-parallax-websites
+               full viewport height
+  */
+  -webkit-perspective: 1px; /* Chrome, Safari, Opera */
+  -moz-perspective: 1px;
+  perspective: 1px;
+
+  -webkit-perspective-origin: 100% 50%; /* Chrome, Safari, Opera */
+  -moz-perspective-origin: 100% 50%;
+  perspective-origin: 100% 50%;
+
+  overflow-x: hidden;
+  overflow-y: auto; /* auto; */
+
+  height: 450px; /* 100vh */
+  width: 100%;
+
+  color: #fff;
+  /*background-image: linear-gradient(20deg, #000, #a16e6b);*/
+
+}
+
+.parallax_layer{
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 500px;
+  overflow: hidden;
+}
+
+.parallax_layer_back{
+  /* for effect with Safari */
+  position: fixed;
+
+  -webkit-transform: translateZ(-1px) scale(2); /* Chrome, Safari, Opera */
+  -moz-transform: translateZ(-1px) scale(2);
+  -ms-transform: translateZ(-1px) scale(2); /* IE 9 */
+  transform: translateZ(-1px) scale(2);
+
+  -webkit-transform-origin: 100% 50%;
+  -moz-transform-origin: 100% 50%;
+  -ms-transform-origin: 100% 50%;
+  transform-origin: 100% 50%;
+
+  height: 450px;
+  z-index: -10;
+}
+
+.parallax_layer_front{
+  -webkit-transform: translateZ(0); /* Chrome, Safari, Opera */
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0); /* IE 9 */
+  transform: translateZ(0);
+
+  -webkit-transform-origin: 100% 50%;
+  -moz-transform-origin: 100% 50%;
+  -ms-transform-origin: 100% 50%;
+  transform-origin: 100% 50%;
+
+  z-index: -1;
+  height: 450px;
+}
+
+.img_background {
+  height: 500px;
+  min-width: 550px;
+  background-position: top left;
+  background-repeat: no-repeat;
+  background-attachment: fixed; /* for some effect also with non-Safari */
+}
+
+/* daniel */
+.img1 {
+  background-image: url(../../figures/specfem.png);
+  background-color: #553;
+  background-position: top center;
+}
+
+/* ------------------------------------------------------------ */
+/* footer */
+/* ------------------------------------------------------------ */
+
+.page-footer {
+  background-color: #444;
+  min-height: 50px;
+}
+
+.site-footer {
+  font-size: 0.8rem;
+  padding-top: 1rem;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+span.site-footer-owner {
+  float: left;
+}
+
+span.site-footer-credits {
+  float: right;
+}

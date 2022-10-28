@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>SPECFEM3D_Cartesian</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#157878">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="/assets/css/style.css?v=e01eaeac25bebaede87fee4bc75f9f27dc55c330">
+  </head>
+  <body>
+    <section class="page-header">
+      <div class="parallax"><!-- parallax -->
+        <div class="parallax_layer parallax_layer_back">
+          <div class="img_background img1"></div>
+        </div>
+      <!-- </div> -->
+      <div class="parallax_layer parallax_layer_front">
+        <h1 class="project-name">SPECFEM3D_Cartesian</h1>
+        <h2 class="project-tagline">SPECFEM3D_Cartesian simulates acoustic (fluid), elastic (solid), coupled acoustic/elastic, poroelastic or seismic wave propagation in any type of conforming mesh of hexahedra (structured or not.)
+</h2>
+        
+          <a href="http://github.com/danielpeter/specfem3d" class="btn">View on GitHub</a>
+        
+        
+      </div><!-- end of parallax -->
+    </section>
+
+    <section class="main-content">
+      <p><strong>Table of Contents</strong></p>
+
+<ul>
+  <li><a href="#graphics">Graphics</a>
+    <ul>
+      <li><a href="#meshes">Meshes</a></li>
+      <li><a href="#movies">Movies</a>
+        <ul>
+          <li><a href="#movie-surface-and-shakemaps">Movie Surface and Shakemaps</a></li>
+          <li><a href="#movie-volume">Movie Volume</a></li>
+        </ul>
+      </li>
+      <li><a href="#finite-frequency-kernels">Finite-Frequency Kernels</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="graphics">Graphics</h1>
+
+<h2 id="meshes">Meshes</h2>
+
+<p>In case you used the internal mesher <code class="highlighter-rouge">xmeshfem3D</code> to create and partition your mesh, you can output mesh files in ABAQUS (.INP) and DX (.dx) format to visualize them. For this, you must set either the flag <code class="highlighter-rouge">CREATE_DX_FILES</code> or <code class="highlighter-rouge">CREATE_ABAQUS_FILES</code> to <code class="highlighter-rouge">.true.</code> in the mesher’s parameter file <code class="highlighter-rouge">Mesh_Par_file</code> prior to running the mesher (see Chapter [cha:Running-the-Mesher-Meshfem3D] for details). You can then use AVS or OpenDX to visualize the mesh and MPI partition (slices).</p>
+
+<p><img src="figures/vtk_mesh_vp.jpg" alt="Visualization using Paraview of VTK files created by `xgenerate_databases` showing P- and S-wave velocities assigned to the mesh points. The mesh was created by `xmeshfem3D` for 4 processors.&lt;span data-label=&quot;fig:vtk.mesh&quot;&gt;&lt;/span&gt;" title="fig:" /> &lt;div class="figcaption" style="text-align:justify;font-size:80%"&gt;<span style="color:#9A9A9A">Figure: Visualization using Paraview of VTK files created by <code class="highlighter-rouge">xgenerate_databases</code> showing P- and S-wave velocities assigned to the mesh points. The mesh was created by <code class="highlighter-rouge">xmeshfem3D</code> for 4 processors.<span data-label="fig:vtk.mesh"></span></span>&lt;/div&gt; <img src="figures/vtk_mesh_vs.jpg" alt="Visualization using Paraview of VTK files created by `xgenerate_databases` showing P- and S-wave velocities assigned to the mesh points. The mesh was created by `xmeshfem3D` for 4 processors.&lt;span data-label=&quot;fig:vtk.mesh&quot;&gt;&lt;/span&gt;" title="fig:" /></p>
+<div class="figcaption" style="text-align:justify;font-size:80%"><span style="color:#9A9A9A">Figure: Visualization using Paraview of VTK files created by `xgenerate_databases` showing P- and S-wave velocities assigned to the mesh points. The mesh was created by `xmeshfem3D` for 4 processors.<span data-label="fig:vtk.mesh"></span></span></div>
+
+<p>You have also the option to visualize the distributed databases produced by <code class="highlighter-rouge">xgenerate_databases</code> using Paraview . For this, you must set the flag <code class="highlighter-rouge">SAVE_MESH_FILES</code> to <code class="highlighter-rouge">.true.</code> in the main parameter file <code class="highlighter-rouge">Par_file</code> (see Chapter [cha:Main-Parameter] for details). This will create VTK files for each single partition. You can then use Paraview to visualized these partitions.</p>
+
+<p><span><em>T</em>o visualize seismograms with Paraview, you should turn off the flag SU_FORMAT, and turn on the use binary seismograms flag. This will generate .bin files, that you can open with Paraview. You have to select the way you open it (“raw”), and specify the dimensions of the file (NSTEP and NREC).</span></p>
+
+<h2 id="movies">Movies</h2>
+
+<p>To make a surface or volume movie of the simulation, set parameters <code class="highlighter-rouge">MOVIE_SURFACE</code>, <code class="highlighter-rouge">MOVIE_VOLUME</code>, <code class="highlighter-rouge">MOVIE_TYPE</code>, and <code class="highlighter-rouge">NTSTEP_BETWEEN_FRAMES</code> in the <code class="highlighter-rouge">Par_file</code>. Turning on the movie flags, in particular <code class="highlighter-rouge">MOVIE_VOLUME</code>, produces large output files. <code class="highlighter-rouge">MOVIE_VOLUME</code> files are saved in the <code class="highlighter-rouge">LOCAL_PATH</code> directory, whereas <code class="highlighter-rouge">MOVIE_SURFACE</code> output files are saved in the <code class="highlighter-rouge">OUTPUT_FILES</code> directory. We save the displacement field if the parameter <code class="highlighter-rouge">SAVE_DISPLACEMENT</code> is set, otherwise the velocity field is saved. The look of a movie is determined by the half-duration of the source. The half-duration should be large enough so that the movie does not contain frequencies that are not resolved by the mesh, i.e., it should not contain numerical noise. This can be accomplished by selecting a CMT <code class="highlighter-rouge">HALF_DURATION</code> &gt; 1.1 (\times) smallest period (see figure [fig:CMTSOLUTION-file]). When <code class="highlighter-rouge">MOVIE_SURFACE</code> = .<code class="highlighter-rouge">true.</code>, the half duration of each source in the <code class="highlighter-rouge">CMTSOLUTION</code> file is replaced by</p>
+
+<blockquote>
+  <p>[\sqrt{(}\mathrm{\mathtt{HALF_DURATIO}\mathtt{N}^{2}}+\mathrm{\mathtt{HDUR_MOVI}\mathtt{E}^{2}})]</p>
+</blockquote>
+
+<p><strong>NOTE:</strong> If <code class="highlighter-rouge">HDUR_MOVIE</code> is set to 0.0, the code will select the appropriate value of 1.1 (\times) smallest period. As usual, for a point source one can set <code class="highlighter-rouge">half duration</code> in the <code class="highlighter-rouge">CMTSOLUTION</code> file to be 0.0 and <code class="highlighter-rouge">HDUR_MOVIE</code> = 0.0 in the <code class="highlighter-rouge">Par_file</code> to get the highest frequencies resolved by the simulation, but for a finite source one would keep all the <code class="highlighter-rouge">half durations</code> as prescribed by the finite source model and set <code class="highlighter-rouge">HDUR_MOVIE</code> = 0.0.</p>
+
+<h3 id="movie-surface-and-shakemaps">Movie Surface and Shakemaps</h3>
+
+<p>When running <code class="highlighter-rouge">xspecfem3D</code> with the <code class="highlighter-rouge">MOVIE_SURFACE</code> flag turned on, the code outputs <code class="highlighter-rouge">moviedata??????</code> files in the <code class="highlighter-rouge">OUTPUT_FILES</code> directory. There are several flags in the main parameter file <code class="highlighter-rouge">Par_file</code> that control the output of these movie data files, please see section [cha:Main-Parameter] for more details. Especially, the following parameters affect the output:</p>
+
+<ul>
+  <li>
+    <p><code class="highlighter-rouge">SAVE_DISPLACEMENT</code>: to save displacement instead of velocity,</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">NTSTEP_BETWEEN_FRAMES</code>: to set the timesteps between frames,</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">USE_HIGHRES_FOR_MOVIES</code>: to save values at all GLL point instead of element edges.</p>
+  </li>
+</ul>
+
+<p>You can also output shakemaps independant of the <code class="highlighter-rouge">MOVIE_SURFACE</code> flag. Shakemaps show the peak-ground values of the simulation. For creating shakemaps (at the end of the simulation), you would set the parameter <code class="highlighter-rouge">CREATE_SHAKEMAP</code> to <code class="highlighter-rouge">.true.</code>. For shakemaps, both the parameters <code class="highlighter-rouge">MOVIE_TYPE</code> and <code class="highlighter-rouge">USE_HIGHRES_FOR_MOVIES</code> affect the output. The following setting has an additional affect:</p>
+
+<ul>
+  <li><code class="highlighter-rouge">MOVIE_TYPE</code>: if set to (1), the horizontal peak-ground values of displacement/velocity/acceleration are output. if set to (2), the maximum length of the particle displacement/velocity/acceleration vector is output. Please be aware that these peak-ground values can differ from each other.</li>
+</ul>
+
+<p>The movie and shakemap output files are in a custom binary format, but there is a program provided to convert the output into more user friendly formats:</p>
+
+<p><span><code class="highlighter-rouge">xcreate_movie_shakemap_AVS_DX_GMT</code></span><br />
+From <code class="highlighter-rouge">create_movie_shakemap_AVS_DX_GMT.f90</code>, it outputs data in ASCII, OpenDX, or AVS format (also readable in ParaView). Before compiling the code, make sure you have the file <code class="highlighter-rouge">surface_from_mesher.h</code> in the <code class="highlighter-rouge">OUTPUT_FILES/</code> directory. This file will be created by the solver run. Then type</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>make xcreate_movie_shakemap_AVS_DX_GMT
+</code></pre>
+</div>
+
+<p>and run the executable <code class="highlighter-rouge">xcreate_movie_shakemap_AVS_DX_GMT</code> in the main directory. It will create visualization files in your format of choice. The code will prompt the user for input parameters.</p>
+
+<p><img src="figures/movie_surf_1.jpg" alt="Visualization using AVS files created by `xcreate_movie_shakemap_AVS_DX_GMT` showing movie snapshots of vertical velocity components at different times.&lt;span data-label=&quot;fig:movie.surf&quot;&gt;&lt;/span&gt;" title="fig:" /> &lt;div class="figcaption" style="text-align:justify;font-size:80%"&gt;<span style="color:#9A9A9A">Figure: Visualization using AVS files created by <code class="highlighter-rouge">xcreate_movie_shakemap_AVS_DX_GMT</code> showing movie snapshots of vertical velocity components at different times.<span data-label="fig:movie.surf"></span></span>&lt;/div&gt; <img src="figures/movie_surf_2.jpg" alt="Visualization using AVS files created by `xcreate_movie_shakemap_AVS_DX_GMT` showing movie snapshots of vertical velocity components at different times.&lt;span data-label=&quot;fig:movie.surf&quot;&gt;&lt;/span&gt;" title="fig:" /> &lt;div class="figcaption" style="text-align:justify;font-size:80%"&gt;<span style="color:#9A9A9A">Figure: Visualization using AVS files created by <code class="highlighter-rouge">xcreate_movie_shakemap_AVS_DX_GMT</code> showing movie snapshots of vertical velocity components at different times.<span data-label="fig:movie.surf"></span></span>&lt;/div&gt; <img src="figures/movie_surf_3.jpg" alt="Visualization using AVS files created by `xcreate_movie_shakemap_AVS_DX_GMT` showing movie snapshots of vertical velocity components at different times.&lt;span data-label=&quot;fig:movie.surf&quot;&gt;&lt;/span&gt;" title="fig:" /></p>
+<div class="figcaption" style="text-align:justify;font-size:80%"><span style="color:#9A9A9A">Figure: Visualization using AVS files created by `xcreate_movie_shakemap_AVS_DX_GMT` showing movie snapshots of vertical velocity components at different times.<span data-label="fig:movie.surf"></span></span></div>
+
+<p>The <code class="highlighter-rouge">SPECFEM3D Cartesian</code> code is running in near real-time to produce animations of southern California earthquakes via the web; see Southern California ShakeMovie.</p>
+
+<h3 id="movie-volume">Movie Volume</h3>
+
+<p>When running xspecfem3D with the <code class="highlighter-rouge">MOVIE_VOLUME</code> flag turned on, the code outputs several files in <code class="highlighter-rouge">LOCAL_PATH</code> specified in the main <code class="highlighter-rouge">Par_file</code>, e.g. in directory <code class="highlighter-rouge">OUTPUT_FILES/DATABASES_MPI</code>. The output is saved by each processor at the time interval specified by <code class="highlighter-rouge">NTSTEP_BETWEEN_FRAMES</code>. For all domains, the velocity field is output to files:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>proc??????_velocity_X_it??????.bin
+proc??????_velocity_Y_it??????.bin
+proc??????_velocity_Z_it??????.bin
+</code></pre>
+</div>
+
+<p>For elastic domains, the divergence and curl taken from the velocity field, i.e. (\nabla\cdot{\bf {v}}) and (\nabla\times{\bf {v}}), get stored as well:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>proc??????_div_it??????.bin
+proc??????_curl_X_t??????.bin
+proc??????_curl_Y_it??????.bin
+proc??????_curl_Z_it??????.bin
+</code></pre>
+</div>
+
+<p>The files denoted <code class="highlighter-rouge">proc??????_div_glob_it??????.bin</code> and <code class="highlighter-rouge">proc??????_curl_glob_it??????.bin</code> are stored on the global points only, all the other arrays are stored on all GLL points. Note that the components X/Y/Z can change to E/N/Z according to the <code class="highlighter-rouge">SUPPRESS_UTM_PROJECTION</code> flag (see also Appendix [cha:Coordinates] and [cha:channel-codes]).</p>
+
+<p><img src="figures/movie_volume_1.jpg" alt="Paraview visualization using movie volume files (converted by `xcombine_vol_data` and `mesh2vtu.pl`) and showing snapshots of vertical velocity components at different times.&lt;span data-label=&quot;fig:movie.volume&quot;&gt;&lt;/span&gt;" title="fig:" /> &lt;div class="figcaption" style="text-align:justify;font-size:80%"&gt;<span style="color:#9A9A9A">Figure: Paraview visualization using movie volume files (converted by <code class="highlighter-rouge">xcombine_vol_data</code> and <code class="highlighter-rouge">mesh2vtu.pl</code>) and showing snapshots of vertical velocity components at different times.<span data-label="fig:movie.volume"></span></span>&lt;/div&gt; <img src="figures/movie_volume_2.jpg" alt="Paraview visualization using movie volume files (converted by `xcombine_vol_data` and `mesh2vtu.pl`) and showing snapshots of vertical velocity components at different times.&lt;span data-label=&quot;fig:movie.volume&quot;&gt;&lt;/span&gt;" title="fig:" /> &lt;div class="figcaption" style="text-align:justify;font-size:80%"&gt;<span style="color:#9A9A9A">Figure: Paraview visualization using movie volume files (converted by <code class="highlighter-rouge">xcombine_vol_data</code> and <code class="highlighter-rouge">mesh2vtu.pl</code>) and showing snapshots of vertical velocity components at different times.<span data-label="fig:movie.volume"></span></span>&lt;/div&gt; <img src="figures/movie_volume_3.jpg" alt="Paraview visualization using movie volume files (converted by `xcombine_vol_data` and `mesh2vtu.pl`) and showing snapshots of vertical velocity components at different times.&lt;span data-label=&quot;fig:movie.volume&quot;&gt;&lt;/span&gt;" title="fig:" /></p>
+<div class="figcaption" style="text-align:justify;font-size:80%"><span style="color:#9A9A9A">Figure: Paraview visualization using movie volume files (converted by `xcombine_vol_data` and `mesh2vtu.pl`) and showing snapshots of vertical velocity components at different times.<span data-label="fig:movie.volume"></span></span></div>
+
+<p>To visualize these files, we use an auxiliary program <code class="highlighter-rouge">combine_vol_data.f90</code> to combine the data from all slices into one mesh file. To compile it in the root directory, type:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>make xcombine_vol_data
+</code></pre>
+</div>
+
+<p>which will create the executable <code class="highlighter-rouge">bin/xcombine_vol_data</code>. To output the usage of this executable, type</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>./bin/xcombine_vol_data
+</code></pre>
+</div>
+
+<p>without arguments.</p>
+
+<p><code class="highlighter-rouge">xcombine_vol_data</code> will combine the data on the different processors (located in <code class="highlighter-rouge">OUTPUT_FILES/DATABASES_MPI</code>), for a given quantity and a given iteration, to one file. For example, if you want to combine <code class="highlighter-rouge">velocity_Z</code>, for the iteration 400 on 4 processors, i.e. if you want to combine these files :</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>proc000000_velocity_Z_it000400.bin
+proc000001_velocity_Z_it000400.bin
+proc000002_velocity_Z_it000400.bin
+proc000003_velocity_Z_it000400.bin
+</code></pre>
+</div>
+
+<p>You have to go in the directory of the concerned example (where are the directories <code class="highlighter-rouge">DATA</code>, <code class="highlighter-rouge">OUTPUT_FILES</code>, etc.). Then, you can launch <code class="highlighter-rouge">xcombine_vol_data</code>, specifying the path where it is located. As an example, if the <code class="highlighter-rouge">DATA</code> and <code class="highlighter-rouge">OUTPUT_FILES</code> directories of the concerned example are in the root specfem3d directory, <code class="highlighter-rouge">xcombine_vol_data</code> is in <code class="highlighter-rouge">./bin</code>, and you have to type:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>./bin/xcombine_vol_data 0 3 velocity_Z_it000400 ./OUTPUT_FILES/DATABASES_MPI ./OUTPUT_FILES 0
+</code></pre>
+</div>
+
+<p>Here, (0) is the number of the first processor, (3) the number of the last one, <code class="highlighter-rouge">velocity_Z_it000400</code> the name of the files we want to combine without the prefix <code class="highlighter-rouge">proc000000*_</code>, <code class="highlighter-rouge">./OUTPUT_FILES/DATABASES_MPI</code> the directory where the files are located, <code class="highlighter-rouge">./OUTPUT_FILES</code> the directory where the combined file will be stored, and (0) is the parameter to create a low-resolution mesh file ((1) for a high-resolution).</p>
+
+<p>When compiling the code, you will get two executables related to this: xcombine_vol_data, and xcombine_vol_data_vtk. Use the executable that has the _vtk extension if you want to directly create VTK files. If you use the executable that does not have the _vtk extension, then the output mesh file will have a name of the form <code class="highlighter-rouge">velocity_Z_it000400.mesh</code>. You will then have to convert the <code class="highlighter-rouge">.mesh</code> file into the VTU (Unstructured grid file) format which can be viewed in ParaView.</p>
+
+<p>For this task, you can use and modify the script <code class="highlighter-rouge">mesh2vtu.pl</code> located in directory <code class="highlighter-rouge">utils/Visualization/Paraview</code>, for example:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>mesh2vtu.pl -i velocity_Z_it000400.mesh -o velocity_Z_it000400.vtu
+</code></pre>
+</div>
+
+<p>Notice that this Perl script uses a program <code class="highlighter-rouge">mesh2vtu</code> in the <code class="highlighter-rouge">utils/Visualization/Paraview/mesh2vtu</code> directory, which further uses the VTK run-time library for its execution. Therefore, make sure you have them properly set in the script according to your system.</p>
+
+<p>Then, to do a movie with several iterations, you have to repeat this process for each iteration you want to put in your movie.</p>
+
+<h2 id="finite-frequency-kernels">Finite-Frequency Kernels</h2>
+
+<p>The finite-frequency kernels computed as explained in Section [sec:Adjoint-simulation-finite] are saved in the <code class="highlighter-rouge">LOCAL_PATH</code> at the end of the simulation. Therefore, we first need to collect these files on the front end, combine them into one mesh file, and visualize them with some auxiliary programs.</p>
+
+<ol>
+  <li>
+    <p><strong>Create slice files</strong></p>
+
+    <p>We will only discuss the case of one source-receiver pair, i.e., the so-called banana-doughnut kernels. Although it is possible to collect the kernel files from all slices on the front end, it usually takes up too much storage space (at least tens of gigabytes). Since the sensitivity kernels are the strongest along the source-receiver great circle path, it is sufficient to collect only the slices that are along or close to the great circle path.</p>
+
+    <p>A Perl script <code class="highlighter-rouge">slice_number.pl</code> located in directory <code class="highlighter-rouge">utils/Visualization/Paraview/</code> can help to figure out the slice numbers that lie along the great circle path. It applies to meshes created with the internal mesher <code class="highlighter-rouge">xmeshfem3D</code>.</p>
+
+    <ol>
+      <li>
+        <p>On machines where you have access to the script, copy the <code class="highlighter-rouge">Mesh_Par_file</code>, and <code class="highlighter-rouge">output_solver</code> files, and run:</p>
+
+        <div class="highlighter-rouge"><pre class="highlight"><code>slice_number.pl Mesh_Par_file output_solver.txt slice_file
+</code></pre>
+        </div>
+
+        <p>which will generate a <code class="highlighter-rouge">slices_file</code>.</p>
+      </li>
+      <li>
+        <p>For cases with multiple sources and multiple receivers, you need to provide a slice file before proceeding to the next step.</p>
+      </li>
+    </ol>
+  </li>
+  <li>
+    <p><strong>Collect the kernel files</strong></p>
+
+    <p>After obtaining the slice files, you can collect the corresponding kernel files from the given slices.</p>
+
+    <ol>
+      <li>
+        <p>You can use or modify the script <code class="highlighter-rouge">utils/copy_basin_database.pl</code> to accomplish this:</p>
+
+        <div class="highlighter-rouge"><pre class="highlight"><code>utils/copy_database.pl slice_file lsf_machine_file filename [jobid]
+</code></pre>
+        </div>
+
+        <p>where <code class="highlighter-rouge">lsf_machine_file</code><span> is the machine file generated by the LSF scheduler, </span><code class="highlighter-rouge">filename</code><span> is the kernel name (e.g., </span><code class="highlighter-rouge">rho_kernel</code><span>, </span><code class="highlighter-rouge">alpha_kernel</code><span> and </span><code class="highlighter-rouge">beta_kernel</code><span>), and the optional </span><code class="highlighter-rouge">jobid</code><span> is the name of the subdirectory under </span><code class="highlighter-rouge">LOCAL_PATH</code><span> where all the kernel files are stored.</span></p>
+      </li>
+      <li>
+        <p>After executing this script, all the necessary mesh topology files as well as the kernel array files are collected to the local directory of the front end.</p>
+      </li>
+    </ol>
+  </li>
+  <li>
+    <p><strong>Combine kernel files into one mesh file</strong></p>
+
+    <p>We use an auxiliary program <code class="highlighter-rouge">combine_vol_data.f90</code> to combine the kernel files from all slices into one mesh file.</p>
+
+    <ol>
+      <li>
+        <p>Compile it in the root directory:</p>
+
+        <div class="highlighter-rouge"><pre class="highlight"><code>make xcombine_vol_data
+./bin/xcombine_vol_data slice_list filename input_dir output_dir high/low-resolution
+</code></pre>
+        </div>
+
+        <p>where <code class="highlighter-rouge">input_dir</code> is the directory where all the individual kernel files are stored, and <code class="highlighter-rouge">output_dir</code> is where the mesh file will be written.</p>
+      </li>
+      <li>
+        <p>Use 1 for a high-resolution mesh, outputting all the GLL points to the mesh file, or use 0 for low resolution, outputting only the corner points of the elements to the mesh file.</p>
+      </li>
+      <li>
+        <p>The output mesh file will have the name <code class="highlighter-rouge">filename_rho(alpha,beta).mesh</code></p>
+      </li>
+    </ol>
+  </li>
+  <li>
+    <p><strong>Convert mesh files into .vtu files</strong></p>
+
+    <ol>
+      <li>
+        <p>We next convert the <code class="highlighter-rouge">.mesh</code> file into the VTU (Unstructured grid file) format which can be viewed in ParaView. For this task, you can use and modify the script <code class="highlighter-rouge">mesh2vtu.pl</code> located in directory <code class="highlighter-rouge">utils/Visualization/Paraview/</code>, for example:</p>
+
+        <div class="highlighter-rouge"><pre class="highlight"><code>mesh2vtu.pl -i file.mesh -o file.vtu
+</code></pre>
+        </div>
+      </li>
+      <li>
+        <p>Notice that this Perl script uses a program <code class="highlighter-rouge">mesh2vtu</code> in the <code class="highlighter-rouge">utils/Visualization/Paraview/mesh2vtu</code> directory, which further uses the VTK run-time library for its execution. Therefore, make sure you have them properly set in the script according to your system.</p>
+      </li>
+    </ol>
+  </li>
+  <li>
+    <p><strong>Copy over the source and receiver .vtk file</strong></p>
+
+    <p>In the case of a single source and a single receiver, the simulation also generates the file <code class="highlighter-rouge">sr.vtk</code> located in the <code class="highlighter-rouge">OUTPUT_FILES/</code> directory to describe the source and receiver locations, which can also be viewed in Paraview in the next step.</p>
+  </li>
+  <li>
+    <p><strong>View the mesh in ParaView</strong></p>
+
+    <p>Finally, we can view the mesh in ParaView .</p>
+
+    <ol>
+      <li>
+        <p>Open ParaView.</p>
+      </li>
+      <li>
+        <p>From the top menu, (\rightarrow), select <code class="highlighter-rouge">file.vtu</code>, and click the button.</p>
+
+        <ul>
+          <li>If the mesh file is of moderate size, it shows up on the screen; otherwise, only the bounding box is shown.</li>
+        </ul>
+      </li>
+      <li>
+        <p>Click (\rightarrow) (\rightarrow) and select to display it.</p>
+      </li>
+      <li>
+        <p>To create a cross-section of the volumetric mesh, choose (\rightarrow) , and under , choose (\rightarrow) .</p>
+      </li>
+      <li>
+        <p>Fill in center and normal information given by the <code class="highlighter-rouge">global_slice_number.pl</code> script (either from the standard output or from <code class="highlighter-rouge">normal_plane.txt</code> file).</p>
+      </li>
+      <li>
+        <p>To change the color scale, go to (\rightarrow) (\rightarrow) and reselect lower and upper limits, or change the color scheme.</p>
+      </li>
+      <li>
+        <p>Now load in the source and receiver location file by (\rightarrow) , select <code class="highlighter-rouge">sr.vt</code>k, and click the button. Choose (\rightarrow) , and represent the points by ‘’.</p>
+      </li>
+      <li>
+        <p>For more information about ParaView, see the ParaView Users Guide .</p>
+      </li>
+    </ol>
+  </li>
+</ol>
+
+<p><img src="figures/3D-S-Kernel.jpg" alt="(a) Top Panel: Vertical source-receiver cross-section of the S-wave finite-frequency sensitivity kernel (K_{\beta}) for station GSC at an epicentral distance of 176 km from the September 3, 2002, Yorba Linda earthquake. Lower Panel: Vertical source-receiver cross-section of the 3D S-wave speed model used for the spectral-element simulations (Komatitsch et al. 2004). (b) The same as (a) but for station HEC at an epicentral distance of 165 km (Liu and Tromp 2006).&lt;span data-label=&quot;figure:P-wave-speed-finite-frequency&quot;&gt;&lt;/span&gt;" /></p>
+<div class="figcaption" style="text-align:justify;font-size:80%"><span style="color:#9A9A9A">Figure: (a) Top Panel: Vertical source-receiver cross-section of the S-wave finite-frequency sensitivity kernel \(K_{\beta}\) for station GSC at an epicentral distance of 176 km from the September 3, 2002, Yorba Linda earthquake. Lower Panel: Vertical source-receiver cross-section of the 3D S-wave speed model used for the spectral-element simulations (Komatitsch et al. 2004). (b) The same as (a) but for station HEC at an epicentral distance of 165 km (Liu and Tromp 2006).<span data-label="figure:P-wave-speed-finite-frequency"></span></span></div>
+
+<h2 id="references">References</h2>
+
+<p>Komatitsch, Dimitri, Qinya Liu, Jeroen Tromp, Peter Süss, Christiane Stidham, and John H. Shaw. 2004. “Simulations of Ground Motion in the Los Angeles Basin Based Upon the Spectral-Element Method.” <em>Bull. Seism. Soc. Am.</em> 94 (1): 187–206. doi:<a href="http://dx.doi.org/10.1785/0120030077">10.1785/0120030077</a>.</p>
+
+<p>Liu, Qinya, and Jeroen Tromp. 2006. “Finite-Frequency Kernels Based on Adjoint Methods.” <em>Bull. Seism. Soc. Am.</em> 96 (6): 2383–97. doi:<a href="http://dx.doi.org/10.1785/0120060041">10.1785/0120060041</a>.</p>
+
+<hr />
+<blockquote>
+  <p>This documentation has been automatically generated by <a href="http://www.pandoc.org">pandoc</a>
+based on the User manual (LaTeX version) in folder doc/USER_MANUAL/
+(Mar 10, 2020)</p>
+</blockquote>
+
+
+    </section>
+
+    <section class="page-footer">
+      <footer class="site-footer">
+        
+          <span class="site-footer-owner"><a href="http://github.com/danielpeter/specfem3d">specfem3d</a> is maintained by <a href="http://github.com/danielpeter">danielpeter</a></span>
+        
+        <span class="site-footer-credits">generated by <a href="https://pages.github.com">GitHub Pages</a></span>
+      </footer>
+    </section>
+
+    
+  </body>
+</html>

@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>SPECFEM3D_Cartesian</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#157878">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="/assets/css/style.css?v=e01eaeac25bebaede87fee4bc75f9f27dc55c330">
+  </head>
+  <body>
+    <section class="page-header">
+      <div class="parallax"><!-- parallax -->
+        <div class="parallax_layer parallax_layer_back">
+          <div class="img_background img1"></div>
+        </div>
+      <!-- </div> -->
+      <div class="parallax_layer parallax_layer_front">
+        <h1 class="project-name">SPECFEM3D_Cartesian</h1>
+        <h2 class="project-tagline">SPECFEM3D_Cartesian simulates acoustic (fluid), elastic (solid), coupled acoustic/elastic, poroelastic or seismic wave propagation in any type of conforming mesh of hexahedra (structured or not.)
+</h2>
+        
+          <a href="http://github.com/danielpeter/specfem3d" class="btn">View on GitHub</a>
+        
+        
+      </div><!-- end of parallax -->
+    </section>
+
+    <section class="main-content">
+      <p><strong>Table of Contents</strong></p>
+
+<ul>
+  <li><a href="#noise-cross-correlation-simulations">Noise Cross-correlation Simulations</a>
+    <ul>
+      <li><a href="#input-parameter-files">Input Parameter Files</a></li>
+      <li><a href="#noise-simulations-step-by-step">Noise Simulations: Step by Step</a>
+        <ul>
+          <li><a href="#pre-simulation">Pre-simulation</a></li>
+          <li><a href="#simulations">Simulations</a></li>
+          <li><a href="#post-simulation">Post-simulation</a></li>
+        </ul>
+      </li>
+      <li><a href="#example">Example</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="noise-cross-correlation-simulations">Noise Cross-correlation Simulations</h1>
+
+<p>Besides earthquake simulations, SPECFEM3D Cartesian includes functionality for seismic noise tomography as well. In order to proceed successfully in this chapter, it is critical that you have already familiarized yourself with procedures for meshing (Chapter [cha:Mesh-Generation]), creating distributed databases (Chapter [cha:Creating-Distributed-Databases]), running earthquake simulations (Chapters [cha:Running-the-Solver]) and adjoint simulations (Chapter [cha:Adjoint-Simulations]). Also, make sure you read the article ‘Noise cross-correlation sensitivity kernels’ (Tromp et al. 2010), in order to understand noise simulations from a theoretical perspective.</p>
+
+<h2 id="input-parameter-files">Input Parameter Files</h2>
+
+<p>As usual, the three main input files are crucial: <code class="highlighter-rouge">Par_file</code>, <code class="highlighter-rouge">CMTSOLUTION</code> and <code class="highlighter-rouge">STATIONS</code>. Unless otherwise specified, those input files should be located in directory <code class="highlighter-rouge">DATA/</code>.</p>
+
+<p><code class="highlighter-rouge">CMTSOLUTION</code> is required for all simulations. At a first glance, it may seem unexpected to have it here, since the noise simulations should have nothing to do with the earthquake – <code class="highlighter-rouge">CMTSOLUTION</code>. However, for noise simulations, it is critical to have no earthquakes. In other words, the moment tensor specified in <code class="highlighter-rouge">CMTSOLUTION</code> must be set to zero manually!</p>
+
+<p><code class="highlighter-rouge">STATIONS</code> remains the same as in previous earthquake simulations, except that the order of receivers listed in <code class="highlighter-rouge">STATIONS</code> is now important. The order will be used to determine the ‘master’ receiver, i.e., the one that simultaneously cross correlates with the others.</p>
+
+<p><code class="highlighter-rouge">Par_file</code> also requires careful attention. A parameter called <code class="highlighter-rouge">NOISE_TOMOGRAPHY</code> has been added which specifies the type of simulation to be run. <code class="highlighter-rouge">NOISE_TOMOGRAPHY</code> is an integer with possible values 0, 1, 2 and 3. For example, when <code class="highlighter-rouge">NOISE_TOMOGRAPHY</code> equals 0, a regular earthquake simulation will be run. When it is 1/2/3, you are about to run step 1/2/3 of the noise simulations respectively. Should you be confused by the three steps, refer to Tromp et al. (2010) for details.</p>
+
+<p>Another change to <code class="highlighter-rouge">Par_file</code> involves the parameter <code class="highlighter-rouge">NSTEP</code>. While for regular earthquake simulations this parameter specifies the length of synthetic seismograms generated, for noise simulations it specifies the length of the seismograms used to compute cross correlations. The actual cross correlations are thus twice this length, i.e., (2 \mathrm{NSTEP}-1). The code automatically makes the modification accordingly, if <code class="highlighter-rouge">NOISE_TOMOGRAPHY</code> is not zero.</p>
+
+<p>There are other parameters in <code class="highlighter-rouge">Par_file</code> which should be given specific values. For instance, since the first two steps for calculating noise sensitivity kernels correspond to forward simulations, <code class="highlighter-rouge">SIMULATION_TYPE</code> must be 1 when <code class="highlighter-rouge">NOISE_TOMOGRAPHY</code> equals 1 or 2. Also, we have to reconstruct the ensemble forward wavefields in adjoint simulations, therefore we need to set <code class="highlighter-rouge">SAVE_FORWARD</code> to <code class="highlighter-rouge">.true.</code> for the second step, i.e., when <code class="highlighter-rouge">NOISE_TOMOGRAPHY</code> equals 2. The third step is for kernel constructions. Hence <code class="highlighter-rouge">SIMULATION_TYPE</code> should be 3, whereas <code class="highlighter-rouge">SAVE_FORWARD</code> must be <code class="highlighter-rouge">.false.</code>.</p>
+
+<p>Finally, for most system architectures, please make sure that <code class="highlighter-rouge">LOCAL_PATH</code> in <code class="highlighter-rouge">Par_file</code> is in fact local, not globally shared. Because we have to save the wavefields at the earth’s surface at every time step, it is quite problematic to have a globally shared <code class="highlighter-rouge">LOCAL_PATH</code>, in terms of both disk storage and I/O speed.</p>
+
+<h2 id="noise-simulations-step-by-step">Noise Simulations: Step by Step</h2>
+
+<p>Proper parameters in those parameter files are not enough for noise simulations to run. We have more parameters to specify: for example, the ensemble-averaged noise spectrum, the noise distribution etc. However, since there are a few ‘new’ files, it is better to introduce them sequentially. In this section, standard procedures for noise simulations are described.</p>
+
+<h3 id="pre-simulation">Pre-simulation</h3>
+
+<ul>
+  <li>
+    <p>As usual, we first configure the software package using:</p>
+
+    <div class="highlighter-rouge"><pre class="highlight"><code>./configure FC=ifort MPIFC=mpif90
+</code></pre>
+    </div>
+
+    <p>Use the following if SCOTCH is needed:</p>
+
+    <div class="highlighter-rouge"><pre class="highlight"><code>./configure FC=ifort MPIFC=mpif90 --with-scotch-dir=/opt/scotch
+</code></pre>
+    </div>
+  </li>
+  <li>
+    <p>Next, we need to compile the source code using:</p>
+
+    <div class="highlighter-rouge"><pre class="highlight"><code>make xgenerate_databases
+make xspecfem3D
+</code></pre>
+    </div>
+  </li>
+  <li>
+    <p>Before we can run noise simulations, we have to specify the noise statistics, e.g., the ensemble-averaged noise spectrum. Matlab scripts are provided to help you to generate the necessary file:</p>
+
+    <div class="highlighter-rouge"><pre class="highlight"><code>EXAMPLES/noise_tomography/NOISE_TOMOGRAPHY.m  (main program)
+EXAMPLES/noise_tomography/PetersonNoiseModel.m
+</code></pre>
+    </div>
+
+    <p>In Matlab, simply run:</p>
+
+    <div class="highlighter-rouge"><pre class="highlight"><code>NOISE_TOMOGRAPHY(NSTEP, DT, Tmin, Tmax, NOISE_MODEL)
+</code></pre>
+    </div>
+
+    <p><code class="highlighter-rouge">DT</code> is given in <code class="highlighter-rouge">Par_file</code>, but <span> <code class="highlighter-rouge">NSTEP</code> is NOT the one specified in <code class="highlighter-rouge">Par_file</code></span>. <span><strong>Instead, you have to feed (2 \mathrm{NSTEP}-1) to account for the doubled length of cross correlations</strong></span>. <code class="highlighter-rouge">Tmin</code> and <code class="highlighter-rouge">Tmax</code> correspond to the period range you are interested in, whereas <code class="highlighter-rouge">NOISE_MODEL</code> denotes the noise model you will be using (<code class="highlighter-rouge">’NLNM’</code> for New Low Noise Model or <code class="highlighter-rouge">’NHNM’</code> for New High Noise Model). Details can be found in the Matlab script.</p>
+
+    <p>After running the Matlab script, you will be given the following information (plus a figure in Matlab):</p>
+
+    <div class="highlighter-rouge"><pre class="highlight"><code>*************************************************************
+the source time function has been saved in:
+..../S_squared (note this path must be different)
+S_squared should be put into directory:
+./NOISE_TOMOGRAPHY/ in the SPECFEM3D Cartesian package
+</code></pre>
+    </div>
+
+    <p>In other words, the Matlab script creates a file called <code class="highlighter-rouge">S_squared</code>, which is the first ‘new’ input file we encounter for noise simulations.</p>
+
+    <p>One may choose a flat noise spectrum rather than Peterson’s noise model. This can be done easily by modifying the Matlab script a little.</p>
+  </li>
+  <li>
+    <p>Create a new directory in the SPECFEM3D Cartesian package, name it as <code class="highlighter-rouge">./NOISE_TOMOGRAPHY/</code>. We will add some parameter files later in this folder.</p>
+  </li>
+  <li>
+    <p>Put the Matlab-generated-file <code class="highlighter-rouge">S_squared</code> in <code class="highlighter-rouge">./NOISE_TOMOGRAPHY/</code>.</p>
+
+    <p>That’s to say, you will have a file <code class="highlighter-rouge">./NOISE_TOMOGRAPHY/S_squared</code> in the example provided in the SPECFEM3D Cartesian package.</p>
+  </li>
+  <li>
+    <p>Create a file called <code class="highlighter-rouge">./NOISE_TOMOGRAPHY/irec_master_noise</code>. Note that this file is located in directory <code class="highlighter-rouge">./NOISE_TOMOGRAPHY/</code> as well. In general, all noise simulation related parameter files go into that directory. <code class="highlighter-rouge">irec_master_noise</code> contains only one integer, which is the ID of the ‘master’ receiver. For example, if this file contains 5, it means that the fifth receiver listed in <code class="highlighter-rouge">DATA/STATIONS</code> becomes the ‘master’. That’s why we mentioned previously that the order of receivers in <code class="highlighter-rouge">DATA/STATIONS</code> is important.</p>
+
+    <p>Note that in some simulations, the <code class="highlighter-rouge">DATA/STATIONS</code> might contain receivers which are outside of our computational domains. Therefore, the integer in <code class="highlighter-rouge">irec_master_noise</code> is actually the ID in <code class="highlighter-rouge">DATA/STATIONS_FILTERED</code> (which is generated by <code class="highlighter-rouge">bin/xgenerate_databases</code>).</p>
+  </li>
+  <li>
+    <p>Create a file called <code class="highlighter-rouge">./NOISE_TOMOGRAPHY/nu_master</code>. This file holds three numbers, forming a (unit) vector. It describes which component we are cross-correlating at the ‘master’ receiver, i.e., ({\hat}^{\alpha}) in Tromp et al. (2010). The three numbers correspond to E/N/Z components respectively. Most often, the vertical component is used, and in those cases the three numbers should be 0, 0 and 1.</p>
+  </li>
+  <li>
+    <p>Describe the noise direction and distributions in <code class="highlighter-rouge">src/specfem3d/noise_tomography.f90</code>. Search for a subroutine called <code class="highlighter-rouge">noise_distribution_direction</code> in <code class="highlighter-rouge">noise_tomography.f90</code>. It is actually located at the very beginning of <code class="highlighter-rouge">noise_tomography.f90</code>. The default assumes vertical noise and a uniform distribution across the whole free surface of the model. It should be quite self-explanatory for modifications. Should you modify this part, you have to re-compile the source code.</p>
+  </li>
+</ul>
+
+<h3 id="simulations">Simulations</h3>
+
+<p>With all of the above done, we can finally launch our simulations. Again, please make sure that the <code class="highlighter-rouge">LOCAL_PATH</code> in <code class="highlighter-rouge">DATA/Par_file</code> is not globally shared. It is quite problematic to have a globally shared <code class="highlighter-rouge">LOCAL_PATH</code>, in terms of both disk storage and speed of I/O (we have to save the wavefields at the earth’s surface at every time step).</p>
+
+<p>As discussed in Tromp et al. (2010), it takes three steps/simulations to obtain one contribution of the ensemble sensitivity kernels:</p>
+
+<ul>
+  <li>
+    <p>Step 1: simulation for generating wavefields</p>
+
+    <div class="highlighter-rouge"><pre class="highlight"><code>SIMULATION_TYPE = 1
+NOISE_TOMOGRAPHY = 1
+SAVE_FORWARD (not used, can be either .true. or .false.)
+</code></pre>
+    </div>
+  </li>
+  <li>
+    <p>Step 2: simulation for ensemble forward wavefields</p>
+
+    <div class="highlighter-rouge"><pre class="highlight"><code>SIMULATION_TYPE = 1
+NOISE_TOMOGRAPHY = 2
+SAVE_FORWARD = .true.
+</code></pre>
+    </div>
+  </li>
+  <li>
+    <p>Step 3: simulation for ensemble adjoint wavefields and sensitivity kernels</p>
+
+    <div class="highlighter-rouge"><pre class="highlight"><code>SIMULATION_TYPE = 3
+NOISE_TOMOGRAPHY = 3
+SAVE_FORWARD = .false.
+</code></pre>
+    </div>
+
+    <p>Note Step 3 is an adjoint simulation, please refer to previous chapters on how to prepare adjoint sources and other necessary files, as well as how adjoint simulations work.</p>
+  </li>
+</ul>
+
+<p>It is better to run the three steps continuously within the same job on a cluster, otherwise you have to collect the saved surface movies from the old nodes to the new nodes. This process varies from cluster to cluster and thus cannot be discussed here. Please ask your cluster administrator for information/configuration of the cluster you are using.</p>
+
+<h3 id="post-simulation">Post-simulation</h3>
+
+<p>After those simulations, you have all stuff you need, either in the <code class="highlighter-rouge">OUTPUT_FILES/</code> or in the directory specified by <code class="highlighter-rouge">LOCAL_PATH</code> in <code class="highlighter-rouge">DATA/Par_file</code> (which are most probably on local nodes). Collect whatever you want from the local nodes to your workstation, and then visualize them. This process is the same as what you may have done for regular earthquake simulations. Refer to other chapters if you have problems.</p>
+
+<p>Simply speaking, two outputs are the most interesting: the simulated ensemble cross correlations and one contribution of the ensemble sensitivity kernels.</p>
+
+<p>The simulated ensemble cross correlations are obtained after the second simulation (Step 2). Seismograms in <code class="highlighter-rouge">OUTPUT_FILES/</code> are actually the simulated ensemble cross correlations. Collect them immediately after Step 2, or the Step 3 will overwrite them. Note that we have a ‘master’ receiver specified by <code class="highlighter-rouge">irec_master_noise</code>, the seismogram at one station corresponds to the cross correlation between that station and the ‘master’. Since the seismograms have three components, we may obtain cross correlations for different components as well, not necessarily the cross correlations between vertical components.</p>
+
+<p>One contribution of the ensemble cross-correlation sensitivity kernels are obtained after Step 3, stored in the <code class="highlighter-rouge">DATA/LOCAL_PATH</code> on local nodes. The ensemble kernel files are named the same as regular earthquake kernels.</p>
+
+<p>You need to run another three simulations to get the other contribution of the ensemble kernels, using different forward and adjoint sources given in Tromp et al. (2010).</p>
+
+<h2 id="example">Example</h2>
+
+<p>In order to illustrate noise simulations in an easy way, one example is provided in <code class="highlighter-rouge">EXAMPLES/noise_tomography/</code>. See <code class="highlighter-rouge">EXAMPLES/noise_tomography/README</code> for explanations.</p>
+
+<p>Note, however, that they are created for a specific workstation (CLOVER@PRINCETON), which has at least 4 cores with ‘mpif90’ working properly.</p>
+
+<p>If your workstation is suitable, you can run the example in <code class="highlighter-rouge">EXAMPLES/noise_tomography/</code> using:</p>
+
+<p><code class="highlighter-rouge">./pre-processing.sh</code></p>
+
+<p>Even if this script does not work on your workstation, the procedure it describes is universal. You may review the whole process described in the last section by following the commands in <code class="highlighter-rouge">pre-processing.sh</code>, which should contain enough explanations for all the commands.</p>
+
+<h2 id="references">References</h2>
+
+<p>Tromp, Jeroen, Yang Luo, Shravan Hanasoge, and Daniel Peter. 2010. “Noise Cross-Correlation Sensitivity Kernels.” <em>Geophys. J. Int.</em> 183: 791–819. doi:<a href="http://dx.doi.org/10.1111/j.1365-246X.2010.04721.x">10.1111/j.1365-246X.2010.04721.x</a>.</p>
+
+<hr />
+<blockquote>
+  <p>This documentation has been automatically generated by <a href="http://www.pandoc.org">pandoc</a>
+based on the User manual (LaTeX version) in folder doc/USER_MANUAL/
+(Mar 10, 2020)</p>
+</blockquote>
+
+
+    </section>
+
+    <section class="page-footer">
+      <footer class="site-footer">
+        
+          <span class="site-footer-owner"><a href="http://github.com/danielpeter/specfem3d">specfem3d</a> is maintained by <a href="http://github.com/danielpeter">danielpeter</a></span>
+        
+        <span class="site-footer-credits">generated by <a href="https://pages.github.com">GitHub Pages</a></span>
+      </footer>
+    </section>
+
+    
+  </body>
+</html>
