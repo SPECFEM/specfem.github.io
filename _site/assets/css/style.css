@@ -341,7 +341,7 @@ a:hover { text-decoration: underline; }
 .img_background { height: 500px; min-width: 550px; background-position: top left; background-repeat: no-repeat; background-attachment: fixed; /* for some effect also with non-Safari */ }
 
 /* daniel */
-.img1 { background-image: url(../../figures/specfem3d.png); background-color: #553; background-position: top center; }
+.img1 { background-image: url(../../figures/specfem3d.png); background-color: #222; background-position: top center; }
 
 /* ------------------------------------------------------------ */
 /* footer */
