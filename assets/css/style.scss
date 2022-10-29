@@ -33,6 +33,7 @@
 .project-name {
   padding-top: 6rem;
 }
+
 /* ------------------------------------------------------------ */
 /* header parallax */
 /* ------------------------------------------------------------ */
@@ -54,11 +55,11 @@
   overflow-x: hidden;
   overflow-y: auto; /* auto; */
 
-  height: 250px; /* 100vh */
+  height: 350px; /* 100vh */
   width: 100%;
 
-  color: #fff;
-  background-image: linear-gradient(20deg, #000, #a16e6b);
+  color: #AAA;
+  /*background-image: linear-gradient(20deg, #000, #a16e6b);*/
 
 }
 
@@ -68,7 +69,7 @@
   right: 0;
   bottom: 0;
   left: 0;
-  height: 200px;
+  height: 400px;
   overflow: hidden;
 }
 
@@ -86,7 +87,7 @@
   -ms-transform-origin: 100% 50%;
   transform-origin: 100% 50%;
 
-  height: 150px;
+  height: 350px;
   z-index: -10;
 }
 
@@ -102,12 +103,20 @@
   transform-origin: 100% 50%;
 
   z-index: -1;
-  height: 250px;
+  height: 350px;
+
+  /* title color */
+  color: #FFF;
+}
+
+.btn {
+  /* button color */
+  color: #FFF;
 }
 
 .img_background {
-  /*height: 200px;*/
-  /*min-width: 250px;*/
+  height: 400px;
+  min-width: 250px;
   background-position: top left;
   background-repeat: no-repeat;
   background-attachment: fixed; /* for some effect also with non-Safari */
@@ -115,11 +124,17 @@
 
 /* daniel */
 .img1 {
-  width: 400px;
-  min-width: 550px;
-  background-image: url(../../figures/specfem.png);
-  /*background-color: #FFF;*/
-  /*background-position: top center;*/
+  min-height: 500px;
+
+  /* movie */
+  background-image: url(../../figures/earth_banner.mp4);
+  background-position: top center;
+
+  /* picture */
+  /*background-image: url(../../figures/specfem.png);*/
+  /*background-position: top left;*/
+
+  background-color: #FFF;
 }
 
 /* ------------------------------------------------------------ */
@@ -127,7 +142,7 @@
 /* ------------------------------------------------------------ */
 
 .page-footer {
-  background-color: #222;
+  background-color: #DDD;
   min-height: 50px;
 }
 
