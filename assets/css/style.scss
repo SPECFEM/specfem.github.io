@@ -36,6 +36,10 @@ html {
   height: 100%;
 }
 
+.main {
+  margin-top: 40px; /* Add a top margin to avoid content overlay */
+}
+
 /* -------------------------------------------------------------
 
 clearing
@@ -118,7 +122,12 @@ structure
   background-color: #FFF;
   color: #222;
 
-  min-height: 32px;
+  height: 60px;
+  min-height: 60px;
+
+  overflow: hidden;
+  top: 0;
+  width: 100%;
 }
 
 .navbar a {
