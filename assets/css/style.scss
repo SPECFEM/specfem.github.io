@@ -7,13 +7,79 @@
 /* header */
 /* ------------------------------------------------------------ */
 
+html, body, div, span, applet, object, iframe,
+header, nav, footer, section,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, font, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+pathline, parallax,
+table, caption, tbody, tfoot, thead, tr, th, td {
+  border: 0;
+  outline: 0;
+  vertical-align: baseline;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  /* Corrects text resizing oddly in IE6/7 when body font-size is set using em units http://clagnut.com/blog/348/#c790 */
+  font-size: 100%;
+  /* Keeps page centered in all browsers regardless of content height */
+  overflow-y: scroll;
+  /* Prevents iOS text size adjust after orientation change, without disabling user zoom */
+  -webkit-text-size-adjust: 100%;
+  /* www.456bereastreet.com/archive/201012/controlling_text_size_in_safari_for_ios_without_disabling_user_zoom/ */
+  -ms-text-size-adjust: 100%;
+  height: 100%;
+}
+
+/* -------------------------------------------------------------
+
+clearing
+
+------------------------------------------------------------- */
+
+.container:after,
+#header-menu:after,
+.entry-container:after,
+.entry-header:after,
+.widget:after,
+#supplementary:after,
+.site-info:after,
+.featued-content-wrap:after {
+  content: "\0020";
+  display: block;
+  height: 0;
+  clear: both;
+  visibility: hidden;
+}
+
+/* You can also use a <br class="clear" /> to clear columns */
+.clear {
+  clear: both;
+  display: block;
+  overflow: hidden;
+  visibility: hidden;
+  width: 0;
+  height: 0;
+}
+
+/* -------------------------------------------------------------
+
+structure
+
+------------------------------------------------------------- */
+
 .page-header {
   color: #FFF;
   text-align: center;
   /*background-color: #2c2999;*/
   /*background-image: linear-gradient(20deg, #000, #999);*/
-  background-color: #000;
   /*background-color: rgba(0, 0, 0, 0);*/
+  background-color: #000;
   /*background-image: linear-gradient(20deg, #000, rgb(77, 52, 51) 80.25%, #6d696f);*/
   /*background-image: linear-gradient(20deg, rgba(0, 0, 0, 0.01), #4d3433 80.25%, rgba(109, 105, 111, 0));*/
   background-image: none;
@@ -52,7 +118,7 @@
   background-color: #FFF;
   color: #222;
 
-  min-height: auto;
+  min-height: 32px;
 }
 
 .navbar a {
@@ -198,9 +264,8 @@ input[type=checkbox]{
   height: 350px; /* 100vh */
   width: 100%;
 
-  color: #AAA;
-  /*background-image: linear-gradient(20deg, #000, #a16e6b);*/
-
+  color: #DDD;
+  background-color: #FFF;
 }
 
 .parallax_layer{
@@ -211,6 +276,7 @@ input[type=checkbox]{
   left: 0;
   height: 400px;
   overflow: hidden;
+  z-index: -20;
 }
 
 .parallax_layer_back{
@@ -244,14 +310,11 @@ input[type=checkbox]{
 
   z-index: -1;
   height: 350px;
-
-  /* title color */
-  color: #FFF;
 }
 
 .btn {
   /* button color */
-  color: #FFF;
+  color: #BBB;
 }
 
 .img_background {
@@ -264,15 +327,17 @@ input[type=checkbox]{
 
 /* daniel */
 .img1 {
+  display: block;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+
   min-height: 500px;
 
-  /* movie */
-  background-image: url(../../figures/earth_banner.mp4);
-  background-position: top center;
-
+  /* movie - not playing on firefox/chrome? */
+  /*background-image: url(/figures/earth_banner.mp4);*/
   /* picture */
-  /*background-image: url(../../figures/specfem.png);*/
-  /*background-position: top left;*/
+  background-image: url(/figures/earth_banner.jpg);
+  background-position: top center;
 
   background-color: #FFF;
 }
