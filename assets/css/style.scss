@@ -128,6 +128,8 @@ structure
   overflow: hidden;
   top: 0;
   width: 100%;
+
+  z-index: 100;
 }
 
 .navbar a {
@@ -273,7 +275,7 @@ input[type=checkbox]{
   height: 350px; /* 100vh */
   width: 100%;
 
-  color: #DDD;
+  color: #FFF;
   background-color: #FFF;
 }
 
@@ -289,34 +291,11 @@ input[type=checkbox]{
 }
 
 .parallax_layer_back{
-  /* for effect with Safari */
-  position: fixed;
-
-  -webkit-transform: translateZ(-1px) scale(2); /* Chrome, Safari, Opera */
-  -moz-transform: translateZ(-1px) scale(2);
-  -ms-transform: translateZ(-1px) scale(2); /* IE 9 */
-  transform: translateZ(-1px) scale(2);
-
-  -webkit-transform-origin: 100% 50%;
-  -moz-transform-origin: 100% 50%;
-  -ms-transform-origin: 100% 50%;
-  transform-origin: 100% 50%;
-
   height: 350px;
   z-index: -10;
 }
 
 .parallax_layer_front{
-  -webkit-transform: translateZ(0); /* Chrome, Safari, Opera */
-  -moz-transform: translateZ(0);
-  -ms-transform: translateZ(0); /* IE 9 */
-  transform: translateZ(0);
-
-  -webkit-transform-origin: 100% 50%;
-  -moz-transform-origin: 100% 50%;
-  -ms-transform-origin: 100% 50%;
-  transform-origin: 100% 50%;
-
   z-index: -1;
   height: 350px;
 }
@@ -327,7 +306,7 @@ input[type=checkbox]{
 }
 
 .img_background {
-  height: 400px;
+  height: 350px;
   min-width: 250px;
   background-position: top left;
   background-repeat: no-repeat;
@@ -340,15 +319,15 @@ input[type=checkbox]{
   -moz-box-sizing: border-box;
   box-sizing: border-box;
 
-  min-height: 500px;
+  min-height: 350px;
 
   /* movie - not playing on firefox/chrome? */
   /*background-image: url(/figures/earth_banner.mp4);*/
   /* picture */
   background-image: url(/figures/earth_banner.jpg);
   background-position: top center;
-
   background-color: #FFF;
+  filter: brightness(50%);
 }
 
 img.circle {
