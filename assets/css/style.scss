@@ -97,7 +97,15 @@ structure
 
 .main-content {
   position: relative;
-  background-color: #FFF;
+  background-color: white;
+
+  display: block;
+  width: 100%;
+
+  /* to have footer at bottom */
+  min-height: -moz-calc(100% - 200px); /* Firefox */
+  min-height: -webkit-calc(100% - 200px); /* Chrome, Safari */
+  min-height: calc(100% - 200px); /* IE9+ and future browsers */
 }
 
 .main-content h1, .main-content h2, .main-content h3, .main-content h4, .main-content h5, .main-content h6 {
@@ -106,6 +114,36 @@ structure
 
 .project-name {
   padding-top: 6rem;
+}
+
+/* -------------------------------------------------------------
+
+Page
+
+------------------------------------------------------------- */
+
+/* main middle column */
+#content {
+  float: left;
+  width: 600px;
+  min-width:200px;
+  background: white;
+}
+
+/* right column */
+#contactbar {
+  float: left;
+  width: 220px;
+  background: white;
+  padding-left:10px;
+}
+
+.box {
+  padding-top: 5px;
+
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 /* ------------------------------------------------------------ */
