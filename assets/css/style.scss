@@ -116,6 +116,15 @@ structure
   padding-top: 6rem;
 }
 
+table, table td {
+  border: 1px solid #CCC;
+}
+
+td {
+  text-align: left;
+  vertical-align: middle;
+}
+
 /* -------------------------------------------------------------
 
 Page
