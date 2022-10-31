@@ -28,8 +28,12 @@ A major involvement in the development and maintenance of the SPECFEM project is
 [![Emanuele](figures/Emanuele_Casarotti.jpg "Emanuele Casarotti"){:height="auto" width="100px" class="circle middle"}](https://www.researchgate.net/profile/Emanuele-Casarotti)
 **Emanuele Casarotti**, *INGV*<br>
 
+[![Rohit](figures/Rohit_Kakodkar.png "Rohit Kakodkar"){:height="auto" width="100px" class="circle middle"}](https://researchcomputing.princeton.edu/about/people-directory/rohit-kakodkar)
+**Rohit Kakodkar**, *Princeton University*<br>
+
 [![Bryant](figures/Bryant_Chow.jpg "Bryant Chow"){:height="auto" width="100px" class="circle middle"}](https://bch0w.github.io)
 **Bryant Chow**, *University of Alaska Fairbanks*<br>
+
 
 
 
