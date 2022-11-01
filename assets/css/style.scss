@@ -77,6 +77,16 @@ structure
 
 ------------------------------------------------------------- */
 
+body {
+  background: #FFF;
+
+  -webkit-text-size-adjust:100%;
+  -moz-text-size-adjust:100%;
+  -ms-text-size-adjust:100%;
+
+  height: 100%;
+}
+
 .page-header {
   color: #FFF;
   text-align: center;
@@ -103,8 +113,8 @@ structure
   width: 100%;
 
   /* to have footer at bottom */
-  min-height: -moz-calc(100% - 200px); /* Firefox */
   min-height: -webkit-calc(100% - 200px); /* Chrome, Safari */
+  min-height: -moz-calc(100% - 200px); /* Firefox */
   min-height: calc(100% - 200px); /* IE9+ and future browsers */
 }
 
@@ -140,11 +150,16 @@ Page
 }
 
 /* right column */
-#contactbar {
+#sidebar {
   float: left;
-  width: 220px;
+
+  width: -webkit-calc(100% - 600px); /* Chrome, Safari */
+  width: -moz-calc(100% - 600px); /* Firefox */
+  width: calc(100% - 600px);
+
+  min-width: 220px;
   background: white;
-  padding-left:10px;
+  padding-left:20px;
 }
 
 .box {
@@ -507,4 +522,40 @@ Timeline
 
 .timeline h3{
   margin-bottom: 0px;
+}
+
+/* -------------------------------------------------------------
+
+Media query
+
+------------------------------------------------------------- */
+
+/* -- query -- landscape phone and portrait tablet (>= 752px < 960px) */
+@media screen and (max-width: 60em) {}
+
+/* -- query -- landscape phone and portrait tablet (>= 592px < 752px) */
+@media screen and (min-width: 37em) and (max-width: 47em) {}
+
+/* --  query -- portrait phone (>= 480px < 592px) */
+@media screen and (min-width: 30em) and (max-width: 37em) {}
+
+/* --  query -- portrait phone (< 480px) */
+@media screen and (max-width: 30em) {}
+
+/* -- print -- */
+@media print{
+  *{
+    background:transparent !important;
+    color:black !important;
+    text-shadow:none !important;
+    filter:none !important;
+    -ms-filter:none !important
+  }
+  abbr[title]:after{content: "(" attr(title) ")";}
+  pre, blockquote{page-break-inside:avoid;}
+  thead{display:table-header-group;}
+  tr, img{page-break-inside:avoid;}
+  img{max-width:100% !important;}
+  p, h2, h3{orphans:3; widows:3;}
+  h2, h3{page-break-after:avoid;}
 }
