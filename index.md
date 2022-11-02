@@ -6,7 +6,8 @@ title: SPECFEM
 # SPECFEM
 
 The SPECFEM codes use the spectral-element method to simulate seismic wave propagation on different scales. Together with dedicated inversion tools, they constitute an ecosystem in computational seismology to address diverse topics related to seismic tomography and ground-shaking hazard analysis.
-
+<br>
+<br>
 
 |  Solvers |     |
 | ---      | --- |
@@ -18,6 +19,8 @@ The SPECFEM codes use the spectral-element method to simulate seismic wave propa
 <br>
 These solvers are all open-source codes and freely available through github. 
 They can be used with various inversion tools to perform seismic adjoint tomography:
+<br>
+<br>
 
 | Inversion tools |     |
 | ---             | --- |

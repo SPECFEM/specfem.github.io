@@ -127,7 +127,7 @@ body {
 }
 
 table, table td {
-  border: 1px solid #CCC;
+  border: 0px solid #FFF;
 }
 
 td {
@@ -418,7 +418,7 @@ Footer
  ------------------------------------------------------------ */
 
 .page-footer {
-  background-color: #DDD;
+  background-color: #FFF;
   min-height: 50px;
 }
 
@@ -454,13 +454,6 @@ Timeline
   min-height:100vh;
   margin:0;
   font-size: 80%;
-
-  .vertical {
-    border-left: 4px solid #AAA;
-    height: 80%;
-    position:absolute;
-    left: 50%;
-  }
 
   .entries {
     width:calc(100% - 80px);
@@ -523,6 +516,22 @@ Timeline
 .timeline h3{
   margin-bottom: 0px;
 }
+
+.timeline .vertical {
+  border-left: 4px solid #AAA;
+  height: 750px;
+  position:absolute;
+  left: 50%;
+}
+
+/* APPLYING MEDIA QUERIES */
+@media (max-width: 768px) {
+  .timeline .vertical {
+    height: 950px;
+  }
+}
+
+
 
 /* -------------------------------------------------------------
 
