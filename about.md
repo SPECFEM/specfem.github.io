@@ -39,7 +39,7 @@ A short timeline of major SPECFEM achievements:<br>
 <div class="entry">
 <div class="title">2015</div>
 <div class="body">
-<h3>K computer simulation > 1.24 PFlops</h3> (shortest period ~ 1.2 s)<br>
+<h3>K computer simulation<br>> 1.24 PFlops</h3> (shortest period ~ 1.2 s)<br>
 on 82,134 nodes, 82,134 MPI ranks w/ 8 OpenMP threads, 657,072 cores
 </div>
 </div> <!-- entry -->
@@ -47,7 +47,7 @@ on 82,134 nodes, 82,134 MPI ranks w/ 8 OpenMP threads, 657,072 cores
 <div class="entry">
 <div class="title">2013</div>
 <div class="body">
-<h3>Blue Waters XE6 simulation > 1 PFlops</h3> (shortest period < 2 s)<br> 
+<h3>Blue Waters XE6 simulation<br>> 1 PFlops</h3> (shortest period < 2 s)<br>
 on 21,675 XE nodes, 693,600 MPI ranks, 693,600 cores
 </div>
 </div> <!-- entry -->
@@ -72,7 +72,7 @@ for <it>SPECFEM3D_GLOBE</it> simulation reaching resolution of 1.72s shortest pe
 <div class="entry">
 <div class="title">2008</div>
 <div class="body">
-<h3>Kraken XT5 simulation > 160 TFlops</h3> (shortest period ~1.72 s)<br> 
+<h3>Kraken XT5 simulation<br>> 160 TFlops</h3> (shortest period ~1.72 s)<br>
 on 149,784 cores</div>
 </div> <!-- entry -->
 
@@ -88,10 +88,9 @@ for Best Performance of <it>SPECFEM3D_GLOBE</it> simulation on the Earth Simulat
 <div class="entry">
 <div class="title">2003</div>
 <div class="body">
-<h3>Earth Simulator simulation > 5 TFlops</h3> (shortest period ~5 s)<br> 
+<h3>Earth Simulator simulation<br>> 5 TFlops</h3> (shortest period ~5 s)<br>
 on 243 nodes, 1,944 MPI ranks, 1,944 cores</div>
 </div> <!-- entry -->
-
 
 </div> <!-- entries -->
 </div> <!-- timeline -->

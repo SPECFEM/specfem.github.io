@@ -122,12 +122,16 @@ body {
   color: #222;
 }
 
+.main-content table th, .main-content table td {
+  border: none;
+}
+
 .project-name {
   padding-top: 6rem;
 }
 
 table, table td {
-  border: 0px solid #FFF;
+  border: none;
 }
 
 td {
@@ -446,16 +450,22 @@ Timeline
 
 .timeline {
   display: block;
-  overflow-x: hidden;
-  overflow-y: auto; /* auto; */
-  z-index: -50;
-
+  position: relative;
+  overflow: hidden;
   background-color: #FFF;
   min-height:100vh;
   margin:0;
   font-size: 80%;
+}
 
-  .entries {
+.timeline .vertical {
+  border-left: 4px solid #AAA;
+  height: 100%;
+  position:absolute;
+  left: 50%;
+}
+
+.timeline .entries {
     width:calc(100% - 80px);
     max-width:800px;
     margin:auto;
@@ -510,27 +520,11 @@ Timeline
         }
       }
     }
-  }
 }
 
 .timeline h3{
   margin-bottom: 0px;
 }
-
-.timeline .vertical {
-  border-left: 4px solid #AAA;
-  height: 750px;
-  position:absolute;
-  left: 50%;
-}
-
-/* APPLYING MEDIA QUERIES */
-@media (max-width: 768px) {
-  .timeline .vertical {
-    height: 950px;
-  }
-}
-
 
 
 /* -------------------------------------------------------------
