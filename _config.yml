@@ -16,7 +16,8 @@ description: > # this means to ignore newlines until "baseurl:"
 #baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://specfem.org" # the base hostname & protocol for your site
 twitter_username: specfem
-#github_username:  jekyll
+#github_username:  SPECFEM
+google_analytics: G-52SC88JL20
 
 ## Build settings
 #markdown: kramdown
