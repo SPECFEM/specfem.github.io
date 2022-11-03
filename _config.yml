@@ -9,7 +9,7 @@
 ## infos
 title: SPECFEM 
 description: > # this means to ignore newlines until "baseurl:"
- A family of spectral-element method software codes for computational seismology. 
+ A family of open-source spectral-element method software codes for computational seismology. 
 
 ## more infos
 #email: your-email@domain.com
