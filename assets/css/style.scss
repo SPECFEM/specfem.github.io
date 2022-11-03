@@ -163,7 +163,7 @@ Page
 
   min-width: 220px;
   background: white;
-  padding-left:20px;
+  padding-left: 20px;
 }
 
 .box {
@@ -173,6 +173,12 @@ Page
   -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
+
+.twitter-timeline {
+  width: 300px;
+  max-width: 100%;
+}
+
 
 /* ------------------------------------------------------------
 
@@ -226,6 +232,7 @@ Navigation
 
   gap: 1em;
   font-size: 18px;
+  margin-top: 12px;
 }
 
 .menu li:hover {
@@ -540,25 +547,31 @@ Media query
 @media screen and (min-width: 37em) and (max-width: 47em) {}
 
 /* --  query -- portrait phone (>= 480px < 592px) */
-@media screen and (min-width: 30em) and (max-width: 37em) {}
+@media screen and (min-width: 30em) and (max-width: 37em) {
+  #sidebar { width: 100%; padding: 10px; }
+  .twitter-timeline { width: 100%; }
+}
 
 /* --  query -- portrait phone (< 480px) */
-@media screen and (max-width: 30em) {}
+@media screen and (max-width: 30em) {
+  #sidebar { width: 100%; padding: 10px; }
+  .twitter-timeline { width: 100%; }
+}
 
 /* -- print -- */
 @media print{
   *{
-    background:transparent !important;
-    color:black !important;
-    text-shadow:none !important;
-    filter:none !important;
-    -ms-filter:none !important
+    background: transparent !important;
+    color: black !important;
+    text-shadow: none !important;
+    filter: none !important;
+    -ms-filter: none !important
   }
-  abbr[title]:after{content: "(" attr(title) ")";}
-  pre, blockquote{page-break-inside:avoid;}
-  thead{display:table-header-group;}
-  tr, img{page-break-inside:avoid;}
-  img{max-width:100% !important;}
-  p, h2, h3{orphans:3; widows:3;}
-  h2, h3{page-break-after:avoid;}
+  abbr[title]:after { content: "(" attr(title) ")"; }
+  pre, blockquote { page-break-inside:avoid; }
+  thead { display:table-header-group; }
+  tr, img { page-break-inside:avoid; }
+  img { max-width:100% !important; }
+  p, h2, h3 { orphans:3; widows:3; }
+  h2, h3 { page-break-after:avoid; }
 }
