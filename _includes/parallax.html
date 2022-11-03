@@ -1,7 +1,30 @@
 <!-- parallax -->
 <div class="parallax">
   <div class="parallax_layer parallax_layer_back">
-    <div class="img_background img1"></div>
+    <!-- single picture -->
+    <!-- <div class="img_background img1"></div> -->
+    <!-- video background -->
+    <!--
+    <div class="img_background">
+      <video loop muted autoplay poster="figures/earth_banner.jpg" class="background-video">
+          <source src="/figures/earth_banner.mp4" type="video/mp4">
+      </video>
+    </div>
+    -->
+    <!-- carousel background -->
+    <div class="img_background">
+      <div class="carousel-container">
+        <div class="carousel-image img1"></div>
+        <div class="carousel-image">
+          <video loop muted autoplay poster="figures/earth_banner.jpg" class="background-video">
+              <source src="/figures/earth_banner.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div class="carousel-image img3"></div>
+        <div class="carousel-image img4"></div>
+        <div class="carousel-image img5"></div>
+      </div>
+    </div>
   </div>
   <div class="parallax_layer parallax_layer_front">
     <h1 class="project-name">{{ site.title | default: site.github.repository_name }}</h1>
