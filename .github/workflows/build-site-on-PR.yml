@@ -1,0 +1,22 @@
+name: Build docs on PR
+on: pull_request
+jobs:
+  build-and-preview:
+    if: '${{ github.event.pull_request.head.repo.full_name == github.repository }}'
+    runs-on: macos-latest
+    steps:
+      - name: Requirements
+        run: brew install ruby 
+          && export GEM_HOME="$HOME/.gem"
+          && gem install jekyll bundler 
+      - name: Checkout repo
+        uses: actions/checkout@v2
+      - name: build site 
+        run: bundle exec jekyll serve
+      - name: Deploy
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SECRET_SERVICE_ACC_KEY }}'
+          projectId: specfem-website
+          expires: 7d
