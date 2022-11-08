@@ -12,7 +12,8 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v2
       - name: build site 
-        run: bundle exec jekyll serve
+        run: bundle install
+          && bundle exec jekyll build
       - name: Deploy
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
