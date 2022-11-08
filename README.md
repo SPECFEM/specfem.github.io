@@ -25,14 +25,16 @@ The layout modifications are controlled by:
 ``` 
 $ gem install jekyll bundler 
 ```
-This may not work on Mac. If so, then a work-around is given below. 
+This may not work on Mac. If so, then a work-around is given below. Next we need to run the following command: 
 
+```
+$ bundle install
+```
 
-Once you have got Jekyll and Bundler installed, run:
+Once you have got Jekyll and Bundler installed, you are now all setup to view any changes you make to the website. Each time you want to view your most recent version run:
 ```
 $ bundle exec jekyll serve
 ```  
-
 This will generate a server address (```http://127.0.0.1:4000```). Navigate to this server address in your favourite web browser and your newly-updated SPECFEM website should be viewable in all its glory! 
 
 
@@ -51,6 +53,6 @@ $ export GEM_HOME="$HOME/.gem"
 ```
 and also add this command to your shell configuration (either your ~/.zshrc or ~/.bash_profile depending on the shell you use). Don't forget to make sure these updates to your config file are activated by running ```$ source ~/.zshrc``` or  ```$ source ~/.bash-profile```. You should now have a working version of Ruby that you can use to install. Finally we can run our install command 
 ``` 
-$ gem install jekyll bundler 
+$ gem install jekyll bundler &&  bundle install
 ```
 
