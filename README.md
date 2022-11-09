@@ -7,6 +7,8 @@ Feel free to contribute and add content to the site!
 ---
 ## Contributing to the website 
 
+Each of the website pages is written using Markdown. To learn more about Markdown, follow [this tutorial](https://www.markdowntutorial.com/) or look up specific syntax [here](https://www.markdownguide.org/basic-syntax/). 
+
 To make changes you can [fork](https://docs.github.com/en/get-started/quickstart/fork-a-repo) this repository and then [open a pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request) when you are ready to add your contributions to the site. We recommend testing your changes locally first, before opening a Pull Request, to ensure everything is just how you wanted! Details of the repository layout are given below, as well as a guide on how to check your updated version. 
 
 
