@@ -5,3 +5,4 @@ firebase-debug.log
 
 *ipynb*
 .idea
+*__pycache__*
