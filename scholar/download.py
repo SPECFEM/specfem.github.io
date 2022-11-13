@@ -20,6 +20,7 @@ def download_recent_citations():
 
     # Loop for each publication found on the page (will only get first 20 at the moment):
     for i in range(len(paper_links)):
+    #for i in range(1):
 
         # unique GS code
         pub = paper_links[i]
@@ -29,3 +30,6 @@ def download_recent_citations():
             print(f"{pub} already exists. Not re-downloading.")
         else:
             parse_citation(linkstr, pub, local_dir)
+
+if __name__ == "__main__":
+    download_recent_citations()

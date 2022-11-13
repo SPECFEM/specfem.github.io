@@ -171,7 +171,7 @@ def _add_val_to_YAML(field, val, citation):
         if val == 'n/a':
             citation["Total citations"] = val
         else:
-            citation["Total citations"] = val[0]
+            citation["Total citations"] = val[0][1:]
 
             # Get number of years:
             ann_dict = {}
