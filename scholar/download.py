@@ -1,35 +1,31 @@
 # Script downloads and prints 20 most recent citations on the SPECFEM google scholar
+import os
+from functions import _get_HTML,  get_unique_paper_codes, parse_citation
 
 # Current issues:
 # - Fix UNICODE characters in names
-# - Get titles of the papers
-from functions import _get_HTML, _fix_amp, search_field_in_html, get_unique_paper_codes
 
 
-# SPECFEM SCHOLAR LANDING PAGE ADDRESS
-landingpage = _get_HTML("https://scholar.google.com/citations?view_op=list_works&hl=en&hl=en&user=bvjzHdUAAAAJ&sortby=pubdate")
+def download_recent_citations():
+    local_dir = './publications'
 
-# Get unique GS identifies for each paper on the SPECFEM page
-paper_links = get_unique_paper_codes(landingpage)
+    # SPECFEM SCHOLAR LANDING PAGE ADDRESS HTML LINKS:
+    landingpage = _get_HTML("https://scholar.google.com/citations?view_op=list_works&hl=en&hl=en&user=bvjzHdUAAAAJ&sortby=pubdate")
+    linkstr     = '/citations?view_op=view_citation&amp;hl=en&amp;oe=ASCII&amp;user=bvjzHdUAAAAJ&amp;sortby=pubdate&amp;citation_for_view=bvjzHdUAAAAJ:'
 
-# Loop for each publication found on the page (will only get first 20 at the moment):
-for i in range(len(paper_links)):
-    print()
-    print("-------------------------------------------------------")
-    print()
 
-    # Create HTTP link to the individual publication part of scholar
-    pub = paper_links[i]
-    url = f"https://scholar.google.com{linkstr}{pub}"
-    url = _fix_amp(url)
+    # Get unique GS identifies for each paper on the SPECFEM GS landing page
+    paper_links = get_unique_paper_codes(landingpage, linkstr)
 
-    # Gather the HTML code from that publication
-    html = _get_HTML(url)
-    html = html[html.find('<div id="gsc_oci_title">'):]
 
-    # Extract important fields and print:
-    FIELD = ['Authors', 'Journal', 'Volume', 'Issue', 'Publication date', 'Citations']
-    for field in FIELD:
+    # Loop for each publication found on the page (will only get first 20 at the moment):
+    for i in range(len(paper_links)):
 
-        field_value = search_field_in_html(field, html)
-        print(f"{field}: {field_value}")
+        # unique GS code
+        pub = paper_links[i]
+
+        # Check if we have already downloaded this:
+        if os.path.exists(f"{local_dir}/{pub}.yml"):
+            print(f"{pub} already exists. Not re-downloading.")
+        else:
+            parse_citation(linkstr, pub, local_dir)
