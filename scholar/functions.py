@@ -1,4 +1,6 @@
 import urllib.request
+
+import matplotlib.pyplot as plt
 import numpy as np
 import yaml
 
@@ -186,3 +188,58 @@ def _add_val_to_YAML(field, val, citation):
     else:
         citation[str(field)] = val
     return citation
+
+
+
+
+def get_total_citations_for_specfem(html, localdir):
+    # Gets the statistics for the whole specfem software citations:
+
+    html = html[html.find('<div class="gsc_md_hist_b">'):]
+
+
+    years = []
+    u = 0
+    while u!=-1 :
+        searchstr = '<span class="gsc_g_t" style="right:'
+        u = html.find(searchstr)
+        html = html[u+len(searchstr):]
+
+        html = html[html.find('>')+1:]
+        if u != -1:
+            years.append(html[:html.find('<')])
+
+    cites = {}
+    # Now get number of citations:
+    for n in range(len(years)):
+        searchstr = '<span class="gsc_g_al">'
+        html = html[html.find(searchstr)+len(searchstr):]
+
+        cites[years[n]] = html[:html.find('<')]
+
+
+    # Write this to YAML:
+    with open(f"{localdir}/total_citations.yml", 'w') as outfile:
+        yaml.dump(cites, outfile, default_flow_style=False)
+
+
+
+
+
+def plot_citations_graph(localdir):
+    # Takes total citations data and makes a bar chart:
+
+    # Read YAML:
+    with open(f"{localdir}/total_citations.yml", 'r') as file:
+        data = np.array((list(yaml.safe_load(file).items()))).astype(int)
+
+    fs = 14
+
+    fig, ax = plt.subplots(figsize=(10,4.5))
+    fig.set_tight_layout(True)
+    ax.bar(data[:,0], data[:,1], align='center', tick_label=data[:,0].astype(str), color='darkslategrey')
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.set_xlabel('Year', fontsize=fs)
+    ax.set_ylabel('Number of citations for\npapers using SPECFEM', fontsize=fs)
+    plt.savefig('./total_citations.jpg')
