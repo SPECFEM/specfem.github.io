@@ -2,3 +2,7 @@ Gemfile.lock
 _site
 firebase*.yml
 firebase-debug.log
+
+*ipynb*
+.idea
+*__pycache__*
