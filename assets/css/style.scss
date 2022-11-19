@@ -108,6 +108,7 @@ body {
 
 .section{
   display: flex;
+  flex-wrap: wrap;
   background-color: white;
 }
 
@@ -192,9 +193,14 @@ Page
 }
 
 /* shadow box */
-.wrapper {
+.shadowbox {
   border-radius: 2px;
   box-shadow: 0 0 40px 0 rgba(0,0,0,0.2);
+}
+
+.halfbox {
+  width: 50%;
+  flex-grow: 1;
 }
 
 /* bird */
@@ -203,6 +209,7 @@ Page
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
+  flex-grow: 1;
 }
 
 .twitter-timeline {
@@ -702,11 +709,15 @@ Media query
 
 /* --  query -- portrait phone (>= 480px < 592px) */
 @media screen and (min-width: 30em) and (max-width: 37em) {
+  .halfbox { width: 100%; }
+  .twitterbox { width: 100%; padding: 10px; }
   .twitter-timeline { width: 100%; }
 }
 
 /* --  query -- portrait phone (< 480px) */
 @media screen and (max-width: 30em) {
+  .halfbox { width: 100%; }
+  .twitterbox { width: 100%; padding: 10px; }
   .twitter-timeline { width: 100%; }
 }
 

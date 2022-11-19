@@ -16,7 +16,9 @@
 
 <section class="section section-{{ section.title | slugify }}" {{ bg-image-style }}>
   {% if section.title == 'Contributions' %}
-  <div class="main-content wrapper">
+  <div class="main-content shadowbox">
+  {% elsif section.title == 'Connect' %}
+  <div class="main-content halfbox">
   {% else %}
   <div class="main-content">
   {% endif %}
