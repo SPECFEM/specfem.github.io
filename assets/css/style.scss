@@ -1,6 +1,7 @@
 ---
 ---
 
+@import url(https://weloveiconfonts.com/api/?family=fontawesome);
 @import "{{ site.theme }}";
 
 /* ------------------------------------------------------------ */
@@ -105,26 +106,42 @@ body {
   padding: unset;
 }
 
-.main-content {
-  position: relative;
+.section{
+  display: flex;
   background-color: white;
-
-  display: block;
-  width: 100%;
-
-  /* to have footer at bottom */
-  min-height: -webkit-calc(100% - 200px); /* Chrome, Safari */
-  min-height: -moz-calc(100% - 200px); /* Firefox */
-  min-height: calc(100% - 200px); /* IE9+ and future browsers */
 }
 
-.main-content h1, .main-content h2, .main-content h3, .main-content h4, .main-content h5, .main-content h6 {
+.section h1, .section h2, .section h3, .section h4, .section h5, .section h6 {
   color: #222;
 }
 
-.main-content table th, .main-content table td {
-  border: none;
+
+.section-main {
+  background-color: white;
 }
+
+.section-contributions {
+  background-color: white;
+  td {
+    text-align: center;
+  }
+}
+
+.section-software {
+  background-color: rgba(220, 220, 225, 0.8);
+}
+
+.section-connect {
+  background-color: rgba(10, 10, 5, 0.8);
+  color: white;
+  h1 {
+    color: white;
+  }
+  a {
+    color: #59F;
+  }
+}
+
 
 .project-name {
   padding-top: 6rem;
@@ -139,36 +156,50 @@ td {
   vertical-align: middle;
 }
 
+a {
+  color: #55F;
+}
+
+strong {
+  font-style: normal;
+}
+
 /* -------------------------------------------------------------
 
 Page
 
 ------------------------------------------------------------- */
 
-/* main middle column */
-#content {
-  float: left;
-  max-width: 600px;
-  min-width: 200px;
-  background: white;
+.main-content {
+  position: relative;
+
+  display: block;
+  width: 100%;
+
+  padding-top: 40px;
+  padding-bottom: 40px;
+  margin-bottom: 20px;
+  margin-top: 20px;
+
+  /* to have footer at bottom */
+  min-height: -webkit-calc(100% - 200px); /* Chrome, Safari */
+  min-height: -moz-calc(100% - 200px); /* Firefox */
+  min-height: calc(100% - 200px); /* IE9+ and future browsers */
 }
 
-/* right column */
-#sidebar {
-  float: left;
-
-  width: -webkit-calc(100% - 600px); /* Chrome, Safari */
-  width: -moz-calc(100% - 600px); /* Firefox */
-  width: calc(100% - 600px);
-
-  min-width: 220px;
-  background: white;
-  padding-left: 20px;
+.main-content table th, .main-content table td {
+  border: none;
 }
 
-.box {
-  padding-top: 5px;
+/* shadow box */
+.wrapper {
+  border-radius: 2px;
+  box-shadow: 0 0 40px 0 rgba(0,0,0,0.2);
+}
 
+/* bird */
+.twitterbox {
+  padding: 20px;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
@@ -179,6 +210,35 @@ Page
   max-width: 100%;
 }
 
+/* image grow effect */
+img.grow {
+  border-radius: 2px;
+  box-shadow: 0 0 5px 0 rgba(0,0,0,0.2);
+  transition: 0.5s ease;
+  &:hover{
+    -webkit-transform: scale(1.1);
+    -ms-transform: scale(1.1);
+    transform: scale(1.1);
+    transition: 0.5s ease;
+  }
+}
+
+
+/* heart */
+/* fontawesome */
+[class*="fontawesome-"]:before {
+  font-family: 'FontAwesome', sans-serif;
+}
+
+.fontawesome-heart:before{
+  content:"\2665";
+  color: red;
+  font-size: 1.5rem;
+}
+
+.fontawesome-external-link:before{
+  padding-right: 5px;
+}
 
 /* ------------------------------------------------------------
 
@@ -530,14 +590,16 @@ Footer
   padding-top: 1rem;
   padding-left: 10px;
   padding-right: 10px;
+  text-align: center;
+}
+
+.site-footer a {
+  color: #222;
+  text-decoration: none;
 }
 
 span.site-footer-owner {
-  float: left;
-}
-
-span.site-footer-credits {
-  float: right;
+  text-align: center;
 }
 
 
@@ -640,13 +702,11 @@ Media query
 
 /* --  query -- portrait phone (>= 480px < 592px) */
 @media screen and (min-width: 30em) and (max-width: 37em) {
-  #sidebar { width: 100%; padding: 10px; }
   .twitter-timeline { width: 100%; }
 }
 
 /* --  query -- portrait phone (< 480px) */
 @media screen and (max-width: 30em) {
-  #sidebar { width: 100%; padding: 10px; }
   .twitter-timeline { width: 100%; }
 }
 

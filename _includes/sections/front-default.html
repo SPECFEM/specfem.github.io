@@ -1,0 +1,34 @@
+{% capture bg-image-style %}
+{% if section.bg-color != nil or section.bg-opaque-overlay != nil or section.bg_image != nil %}
+  style="background:
+  {% if section.bg-color != nil %}
+   {{ section.bg-color }}
+  {% endif %}
+  {% if section.bg-opaque-overlay != nil %}
+   linear-gradient({{ section.bg-opaque-overlay }},{{ section.bg-opaque-overlay }}),
+  {% endif %}
+  {% if section.bg_image != nil %}
+   url('{{ section.bg_image }}') center center fixed; background-size: cover;
+  {% endif %}
+  "
+{% endif %}
+{% endcapture %}
+
+<section class="section section-{{ section.title | slugify }}" {{ bg-image-style }}>
+  {% if section.title == 'Contributions' %}
+  <div class="main-content wrapper">
+  {% else %}
+  <div class="main-content">
+  {% endif %}
+    {{ section.content }}
+  </div>
+
+  {% if section.title == 'Connect' %}
+    <!-- twitter box -->
+    <div class="twitterbox">
+    <!-- twitter logo -->
+    <a class="twitter-timeline" data-height="300" data-theme="dark" href="https://twitter.com/specfem?ref_src=twsrc%5Etfw">Tweets by specfem</a>
+    <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+    </div>
+  {% endif %}
+</section>
