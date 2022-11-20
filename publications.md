@@ -9,7 +9,7 @@ The open-source development of the SPECFEM codes has allowed researchers across 
 ![title](scholar/total_citations.jpg)
 
 ## Recent publications using SPECFEM:
-#### Here we list some recent publications using some of the SPECFEM codes. A larger, albeit possibly non-exhaustive, list of publications can be found on our [Google Scholar](https://scholar.google.com/citations?hl=en&user=bvjzHdUAAAAJ&view_op=list_works&sortby=pubdate).
+#### Here we list some recent publications using some of the SPECFEM codes. A larger, albeit possibly non-exhaustive, list of publications can be found on our [Google Scholar](https://scholar.google.com/citations?hl=en&user=bvjzHdUAAAAJ&view_op=list_works&sortby=pubdate){:class="fontawesome-external-link"}.
 
 <i><b>Inferring the characteristics of marine sediments from the acoustic response of a known, partially buried object</b></i>  
 Alexis Bottero, Simone Sternini, Jit Sarkar, WA Kuperman   
