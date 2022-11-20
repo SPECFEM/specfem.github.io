@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+#
 # Driver code the the Publications stuff:
 
 from download import download_recent_citations

@@ -1,8 +1,12 @@
+#!/usr/bin/env python
+#
+# converts publication list to markdown text
 import yaml
 from copy import copy
 import os
 import pandas as pd
 from functions import plot_citations_graph
+
 calendar = {1: 'January',
             2: 'February',
             3: 'March',
@@ -21,7 +25,6 @@ def convert_to_markdown(local_dir='./publications/'):
 
     files.remove('total_citations.yml')
 
-
     P_dict = {}
     dates  = []
     for GS_unique in files:
@@ -38,19 +41,16 @@ def convert_to_markdown(local_dir='./publications/'):
         # Check month doesnt also include year:
         month = date[separator + 1:]
         u = month.find('/')
-        if u!=-1:
+        if u!= -1:
             month = month[:u]
-
 
         dates.append([int(month), int(year), tmp_pub["Unique GS"]])
 
     # Sort publications by date:
     sorted_by_date = pd.DataFrame(dates, columns=['Month', 'Year', 'UniqueGS']).sort_values(by=['Year', 'Month'], ascending=False).to_numpy()
 
-
     # Create graph for website
     plot_citations_graph(localdir=local_dir)
-
 
     # Now write to MD:
 
@@ -67,27 +67,27 @@ def convert_to_markdown(local_dir='./publications/'):
     # Title
     f.write('\n')
     f.write('# Publications:\n')
-
     # Introduction
     f.write('The open-source development of the SPECFEM codes has allowed researchers across the globe to apply them in various fields of study. Below shows the citation count of journal articles that utilised the SPECFEM codes. Seminal papers relating to the development of, and theory behind, SPECFEM can be found on the [Training page](training.md).  \n')
     # Add the image/bargraph
     f.write("![title](scholar/total_citations.jpg)\n\n")
 
-
     f.write('## Recent publications using SPECFEM:\n')
-    f.write('#### Here we list some recent publications using some of the SPECFEM codes. A larger, albeit possibly non-exhaustive, list of publications can be found on our [Google Scholar](https://scholar.google.com/citations?hl=en&user=bvjzHdUAAAAJ&view_op=list_works&sortby=pubdate).')
+    f.write('#### Here we list some recent publications using some of the SPECFEM codes. A larger, albeit possibly non-exhaustive, list of publications can be found on our [Google Scholar](https://scholar.google.com/citations?hl=en&user=bvjzHdUAAAAJ&view_op=list_works&sortby=pubdate){:class="fontawesome-external-link"}.')
     f.write('\n')
     f.write('\n')
 
+    # publication list
     for i in range(20):
         code = sorted_by_date[i,2]
         pub  = P_dict[code]
         f.write(f"<i><b>{pub['Title']}</b></i>  \n")
         f.write(f"{pub['Authors']}   \n")
         f.write(f' <span style="color:grey">Published in {calendar[sorted_by_date[i,0]]} {sorted_by_date[i,1]}</span> \n')
-
-
         f.write('\n')
-
     f.close()
+
     print('Completed conversion to Markdown.')
+
+if __name__ == "__main__":
+    convert_to_markdown()

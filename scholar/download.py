@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+#
 # Script downloads and prints 20 most recent citations on the SPECFEM google scholar
 import os
 from functions import _get_HTML,  get_unique_paper_codes, parse_citation, get_total_citations_for_specfem
