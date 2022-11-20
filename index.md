@@ -9,6 +9,12 @@ The SPECFEM codes use the spectral-element method to simulate seismic wave propa
 <br>
 <br>
 
+<button class="cite_button" onclick="location.href='https://scholar.google.com/citations?hl=en&user=bvjzHdUAAAAJ&view_op=list_works&sortby=pubdate';">
+Publications using SPECFEM codes:&nbsp;&nbsp;&nbsp; 197<br>
+Total citations:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 22146
+</button>
+
+
 |  Solvers |     |
 | ---      | --- |
 | [![SPECFEM2D](figures/specfem2d.jpg "SPECFEM2D screenshot"){:height="auto" width="400px"}](https://github.com/SPECFEM/specfem2d) |  [**SPECFEM2D**](https://github.com/SPECFEM/specfem2d) simulates forward and adjoint seismic wave propagation in two-dimensional acoustic, (an)elastic, poroelastic or coupled acoustic-(an)elastic-poroelastic media, with Convolution PML absorbing conditions. |
@@ -17,7 +23,7 @@ The SPECFEM codes use the spectral-element method to simulate seismic wave propa
 
 <br>
 <br>
-These solvers are all open-source codes and freely available through github. 
+These solvers are all open-source codes and freely available through github.
 They can be used with various inversion tools to perform seismic adjoint tomography:
 <br>
 <br>

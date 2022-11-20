@@ -1,8 +1,20 @@
 import urllib.request
-
 import matplotlib.pyplot as plt
 import numpy as np
 import yaml
+from scholarly import scholarly
+
+def scholarly_citation_count():
+    # Get data:
+    data = scholarly.search_author_id('bvjzHdUAAAAJ')
+    scholarly.fill(data, sections=['publications'])
+
+
+    # Get total number of citations:
+    total_num_pubs = len(data['publications'])
+    total_num_citations = data['citedby']
+
+    return total_num_pubs, total_num_citations
 
 
 def _get_annual_citations(s):
@@ -219,7 +231,7 @@ def get_total_citations_for_specfem(html, localdir):
 
 
     # Write this to YAML:
-    with open(f"{localdir}/total_citations.yml", 'w') as outfile:
+    with open(f"{localdir}/total_citations_per_year.yml", 'w') as outfile:
         yaml.dump(cites, outfile, default_flow_style=False)
 
 
@@ -230,7 +242,7 @@ def plot_citations_graph(localdir):
     # Takes total citations data and makes a bar chart:
 
     # Read YAML:
-    with open(f"{localdir}/total_citations.yml", 'r') as file:
+    with open(f"{localdir}/total_citations_per_year.yml", 'r') as file:
         data = np.array((list(yaml.safe_load(file).items()))).astype(int)
 
     fs = 14
@@ -242,4 +254,4 @@ def plot_citations_graph(localdir):
     ax.spines['right'].set_visible(False)
     ax.set_xlabel('Year', fontsize=fs)
     ax.set_ylabel('Number of citations for\npapers using SPECFEM', fontsize=fs)
-    plt.savefig('./total_citations.jpg')
+    plt.savefig('./total_citations_per_year.jpg')

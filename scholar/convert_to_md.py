@@ -1,6 +1,8 @@
 import yaml
 from copy import copy
 import os
+import fileinput
+
 import pandas as pd
 from functions import plot_citations_graph
 calendar = {1: 'January',
@@ -16,11 +18,33 @@ calendar = {1: 'January',
             11: 'November',
             12: 'December'}
 
-def convert_to_markdown(local_dir='./publications/'):
+def convert_to_markdown(total_pub_no, total_cites, local_dir='./publications/'):
+
+    # Update total citations button in index.md
+
+    # Does a list of files, and
+    # redirects STDOUT to the file in question
+    i = 0
+    for line in fileinput.input('../index.md', inplace=1):
+        if '<button class="cite_button"' in line:
+            i += 1
+            print(line.rstrip())
+        else:
+            if i==1:
+                print(f"Publications using SPECFEM codes:&nbsp;&nbsp;&nbsp; {total_pub_no}<br>")
+                i+= 1
+            elif i ==2:
+                print(f"Total citations:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {total_cites}")
+                i+=1
+            else:
+                print(line.rstrip())
+
+
+
     files = os.listdir(local_dir)
 
+    files.remove('total_citations_per_year.yml')
     files.remove('total_citations.yml')
-
 
     P_dict = {}
     dates  = []
@@ -71,7 +95,7 @@ def convert_to_markdown(local_dir='./publications/'):
     # Introduction
     f.write('The open-source development of the SPECFEM codes has allowed researchers across the globe to apply them in various fields of study. Below shows the citation count of journal articles that utilised the SPECFEM codes. Seminal papers relating to the development of, and theory behind, SPECFEM can be found on the [Training page](training.md).  \n')
     # Add the image/bargraph
-    f.write("![title](scholar/total_citations.jpg)\n\n")
+    f.write("![title](scholar/total_citations_per_year.jpg)\n\n")
 
 
     f.write('## Recent publications using SPECFEM:\n')

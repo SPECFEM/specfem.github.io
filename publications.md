@@ -6,7 +6,7 @@
 
 # Publications:
 The open-source development of the SPECFEM codes has allowed researchers across the globe to apply them in various fields of study. Below shows the citation count of journal articles that utilised the SPECFEM codes. Seminal papers relating to the development of, and theory behind, SPECFEM can be found on the [Training page](training.md).  
-![title](scholar/total_citations.jpg)
+![title](scholar/total_citations_per_year.jpg)
 
 ## Recent publications using SPECFEM:
 #### Here we list some recent publications using some of the SPECFEM codes. A larger, albeit possibly non-exhaustive, list of publications can be found on our [Google Scholar](https://scholar.google.com/citations?hl=en&user=bvjzHdUAAAAJ&view_op=list_works&sortby=pubdate).
@@ -15,6 +15,10 @@ The open-source development of the SPECFEM codes has allowed researchers across 
 Alexis Bottero, Simone Sternini, Jit Sarkar, WA Kuperman   
  <span style="color:grey">Published in July 2022</span> 
 
+<i><b>The origin of large, long&#8208;period near&#8208;fault ground velocities during surface&#8208;breaking strike&#8208;slip earthquakes</b></i>  
+Yoshihiro Kaneko, Hiroyuki Goto   
+ <span style="color:grey">Published in May 2022</span> 
+
 <i><b>A method to generate initial fault stresses for physics-based ground motion prediction consistent with regional seismicity</b></i>  
 Elif Oral, Jean Paul Ampuero, Javier Ruiz, Domniki Asimaki   
  <span style="color:grey">Published in April 2022</span> 
@@ -22,6 +26,10 @@ Elif Oral, Jean Paul Ampuero, Javier Ruiz, Domniki Asimaki
 <i><b>Centroid Moment Tensor Catalog With 3D Lithospheric Wave Speed Model: The 2016&#8211;2017 Central Apennines Sequence</b></i>  
 Pietro Artale Harris, Laura Scognamiglio, Federica Magnoni, Emanuele Casarotti, Elisa Tinti   
  <span style="color:grey">Published in April 2022</span> 
+
+<i><b>Simulation of Infrasonic Acoustic Wave Imprints on Airglow Layers During the 2016 M7. 8 Kaikoura Earthquake</b></i>  
+PA Inchin, J Aguilar Guerrero, JB Snively, Y Kaneko   
+ <span style="color:grey">Published in March 2022</span> 
 
 <i><b>Adjoint tomography of the Italian lithosphere</b></i>  
 Federica Magnoni, Emanuele Casarotti, Dimitri Komatitsch, Raffaele Di Stefano, Maria Grazia Ciaccio, Carl Tape, Daniele Melini, Alberto Michelini, Antonio Piersanti, Jeroen Tromp   
@@ -63,31 +71,23 @@ Percy Galvez, Anatoly Petukhin, Paul Somerville, Jean&#8208;Paul Ampuero, Ken Mi
 Lucia Gualtieri, Etienne Bachmann, Frederik J Simons, Jeroen Tromp   
  <span style="color:grey">Published in July 2021</span> 
 
+<i><b>Inferring the evolution of a large earthquake from its acoustic impacts on the ionosphere</b></i>  
+PA Inchin, JB Snively, Y Kaneko, MD Zettergren, A Komjathy   
+ <span style="color:grey">Published in June 2021</span> 
+
+<i><b>Coseismic slickenlines record the emergence of multiple rupture fronts during a surface-breaking earthquake</b></i>  
+Clarrie Macklin, Yoshihiro Kaneko, Jesse Kearse   
+ <span style="color:grey">Published in June 2021</span> 
+
 <i><b>Imaging upper mantle anisotropy with teleseismic <i>P</i>-wave delays: insights from tomographic reconstructions of subduction simulations</b></i>  
 Brandon P VanderBeek, Manuele Faccenda   
  <span style="color:grey">Published in June 2021</span> 
 
-<i><b>Continuum of earthquake rupture speeds enabled by oblique slip</b></i>  
-Huihui Weng, Jean-Paul Ampuero   
- <span style="color:grey">Published in December 2020</span> 
+<i><b>The 2021 Loyalty Islands earthquake (Mw 7.7): tsunami waveform inversion and implications for tsunami forecasting for New Zealand</b></i>  
+Aditya Riadi Gusman, Jean Roger, William Power, Bill Fry, Yoshihiro Kaneko   
+ <span style="color:grey">Published in June 2021</span> 
 
-<i><b>An automated workflow for adjoint tomography&#8212;waveform misfits and synthetic inversions for the North Island, New Zealand</b></i>  
-Bryant Chow, Yoshihiro Kaneko, Carl Tape, Ryan Modrak, John Townend   
- <span style="color:grey">Published in December 2020</span> 
-
-<i><b>On the influence of slopes, source, seabed and water column properties on T waves: Generation at shore</b></i>  
-Alexis Bottero, Paul Cristini, Dimitri Komatitsch   
- <span style="color:grey">Published in December 2020</span> 
-
-<i><b>The origin of secondary microseism Love waves</b></i>  
-Lucia Gualtieri, Etienne Bachmann, Frederik J Simons, Jeroen Tromp   
- <span style="color:grey">Published in November 2020</span> 
-
-<i><b>Global adjoint tomography&#8212;model GLAD-M25</b></i>  
-Wenjie Lei, Youyi Ruan, Ebru Bozda&#287;, Daniel Peter, Matthieu Lefebvre, Dimitri Komatitsch, Jeroen Tromp, Judith Hill, Norbert Podhorszki, David Pugmire   
- <span style="color:grey">Published in October 2020</span> 
-
-<i><b>Probing depth and lateral variations of upper-mantle seismic anisotropy from full-waveform inversion of teleseismic body-waves</b></i>  
-Stephen Beller, Sébastien Chevrot   
- <span style="color:grey">Published in July 2020</span> 
+<i><b>Calibrating the marine turbidite palaeoseismometer using the 2016 Kaik&#333;ura earthquake</b></i>  
+Jamie D Howarth, Alan R Orpin, Yoshihiro Kaneko, Lorna J Strachan, Scott D Nodder, Joshu J Mountjoy, Philip M Barnes, Helen C Bostock, Caroline Holden, Katie Jones, M Namik Ca&#287;atay   
+ <span style="color:grey">Published in March 2021</span> 
 
