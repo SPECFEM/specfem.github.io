@@ -493,6 +493,19 @@ video[poster] {
   height: 100%;
 }
 
+/* grow image effect */
+img.grow {
+  border-radius: 2px;
+  box-shadow: 0 0 5px 0 rgba(0,0,0,0.2);
+  transition: 0.5s ease;
+  &:hover{
+    -webkit-transform: scale(1.1);
+    -ms-transform: scale(1.1);
+    transform: scale(1.1);
+    transition: 0.5s ease;
+  }
+}
+
 /* portrait image style */
 img.circle {
   min-width: 100px;
@@ -507,19 +520,6 @@ img.circle {
 img.middle {
   margin: auto;
   vertical-align: middle;
-}
-
-/* grow image effect */
-img.grow {
-  border-radius: 2px;
-  box-shadow: 0 0 5px 0 rgba(0,0,0,0.2);
-  transition: 0.5s ease;
-  &:hover{
-    -webkit-transform: scale(1.1);
-    -ms-transform: scale(1.1);
-    transform: scale(1.1);
-    transition: 0.5s ease;
-  }
 }
 
 /* ------------------------------------------------------------
@@ -717,14 +717,14 @@ Media query
 /* --  query -- portrait phone (>= 480px < 592px) */
 @media screen and (min-width: 30em) and (max-width: 37em) {
   .halfbox { width: 100%; }
-  .twitterbox { width: 100%; padding: 10px; }
+  .twitterbox { width: 100%; }
   .twitter-timeline { width: 100%; }
 }
 
 /* --  query -- portrait phone (< 480px) */
 @media screen and (max-width: 30em) {
   .halfbox { width: 100%; }
-  .twitterbox { width: 100%; padding: 10px; }
+  .twitterbox { width: 100%; }
   .twitter-timeline { width: 100%; }
 }
 
