@@ -232,6 +232,30 @@ Page
   padding-right: 5px;
 }
 
+/* citation button */
+.cite_button {
+  -webkit-border-radius: 26px;
+  -moz-border-radius: 26px;
+  border-radius: 26px;
+  border-width: 1px;
+
+  text-align: left;
+  background: #808080;
+  padding: 10px 20px 10px 20px;
+  text-decoration: none;
+
+  border-color:rgba(71, 68, 68, 1);
+  background-color:transparent;
+}
+
+.cite_button:hover {
+  background: #5c5c5c;
+  text-decoration: none;
+  text-align: left;
+  color: white;
+}
+
+
 /* ------------------------------------------------------------
 
 Navigation
@@ -699,33 +723,6 @@ Timeline
 .timeline h3{
   margin-bottom: 0px;
 }
-
-.cite_button {
-      -webkit-border-radius: 28;
-      -moz-border-radius: 28;
-      border-width:1px;
-      font-family: Arial;
-      color:#666666;
-      font-size: 20px;
-      text-align: left;
-      background: #808080;
-      padding: 10px 20px 10px 20px;
-      text-decoration: none;
-      border-color:rgba(71, 68, 68, 1);
-      background-color:transparent;
-      border-top-left-radius:26px;
-      border-top-right-radius:26px;
-      border-bottom-left-radius:26px;
-      border-bottom-right-radius:26px;
-     }
-
-.cite_button:hover {
-  background: #5c5c5c;
-  text-decoration: none;
-  text-align: left;
-  color: white;
-}
-
 
 
 /* -------------------------------------------------------------
