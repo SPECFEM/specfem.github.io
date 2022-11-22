@@ -9,10 +9,8 @@ The SPECFEM codes use the spectral-element method to simulate seismic wave propa
 <br>
 <br>
 
-<button class="cite_button" onclick="location.href='https://scholar.google.com/citations?hl=en&user=bvjzHdUAAAAJ&view_op=list_works&sortby=pubdate';">
-Publications using SPECFEM codes:&nbsp;&nbsp;&nbsp; 197<br>
-Total citations:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 22146
-</button>
+
+{% include citation_button.html %}
 
 
 |  Solvers |     |

@@ -2,6 +2,7 @@ import yaml
 from copy import copy
 import os
 import fileinput
+import numpy as np
 
 import pandas as pd
 from functions import plot_citations_graph
@@ -20,25 +21,16 @@ calendar = {1: 'January',
 
 def convert_to_markdown(total_pub_no, total_cites, local_dir='./publications/'):
 
-    # Update total citations button in index.md
-
-    # Does a list of files, and
-    # redirects STDOUT to the file in question
-    i = 0
-    for line in fileinput.input('../index.md', inplace=1):
-        if '<button class="cite_button"' in line:
-            i += 1
-            print(line.rstrip())
+    # Update total citations button in index.md via citations_button in _INCLUDES
+    for line in fileinput.input('../_includes/citation_button.html', inplace=1):
+        if "{% assign num_pubs=" in line:
+            linestr = '{% assign num_pubs=' + str(total_pub_no) + '%}'
+            print( linestr.rstrip() )
+        elif "{% assign num_cites=" in line:
+            linestr = '{% assign num_cites=' + str(total_cites) + '%}'
+            print(linestr.rstrip())
         else:
-            if i==1:
-                print(f"Publications using SPECFEM codes:&nbsp;&nbsp;&nbsp; {total_pub_no}<br>")
-                i+= 1
-            elif i ==2:
-                print(f"Total citations:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {total_cites}")
-                i+=1
-            else:
-                print(line.rstrip())
-
+            print(line.rstrip())
 
 
     files = os.listdir(local_dir)

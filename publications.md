@@ -19,6 +19,10 @@ Alexis Bottero, Simone Sternini, Jit Sarkar, WA Kuperman
 Yoshihiro Kaneko, Hiroyuki Goto   
  <span style="color:grey">Published in May 2022</span> 
 
+<i><b>&#22320;&#38663;&#23398;&#20840;&#27874;&#24418;&#21453;&#28436;&#36827;&#23637;</b></i>  
+&#31069;&#36154;&#21531;&#65292; &#21016;&#27777;&#38597;&#65292; &#26472;&#32487;&#19996;   
+ <span style="color:grey">Published in May 2022</span> 
+
 <i><b>A method to generate initial fault stresses for physics-based ground motion prediction consistent with regional seismicity</b></i>  
 Elif Oral, Jean Paul Ampuero, Javier Ruiz, Domniki Asimaki   
  <span style="color:grey">Published in April 2022</span> 
@@ -43,6 +47,14 @@ Guoliang Li, Kai Tao, Min Chen, Jiaqi Li, Ross Maguire, Xiaodan Ma
 Simone Sternini, Alexis Bottero, WA Kuperman   
  <span style="color:grey">Published in February 2022</span> 
 
+<i><b>Full&#8208;Waveform Inversion of High&#8208;Frequency Teleseismic Body Waves Based on Multiple Plane&#8208;Wave Incidence: Methods and Practical Applications</b></i>  
+Kai Wang, Yi Wang, Xin Song, Ping Tong, Qinya Liu, Yingjie Yang   
+ <span style="color:grey">Published in February 2022</span> 
+
+<i><b>Assessment of seismic tomographic models of the contiguous United States using intermediate-period 3-D wavefield simulation</b></i>  
+Tong Zhou, Ziyi Xi, Min Chen, Jiaqi Li   
+ <span style="color:grey">Published in February 2022</span> 
+
 <i><b>Spectral element modeling of acoustic to seismic coupling over topography</b></i>  
 Jordan W Bishop, David Fee, Ryan Modrak, Carl Tape, Keehoon Kim   
  <span style="color:grey">Published in January 2022</span> 
@@ -53,6 +65,10 @@ Bryant Chow, Yoshihiro Kaneko, Carl Tape, Ryan Modrak, Nick Mortimer, Stephen Ba
 
 <i><b>The effect of rupture directivity, distance and skew angle on the collapse fragilities of bridges</b></i>  
 Surendra Nadh Somala, KSK Karthik Reddy, Sujith Mangalathu   
+ <span style="color:grey">Published in November 2021</span> 
+
+<i><b>On&#8208;the&#8208;Fly Full Hessian Kernel Calculations Based upon Seismic&#8208;Wave Simulations</b></i>  
+Yujiang Xie, Catherine A Rychert, Nicholas Harmon, Qinya Liu, Dirk Gajewski   
  <span style="color:grey">Published in November 2021</span> 
 
 <i><b>The Influence of Depth&#8208;Varying Elastic Properties of the Upper Plate on Megathrust Earthquake Rupture Dynamics and Tsunamigenesis</b></i>  
@@ -67,27 +83,11 @@ Kenichi Tsuda
 Percy Galvez, Anatoly Petukhin, Paul Somerville, Jean&#8208;Paul Ampuero, Ken Miyakoshi, Daniel Peter, Kojiro Irikura   
  <span style="color:grey">Published in October 2021</span> 
 
+<i><b>Toward Waveform&#8208;Based Characterization of Slab &amp; Mantle Wedge (SAM) Earthquakes</b></i>  
+Felix Halpaap, Stéphane Rondenay, Qinya Liu, Florian Millet, Lars Ottemöller   
+ <span style="color:grey">Published in September 2021</span> 
+
 <i><b>Generation of secondary microseism Love waves: effects of bathymetry, 3-D structure and source seasonality</b></i>  
 Lucia Gualtieri, Etienne Bachmann, Frederik J Simons, Jeroen Tromp   
  <span style="color:grey">Published in July 2021</span> 
-
-<i><b>Inferring the evolution of a large earthquake from its acoustic impacts on the ionosphere</b></i>  
-PA Inchin, JB Snively, Y Kaneko, MD Zettergren, A Komjathy   
- <span style="color:grey">Published in June 2021</span> 
-
-<i><b>Coseismic slickenlines record the emergence of multiple rupture fronts during a surface-breaking earthquake</b></i>  
-Clarrie Macklin, Yoshihiro Kaneko, Jesse Kearse   
- <span style="color:grey">Published in June 2021</span> 
-
-<i><b>Imaging upper mantle anisotropy with teleseismic <i>P</i>-wave delays: insights from tomographic reconstructions of subduction simulations</b></i>  
-Brandon P VanderBeek, Manuele Faccenda   
- <span style="color:grey">Published in June 2021</span> 
-
-<i><b>The 2021 Loyalty Islands earthquake (Mw 7.7): tsunami waveform inversion and implications for tsunami forecasting for New Zealand</b></i>  
-Aditya Riadi Gusman, Jean Roger, William Power, Bill Fry, Yoshihiro Kaneko   
- <span style="color:grey">Published in June 2021</span> 
-
-<i><b>Calibrating the marine turbidite palaeoseismometer using the 2016 Kaik&#333;ura earthquake</b></i>  
-Jamie D Howarth, Alan R Orpin, Yoshihiro Kaneko, Lorna J Strachan, Scott D Nodder, Joshu J Mountjoy, Philip M Barnes, Helen C Bostock, Caroline Holden, Katie Jones, M Namik Ca&#287;atay   
- <span style="color:grey">Published in March 2021</span> 
 
