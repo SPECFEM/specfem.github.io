@@ -11,5 +11,5 @@ local_dir='./publications'
 # for a publication
 
 total_num_pubs, total_num_citations = scholarly_citation_count()
-download_recent_citations(local_dir, override_current_downloads=False)
+download_recent_citations(local_dir, override_current_downloads=True)
 convert_to_markdown(total_num_pubs, total_num_citations, local_dir)
