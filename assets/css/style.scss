@@ -427,7 +427,9 @@ Header parallax
   overflow-x: hidden;
   overflow-y: auto; /* auto; */
 
-  height: 350px; /* 100vh */
+  height: 650px;
+  min-height: 350px; /* 100vh */
+  max-height: calc(100vh - 60px); /* view height minus navbar / menu bar */
   width: 100%;
 
   color: #FFF;
@@ -446,13 +448,17 @@ Header parallax
 }
 
 .parallax_layer_back{
-  height: 350px;
+  height: 650px;
+  min-height: 350px;
+  max-height: calc(100vh - 60px); /* view height minus navbar / menu bar */
   z-index: -10;
 }
 
 .parallax_layer_front{
   z-index: -1;
-  height: 350px;
+  height: 650px;
+  min-height: 350px;
+  max-height: calc(100vh - 60px); /* view height minus navbar / menu bar */
 }
 
 .btn {
@@ -463,9 +469,10 @@ Header parallax
 .img_background {
   display: block;
 
-  height: 350px;
-  min-width: 250px;
+  height: 650px;
   min-height: 350px;
+  max-height: calc(100vh - 60px); /* view height minus navbar / menu bar */
+  min-width: 250px;
 
   background-position: top center;
   background-repeat: no-repeat;
@@ -545,6 +552,48 @@ img.middle {
   vertical-align: middle;
 }
 
+/* scroll down animation */
+#scroll-down {
+  display: block;
+  position: relative;
+  top: -79px; /* minus scroll down length */
+  padding-top: 79px;
+  text-align: center;
+}
+
+#scroll-down::before {
+  /* animation: elasticus 3.2s cubic-bezier(1, 0, 0, 1) infinite; */
+  animation: elasticus 3.2s cubic-bezier(0, 0.42, 0.2, 0.99) infinite;
+  position: absolute;
+  top: 0px;
+  left: 50%;
+  margin-left: -1px;
+  width: 2px;
+  height: 90px;
+  background: #FFF;
+  content: ' ';
+}
+
+@keyframes elasticus {
+  0% {
+      transform-origin: 0% 0%;
+      transform: scale(1, 0);
+  }
+  50% {
+      transform-origin: 0% 0%;
+      transform: scale(1, 1);
+  }
+  50.1% {
+      transform-origin: 0% 100%;
+      transform: scale(1, 1);
+  }
+  100% {
+      transform-origin: 0% 100%;
+      transform: scale(1, 0);
+  }
+}
+
+
 /* ------------------------------------------------------------
 
 Carousel animation
@@ -554,7 +603,8 @@ Carousel animation
 .carousel-container {
   position: relative;
   width: 100%;
-  height: 350px;
+  height: inherit;
+  min-height: inherit;
   overflow: hidden;
   margin: 0 auto;
 }
@@ -565,8 +615,11 @@ Carousel animation
   opacity: 0;
   animation: display 30s infinite;
   width: 100%;
-  height: 350px;
+  height: inherit;
+  min-height: inherit;
+
   background-size: cover;
+  background-repeat: no-repeat;
   background-position: center;
 }
 
@@ -645,8 +698,8 @@ Timeline
   position: relative;
   overflow: hidden;
   background-color: #FFF;
-  min-height:100vh;
-  margin:0;
+  min-height: 100vh;
+  margin: 0;
   font-size: 80%;
 }
 
@@ -658,9 +711,9 @@ Timeline
 }
 
 .timeline .entries {
-    width:calc(100% - 80px);
-    max-width:800px;
-    margin:auto;
+    width: calc(100% - 80px);
+    max-width: 800px;
+    margin: auto;
     position: relative;
     left: -3px;
     .entry {
@@ -685,12 +738,12 @@ Timeline
           border: 4px solid #AAA;
           background-color: #FFF;
           border-radius: 100%;
-          top:50%;
+          top: 50%;
           -webkit-transform: translateY(-50%);
           -ms-transform: translateY(-50%);
           transform: translateY(-50%);
-          right:-73px;
-          z-index:1000;
+          right: -73px;
+          z-index: 1000;
         }
         &.big:before {
           width: 24px;
