@@ -4,17 +4,18 @@
     <meta charset="UTF-8">
 {% seo %}
     <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link rel="preload" href="https://fonts.googleapis.com/css?family=Open+Sans:400,700&display=swap" as="style" type="text/css" crossorigin>
+    <!--link rel="preload" href="https://fonts.googleapis.com/css?family=Open+Sans:400,700&display=swap" as="style" type="text/css" crossorigin-->
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#AAA">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="stylesheet" href="{{ '/assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}">
     <link rel="shortcut icon" type="image/x-icon" href="{{ 'figures/favicon.ico' | relative_url }}">
   </head>
-  <body>
+  <body onload="myPreloader()">
     <a id="skip-to-content" href="#content">Skip to the content.</a>
     
     <section class="page-header">
+      <div id="loader-pulse"></div>
       {% include nav.html %}
       {% include parallax.html %}
     </section>
@@ -37,5 +38,12 @@
     <section class="page-footer">
       {% include footer.html %}
     </section>
+
+    <script>
+      var preloader = document.getElementById('loader-pulse');
+      function myPreloader() {
+        preloader.style.display = 'none';
+      }
+    </script>
   </body>
 </html>
