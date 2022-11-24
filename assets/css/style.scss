@@ -427,7 +427,7 @@ Header parallax
   overflow-x: hidden;
   overflow-y: auto; /* auto; */
 
-  height: 650px;
+  height: 800px;
   min-height: 350px; /* 100vh */
   max-height: calc(100vh - 60px); /* view height minus navbar / menu bar */
   width: 100%;
@@ -448,7 +448,7 @@ Header parallax
 }
 
 .parallax_layer_back{
-  height: 650px;
+  height: 800px;
   min-height: 350px;
   max-height: calc(100vh - 60px); /* view height minus navbar / menu bar */
   z-index: -10;
@@ -456,7 +456,7 @@ Header parallax
 
 .parallax_layer_front{
   z-index: -1;
-  height: 650px;
+  height: 800px;
   min-height: 350px;
   max-height: calc(100vh - 60px); /* view height minus navbar / menu bar */
 }
@@ -469,7 +469,7 @@ Header parallax
 .img_background {
   display: block;
 
-  height: 650px;
+  height: 800px;
   min-height: 350px;
   max-height: calc(100vh - 60px); /* view height minus navbar / menu bar */
   min-width: 250px;
@@ -488,25 +488,25 @@ Header parallax
 
 /* background images */
 .img1 {
-  background-image: url(/figures/earth_banner.jpg);
+  background-image: url(/figures/banner_earth.jpg);
 }
 
 .img2 {
   /* movie - not playing on firefox/chrome, must have video section */
-  /*background-image: url(/figures/earth_banner.mp4);*/
+  /*background-image: url(/figures/banner_earth.mp4);*/
   background-image: url(/figures/earth-shakemovie.jpg);
 }
 
 .img3 {
-  background-image: url(/figures/specfem2d.jpg);
+  background-image: url(/figures/banner_specfem2d.jpg);
 }
 
 .img4 {
-  background-image: url(/figures/specfem3d.jpg);
+  background-image: url(/figures/banner_specfem3d.jpg);
 }
 
 .img5 {
-  background-image: url(/figures/specfem3d_globe.png);
+  background-image: url(/figures/banner_specfem3d_globe.jpg);
 }
 
 .background-video {
