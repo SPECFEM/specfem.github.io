@@ -550,7 +550,7 @@ img.middle {
 
 /* scroll down animation */
 #scroll-down {
-  display: block;
+  display: none;
   position: relative;
   top: -79px; /* minus scroll down length */
   padding-top: 79px;
@@ -590,7 +590,7 @@ img.middle {
 }
 
 
-/* loader */
+/* loader animation */
 #loader-pulse {
   height: 200px;
   width: 200px;
