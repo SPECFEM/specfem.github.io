@@ -255,6 +255,21 @@ Page
   color: white;
 }
 
+/* reveal elements */
+.reveal{
+  position: relative;
+  /*transform: translateX(150px);*/
+  transform: scale(1.2);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  opacity: 0;
+  transition: 1s all ease;
+}
+
+.reveal.active{
+  /*transform: translateX(0);*/
+  transform: none;
+  opacity: 1;
+}
 
 /* ------------------------------------------------------------
 
@@ -442,23 +457,21 @@ Header parallax
   right: 0;
   bottom: 0;
   left: 0;
-  height: 400px;
   overflow: hidden;
-  z-index: -20;
 }
 
 .parallax_layer_back{
-  height: 800px;
-  min-height: 350px;
-  max-height: calc(100vh - 60px); /* view height minus navbar / menu bar */
-  z-index: -10;
+  height: inherit;
+  min-height: inherit;
+  max-height: inherit;
+  z-index: -30;
 }
 
 .parallax_layer_front{
+  height: inherit;
+  min-height: inherit;
+  max-height: inherit;
   z-index: -1;
-  height: 800px;
-  min-height: 350px;
-  max-height: calc(100vh - 60px); /* view height minus navbar / menu bar */
 }
 
 .btn {
@@ -633,7 +646,6 @@ img.middle {
   margin: auto;
   height: 3px;
 }
-
 
 @keyframes pulse {
   0% {
