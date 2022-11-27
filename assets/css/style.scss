@@ -694,7 +694,7 @@ Carousel animation
   position: absolute;
   top: 0;
   opacity: 0;
-  animation: display 30s infinite;
+  animation: display 36s infinite;
   width: 100%;
   height: inherit;
   min-height: inherit;
@@ -704,6 +704,8 @@ Carousel animation
   background-position: center;
 }
 
+/* time interval and total time in container must match the number of div items with the carousel-image class in parallax.hmtl */
+/* has currently: 6 items -> 36 s -> 6 s each */
 .carousel-container .carousel-image:nth-child(1) {
   animation-delay: 0s;
 }
@@ -718,6 +720,9 @@ Carousel animation
 }
 .carousel-container .carousel-image:nth-child(5) {
   animation-delay: 24s;
+}
+.carousel-container .carousel-image:nth-child(6) {
+  animation-delay: 30s;
 }
 
 @keyframes display {
