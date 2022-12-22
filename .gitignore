@@ -6,3 +6,5 @@ firebase-debug.log
 *ipynb*
 .idea
 *__pycache__*
+.DS_Store
+
