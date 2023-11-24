@@ -11,6 +11,14 @@ The open-source development of the SPECFEM codes has allowed researchers across 
 ## Recent publications using SPECFEM:
 #### Here we list some recent publications using some of the SPECFEM codes. A larger, albeit possibly non-exhaustive, list of publications can be found on our [Google Scholar](https://scholar.google.com/citations?hl=en&user=bvjzHdUAAAAJ&view_op=list_works&sortby=pubdate){:class="fontawesome-external-link"}.
 
+<i><b>Dynamic rupture simulations based on depth-dependent stress accumulation</b></i>  
+H Aochi, K Tsuda   
+[<span style="color:grey">Published in April 2023</span>](https://scholar.google.com/citations?view_op=view_citation&hl=en&oe=ASCII&user=bvjzHdUAAAAJ&sortby=pubdate&citation_for_view=bvjzHdUAAAAJ:tYavs44e6CUC){:class="fontawesome-external-link" style="color: gray;" target="_blank"}
+
+<i><b>Model parameter design for modeling surface topography in VTI elastic finite-difference near-surface simulations</b></i>  
+Xuhui Zhou, Shoudong Huo, Hao Wang, Shuli Dong, Yao Liang, Jian Cao   
+[<span style="color:grey">Published in December 2022</span>](https://scholar.google.com/citations?view_op=view_citation&hl=en&oe=ASCII&user=bvjzHdUAAAAJ&sortby=pubdate&citation_for_view=bvjzHdUAAAAJ:hMsQuOkrut0C){:class="fontawesome-external-link" style="color: gray;" target="_blank"}
+
 <i><b>Inferring the characteristics of marine sediments from the acoustic response of a known, partially buried object</b></i>  
 Alexis Bottero, Simone Sternini, Jit Sarkar, WA Kuperman   
 [<span style="color:grey">Published in July 2022</span>](https://scholar.google.com/citations?view_op=view_citation&hl=en&oe=ASCII&user=bvjzHdUAAAAJ&sortby=pubdate&citation_for_view=bvjzHdUAAAAJ:VL0QpB8kHFEC){:class="fontawesome-external-link" style="color: gray;" target="_blank"}
@@ -22,6 +30,10 @@ Yoshihiro Kaneko, Hiroyuki Goto
 <i><b>&#22320;&#38663;&#23398;&#20840;&#27874;&#24418;&#21453;&#28436;&#36827;&#23637;</b></i>  
 &#31069;&#36154;&#21531;&#65292; &#21016;&#27777;&#38597;&#65292; &#26472;&#32487;&#19996;   
 [<span style="color:grey">Published in May 2022</span>](https://scholar.google.com/citations?view_op=view_citation&hl=en&oe=ASCII&user=bvjzHdUAAAAJ&sortby=pubdate&citation_for_view=bvjzHdUAAAAJ:uc_IGeMz5qoC){:class="fontawesome-external-link" style="color: gray;" target="_blank"}
+
+<i><b>Imaging an Underwater Basin and its Resonance Modes using Optical Fiber Distributed Acoustic Sensing</b></i>  
+Itzhak Lior, E Diego Mercerat, Diane Rivet, Anthony Sladen, Jean&#8208;Paul Ampuero   
+[<span style="color:grey">Published in May 2022</span>](https://scholar.google.com/citations?view_op=view_citation&hl=en&oe=ASCII&user=bvjzHdUAAAAJ&sortby=pubdate&citation_for_view=bvjzHdUAAAAJ:TIZ-Mc8IlK0C){:class="fontawesome-external-link" style="color: gray;" target="_blank"}
 
 <i><b>A method to generate initial fault stresses for physics-based ground motion prediction consistent with regional seismicity</b></i>  
 Elif Oral, Jean Paul Ampuero, Javier Ruiz, Domniki Asimaki   
@@ -78,16 +90,4 @@ Manel Prada, Percy Galvez, Jean&#8208;Paul Ampuero, Valentí Sallarès, Carlos S
 <i><b>Dynamic Rupture Study of Near&#8208;Field Velocity Pulses during the 2016 Kumamoto Earthquake, Japan</b></i>  
 Kenichi Tsuda   
 [<span style="color:grey">Published in October 2021</span>](https://scholar.google.com/citations?view_op=view_citation&hl=en&oe=ASCII&user=bvjzHdUAAAAJ&sortby=pubdate&citation_for_view=bvjzHdUAAAAJ:WA5NYHcadZ8C){:class="fontawesome-external-link" style="color: gray;" target="_blank"}
-
-<i><b>Multicycle Simulation of Strike&#8208;Slip Earthquake Rupture for Use in Near&#8208;Source Ground&#8208;Motion Simulations</b></i>  
-Percy Galvez, Anatoly Petukhin, Paul Somerville, Jean&#8208;Paul Ampuero, Ken Miyakoshi, Daniel Peter, Kojiro Irikura   
-[<span style="color:grey">Published in October 2021</span>](https://scholar.google.com/citations?view_op=view_citation&hl=en&oe=ASCII&user=bvjzHdUAAAAJ&sortby=pubdate&citation_for_view=bvjzHdUAAAAJ:BrmTIyaxlBUC){:class="fontawesome-external-link" style="color: gray;" target="_blank"}
-
-<i><b>Toward Waveform&#8208;Based Characterization of Slab &amp; Mantle Wedge (SAM) Earthquakes</b></i>  
-Felix Halpaap, Stéphane Rondenay, Qinya Liu, Florian Millet, Lars Ottemöller   
-[<span style="color:grey">Published in September 2021</span>](https://scholar.google.com/citations?view_op=view_citation&hl=en&oe=ASCII&user=bvjzHdUAAAAJ&sortby=pubdate&citation_for_view=bvjzHdUAAAAJ:ipzZ9siozwsC){:class="fontawesome-external-link" style="color: gray;" target="_blank"}
-
-<i><b>Generation of secondary microseism Love waves: effects of bathymetry, 3-D structure and source seasonality</b></i>  
-Lucia Gualtieri, Etienne Bachmann, Frederik J Simons, Jeroen Tromp   
-[<span style="color:grey">Published in July 2021</span>](https://scholar.google.com/citations?view_op=view_citation&hl=en&oe=ASCII&user=bvjzHdUAAAAJ&sortby=pubdate&citation_for_view=bvjzHdUAAAAJ:u_35RYKgDlwC){:class="fontawesome-external-link" style="color: gray;" target="_blank"}
 
