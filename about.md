@@ -17,6 +17,7 @@ A major involvement in the development and maintenance of the SPECFEM project is
 | [![Jeroen](figures/Jeroen_Tromp.png "Jeroen Tromp"){:height="auto" width="100px" class="circle middle grow"}](https://geosciences.princeton.edu/people/jeroen-tromp) | **Jeroen Tromp**, *Princeton University*<br>Founder of *SPECFEM* codes (together with Dimitri Komatitsch) |
 | [![Daniel](figures/Daniel_Peter.jpg "Daniel Peter"){:height="auto" width="100px" class="circle middle grow"}](https://danielpeter.github.io) | **Daniel Peter**, *KAUST*<br>Lead developer and maintainer of *SPECFEM* codes |
 | [![Vadim](figures/Vadim_Monteiller.jpg "Vadim Monteiller"){:height="auto" width="100px" class="circle middle grow"}](http://www.lma.cnrs-mrs.fr/spip.php?auteur292&lang=fr) | **Vadim Monteiller**, *LMA Marseille*<br>Developer and maintainer of *SPECFEM* codes |
+| [![Hom Nath](figures/Hom_Nath_Gharti.jpg "Hom Nath Gharti"){:height="auto" width="100px" class="circle middle grow"}](https://www.queensu.ca/geol/dr-hom-nath-gharti) | **Hom Nath Gharti**, *Queen's University*<br>Developer and maintainer of *SPECFEM* codes |
 | [![Carl](figures/Carl_Tape.jpg "Carl Tape"){:height="auto" width="100px" class="circle middle grow"}](https://sites.google.com/alaska.edu/carltape) | **Carl Tape**, *University of Alaska Fairbanks*<br>User training and developer meeting organizer |
 | [![Qinya](figures/Qinya_Liu.jpg "Qinya Liu"){:height="auto" width="100px" class="circle middle grow"}](https://www.physics.utoronto.ca/members/liu-qinya/) | **Qinya Liu**, *University of Toronto*<br>Adjoint code capabilities, developer meeting organizer |
 | [![Ebru](figures/Ebru_Bozdag.jpg "Ebru Bozdag"){:height="auto" width="100px" class="circle middle grow"}](https://ebrucsm.wordpress.com) | **Ebru Bozdag**, *Colorado School of Mines*<br>Global inversions and Mars in *SPECFEM3D_GLOBE* |
@@ -58,7 +59,7 @@ on 21,675 XE nodes, 693,600 MPI ranks, 693,600 cores
 <div class="entry">
 <div class="title big">2010</div>
 <div class="body">
-<h3>BULL Joseph Fourier Prize winner</h3><br> 
+<h3>BULL Joseph Fourier Prize winner</h3><br>
 for the partial GPU port of <it>SPECFEM3D_GLOBE</it>
 </div>
 </div> <!-- entry -->
@@ -67,7 +68,7 @@ for the partial GPU port of <it>SPECFEM3D_GLOBE</it>
 <div class="entry">
 <div class="title big">2008</div>
 <div class="body">
-<h3>ACM Gordon Bell Finalist</h3><br> 
+<h3>ACM Gordon Bell Finalist</h3><br>
 for <it>SPECFEM3D_GLOBE</it> simulation reaching resolution of 1.72s shortest period
 </div>
 </div> <!-- entry -->
@@ -82,7 +83,7 @@ on 149,784 cores</div>
 <div class="entry">
 <div class="title big">2003</div>
 <div class="body">
-<h3>ACM Gordon Bell Award</h3><br> 
+<h3>ACM Gordon Bell Award</h3><br>
 for Best Performance of <it>SPECFEM3D_GLOBE</it> simulation on the Earth Simulator
 </div>
 </div> <!-- entry -->

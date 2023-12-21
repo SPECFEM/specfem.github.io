@@ -36,7 +36,7 @@ collections:
   - frontsections
 
 ## Gems
-gems:
+plugins:
   - jekyll-feed
 exclude:
   - Gemfile
