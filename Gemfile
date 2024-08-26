@@ -6,6 +6,3 @@ source 'https://rubygems.org'
 #   and to update
 #   > bundle update 
 gem 'github-pages', group: :jekyll_plugins
-
-
-gem "webrick", "~> 1.7"
