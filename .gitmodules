@@ -1,0 +1,3 @@
+[submodule "magma-earth"]
+	path = magma-earth
+	url = https://github.com/danielpeter/magma-earth
