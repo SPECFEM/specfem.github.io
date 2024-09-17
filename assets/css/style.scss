@@ -1,7 +1,9 @@
 ---
 ---
 
-@import url(https://weloveiconfonts.com/api/?family=fontawesome);
+/* font-awesome */
+@import url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css);
+
 @import "{{ site.theme }}";
 
 /* ------------------------------------------------------------ */
@@ -217,18 +219,14 @@ Page
   max-width: 100%;
 }
 
+/* font-awesome */
 /* heart */
-/* fontawesome */
-[class*="fontawesome-"]:before {
-  font-family: 'FontAwesome', sans-serif;
-}
-
-.fontawesome-heart:before{
+.fa-heart:before{
   color: red;
   font-size: 1.5rem;
 }
-
-.fontawesome-external-link:before{
+/* external link */
+.fa-external-link-alt:before{
   padding-right: 5px;
 }
 

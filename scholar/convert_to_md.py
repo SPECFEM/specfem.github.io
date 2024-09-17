@@ -90,7 +90,7 @@ def convert_to_markdown(total_pub_no, total_cites, local_dir='./publications/'):
     f.write("![title](scholar/total_citations_per_year.jpg)\n\n")
 
     f.write('## Recent publications using SPECFEM:\n')
-    f.write('#### Here we list some recent publications using some of the SPECFEM codes. A larger, albeit possibly non-exhaustive, list of publications can be found on our [Google Scholar](https://scholar.google.com/citations?hl=en&user=bvjzHdUAAAAJ&view_op=list_works&sortby=pubdate){:class="fontawesome-external-link"}.')
+    f.write('#### Here we list some recent publications using some of the SPECFEM codes. A larger, albeit possibly non-exhaustive, list of publications can be found on our [<span class="fas fa-external-link-alt"></span> Google Scholar](https://scholar.google.com/citations?hl=en&user=bvjzHdUAAAAJ&view_op=list_works&sortby=pubdate).')
     f.write('\n')
     f.write('\n')
 
@@ -98,8 +98,8 @@ def convert_to_markdown(total_pub_no, total_cites, local_dir='./publications/'):
     for i in range(20):
         code = sorted_by_date[i,2]
         pub  = P_dict[code]
-        url  = pub['url']
-        md_link = '(' + url + '){:class="fontawesome-external-link" style="color: gray;" target="_blank"}'
+        url  = pub['<span class="fas fa-external-link-alt"></span> ' + 'url']
+        md_link = '(' + url + '){:style="color: gray;" target="_blank"}'
         #print(md_link)
 
         f.write(f"<i><b>{pub['Title']}</b></i>  \n")
