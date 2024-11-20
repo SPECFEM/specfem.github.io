@@ -205,8 +205,8 @@ Page
   flex-grow: 1;
 }
 
-/* bird */
-.twitterbox {
+/* bsky, bird, .. */
+.socialmediabox {
   padding: 20px;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -877,14 +877,14 @@ Media query
 /* --  query -- portrait phone (>= 480px < 592px) */
 @media screen and (min-width: 30em) and (max-width: 37em) {
   .halfbox { width: 100%; }
-  .twitterbox { width: 100%; }
+  .socialmediabox { width: 100%; }
   .twitter-timeline { width: 100%; }
 }
 
 /* --  query -- portrait phone (< 480px) */
 @media screen and (max-width: 30em) {
   .halfbox { width: 100%; }
-  .twitterbox { width: 100%; }
+  .socialmediabox { width: 100%; }
   .twitter-timeline { width: 100%; }
 }
 

@@ -26,15 +26,31 @@
   </div>
 
   {% if section.title == 'Connect' %}
-    <!-- twitter box -->
-    <div class="twitterbox">
+    <br>
+    <br>
 
+    <!-- bsky box -->
+    <div class="socialmediabox halfbox">
+
+    <blockquote class="bluesky-embed" data-bluesky-uri="at://did:plc:ubxb2peejx2pmnbuznapddke/app.bsky.feed.post/3lbeqq3swtc2m" data-bluesky-cid="bafyreia5qjwzqo65vtmkcqe22ddqsoe7qtytpzv5rnib24rjfdzzqurrzm">
+    <p lang="en">#SPECFEM is a family of spectral-element codes for computational seismology - stay tuned for code updates and fun examples here on bluesky. for more details, you&#x27;ll find me at specfem.org<br><br><a href="https://bsky.app/profile/did:plc:ubxb2peejx2pmnbuznapddke/post/3lbeqq3swtc2m?ref_src=embed">[image or embed]</a></p>&mdash; specfem (<a href="https://bsky.app/profile/did:plc:ubxb2peejx2pmnbuznapddke?ref_src=embed">@specfem.bsky.social</a>) <a href="https://bsky.app/profile/did:plc:ubxb2peejx2pmnbuznapddke/post/3lbeqq3swtc2m?ref_src=embed">Nov 20, 2024 at 11:32</a>
+    </blockquote>
+
+    <!-- or put in head: see _layouts/main.html
+    <script async src="https://embed.bsky.app/static/embed.js" charset="utf-8"></script>
+    -->
+    </div>
+
+    <!-- twitter box -->
+    <!--
+    <div class="socialmediabox halfbox">
+    -->
     <!-- twitter timeline -->
     <!-- not working since twitter/X anymore ... only single post seems to work
     <a class="twitter-timeline" data-height="300" data-dnt="true" data-theme="dark" href="https://twitter.com/specfem?ref_src=twsrc%5Etfw">Tweets by specfem</a>
     -->
-
     <!-- twitter single post -->
+    <!--
     <blockquote class="twitter-tweet" data-lang="en" data-dnt="true" data-theme="dark">
     <p lang="en" dir="ltr">2024 Taiwan earthquake - shakemovie simulation w/ USGS finite-fault solution and IRIS EMC velocity model (FWEA18)
     <a href="https://twitter.com/hashtag/specfem3d?src=hash&amp;ref_src=twsrc%5Etfw">#specfem3d</a>
@@ -48,10 +64,12 @@
     </p>&mdash; specfem (@specfem)
     <a href="https://twitter.com/specfem/status/1775645032764076479?ref_src=twsrc%5Etfw">April 3, 2024</a>
     </blockquote>
-
-    <!-- put in head: see _layouts/main.html
+    -->
+    <!-- or put in head: see _layouts/main.html
     <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
     -->
+    <!--
     </div>
+    -->
   {% endif %}
 </section>

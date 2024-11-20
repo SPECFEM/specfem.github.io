@@ -15,6 +15,7 @@ description: > # this means to ignore newlines until "baseurl:"
 #email: your-email@domain.com
 #baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://specfem.org" # the base hostname & protocol for your site
+bsky_username: specfem
 twitter_username: specfem
 #github_username:  SPECFEM
 google_analytics: G-52SC88JL20

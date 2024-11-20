@@ -98,13 +98,14 @@ def convert_to_markdown(total_pub_no, total_cites, local_dir='./publications/'):
     for i in range(20):
         code = sorted_by_date[i,2]
         pub  = P_dict[code]
-        url  = pub['<span class="fas fa-external-link-alt"></span> ' + 'url']
+        url  = pub['url']
         md_link = '(' + url + '){:style="color: gray;" target="_blank"}'
-        #print(md_link)
+
+        #print("md_link: ",md_link)
 
         f.write(f"<i><b>{pub['Title']}</b></i>  \n")
         f.write(f"{pub['Authors']}   \n")
-        f.write(f'[<span style="color:grey">Published in {calendar[sorted_by_date[i,0]]} {sorted_by_date[i,1]}</span>]' + md_link + '\n')
+        f.write(f'[<span style="color:grey"><span class="fas fa-external-link-alt"></span> Published in {calendar[sorted_by_date[i,0]]} {sorted_by_date[i,1]}</span>]' + md_link + '\n')
         f.write('\n')
     f.close()
 
