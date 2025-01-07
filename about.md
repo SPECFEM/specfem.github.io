@@ -15,7 +15,7 @@ description: About SPECFEM
 A major involvement in the development and maintenance of the SPECFEM project is done by:<br>
 
 | [![Jeroen](figures/Jeroen_Tromp.png "Jeroen Tromp"){:height="auto" width="100px" class="circle middle grow"}](https://geosciences.princeton.edu/people/jeroen-tromp) | **Jeroen Tromp**, *Princeton University*<br>Founder of *SPECFEM* codes (together with Dimitri Komatitsch) |
-| [![Daniel](figures/Daniel_Peter.jpg "Daniel Peter"){:height="auto" width="100px" class="circle middle grow"}](https://danielpeter.github.io) | **Daniel Peter**, *KAUST*<br>Lead developer and maintainer of *SPECFEM* codes |
+| [![Daniel](figures/Daniel_Peter.jpg "Daniel Peter"){:height="auto" width="100px" class="circle middle grow"}](https://danielpeter.github.io) | **Daniel Peter**<br>Lead developer and maintainer of *SPECFEM* codes |
 | [![Vadim](figures/Vadim_Monteiller.jpg "Vadim Monteiller"){:height="auto" width="100px" class="circle middle grow"}](http://www.lma.cnrs-mrs.fr/spip.php?auteur292&lang=fr) | **Vadim Monteiller**, *LMA Marseille*<br>Developer and maintainer of *SPECFEM* codes |
 | [![Hom Nath](figures/Hom_Nath_Gharti.jpg "Hom Nath Gharti"){:height="auto" width="100px" class="circle middle grow"}](https://www.queensu.ca/geol/dr-hom-nath-gharti) | **Hom Nath Gharti**, *Queen's University*<br>Developer and maintainer of *SPECFEM* codes |
 | [![Carl](figures/Carl_Tape.jpg "Carl Tape"){:height="auto" width="100px" class="circle middle grow"}](https://sites.google.com/alaska.edu/carltape) | **Carl Tape**, *University of Alaska Fairbanks*<br>User training and developer meeting organizer |
