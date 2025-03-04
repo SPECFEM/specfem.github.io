@@ -1,6 +1,6 @@
 # SPECFEM Website
 
-This is the website repository.
+This is the website repository for [specfem.org](https://specfem.org).
 Feel free to contribute and add content to the site!
 
 
@@ -14,47 +14,68 @@ To make changes you can [fork](https://docs.github.com/en/get-started/quickstart
 
 
 ---
-### Repository layout: 
+### Repository layout
 The layout modifications are controlled by:
 - _layouts/default.html
 - assets/css/style.scss
 
 
+### Update publications
+The publication page lists the most recent publications listed on our
+[Google Scholar](https://scholar.google.com/citations?hl=en&user=bvjzHdUAAAAJ&view_op=list_works&sortby=pubdate).
+To update the `publications.md` page, go to folder `scholar/` and run script `main.py`:
+```
+$ cd scholar/
+$ ./main.py
+```
+
+This will download the corresponding publication infos, store them as YAML files in folder `scholar/publications/` and update the `publications.md` markdown page.
+To run the script, it needs following python modules:
+```
+$ pip install scholarly sphinx-rtd-theme
+$ pip install pyyaml fp free-proxy
+```
 
 
 ### Testing your changes locally 
-* To test your changes locally, use Ruby, Jekyll, and Bundler. You can install these using 
+To test your changes locally, use Ruby, Jekyll, and Bundler. You can install these using:
 ``` 
 $ gem install jekyll bundler 
 ```
 This may not work on Mac. If so, then a work-around is given below. Next we need to run the following command: 
-
 ```
 $ bundle install
 ```
 
-Once you have got Jekyll and Bundler installed, you are now all setup to view any changes you make to the website. Each time you want to view your most recent version run:
+Once you have got Jekyll and Bundler installed, you are now all setup to view any changes you make to the website.
+Each time you want to view your most recent version run:
 ```
 $ bundle exec jekyll serve
 ```  
-This will generate a server address (```http://127.0.0.1:4000```). Navigate to this server address in your favourite web browser and your newly-updated SPECFEM website should be viewable in all its glory! 
+This will generate a server address (`http://127.0.0.1:4000`).
+Navigate to this server address in your favourite web browser and your newly-updated SPECFEM website should be viewable in all its glory!
 
 
 
 
 ---
 ### Installing gems on Mac
-* Macs ship with their own verison of Ruby that you are not able to edit. This can make installing Gems a bit more difficult. An easy work around for this is to first install a separate version of Ruby using [Homebrew](https://brew.sh/): 
+Macs ship with their own verison of Ruby that you are not able to edit. This can make installing Gems a bit more difficult.
+An easy work around for this is to first install a separate version of Ruby using [Homebrew](https://brew.sh/):
 ```
 $ brew install ruby 
 ```
 
-Now you have your own version of Ruby, you will want to run the command 
+Now you have your own version of Ruby, you will want to run the command:
 ```
 $ export GEM_HOME="$HOME/.gem"
 ```
-and also add this command to your shell configuration (either your ~/.zshrc or ~/.bash_profile depending on the shell you use). Don't forget to make sure these updates to your config file are activated by running ```$ source ~/.zshrc``` or  ```$ source ~/.bash-profile```. You should now have a working version of Ruby that you can use to install. Finally we can run our install command 
+and also add this command to your shell configuration (either your `~/.zshrc` or `~/.bash_profile` depending on the shell you use).
+Don't forget to make sure these updates to your config file are activated by running `$ source ~/.zshrc` or  `$ source ~/.bash-profile`.
+You should now have a working version of Ruby that you can use to install the needed Gems.
+
+Finally, we can run our install command:
 ``` 
-$ gem install jekyll bundler &&  bundle install
+$ gem install jekyll bundler && bundle install
 ```
 
