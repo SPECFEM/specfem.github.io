@@ -16,7 +16,7 @@ description: SPECFEM software
 
 <br>
 <br>
-These solvers are all open-source codes and freely available through github. 
+These solvers are all open-source codes and freely available through github.
 They can be used with various inversion tools to perform seismic adjoint tomography:
 <br>
 <br>

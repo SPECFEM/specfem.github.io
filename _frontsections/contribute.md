@@ -18,4 +18,4 @@ accordion:
 | We <span class="fas fa-heart"></span> open-source.<br><br>The SPECFEM family of codes are all open-source. We welcome any contributions to the codes that may benefit the community.<br><br>Want to contribute? | ![github](figures/GitHub-Mark-120px-plus.png "Github"){:style="min-width: 100px;"} |
 
 {% include accordion.html %}
-For more developer informations, [<span class="fas fa-external-link-alt"></span> please read the main wiki](https://github.com/SPECFEM/specfem3d/wiki){:target="_blank"} 
+For more developer informations, [<span class="fas fa-external-link-alt"></span> please read the main wiki](https://github.com/SPECFEM/specfem3d/wiki){:target="_blank"}

@@ -69,45 +69,84 @@ def convert_to_markdown(total_pub_no, total_cites, local_dir='./publications/'):
     # Create graph for website
     plot_citations_graph(localdir=local_dir)
 
-    # Now write to MD:
+    # Now update the publication markdown page
+    file_path = "../publications.md"
 
-    # first we want to remove the current stuff:
-    f = open("../publications.md", "r+")
-    f.truncate(0)
+    # old way - replace and re-create publication page
+    if 1 == 0:
+        # first we want to remove the current stuff:
+        f = open(file_path, "r+")
 
-    # Markdown formatting stuff
-    f.write('''---
-    layout: default
-    title: Publications
-    description: Publications using SPECFEM\n---\n''')
+        # skip until section 'Recent publications
+        f.truncate(0)
 
-    # Title
-    f.write('\n')
-    f.write('# Publications:\n')
-    # Introduction
-    f.write('The open-source development of the SPECFEM codes has allowed researchers across the globe to apply them in various fields of study. Below shows the citation count of journal articles that utilised the SPECFEM codes. Seminal papers relating to the development of, and theory behind, SPECFEM can be found on the [Training page](training.md).  \n')
-    # Add the image/bargraph
-    f.write("![title](scholar/total_citations_per_year.jpg)\n\n")
+        # Markdown formatting stuff
+        f.write('''---
+        #layout: default
+        #title: Publications
+        #description: Publications using SPECFEM\n---\n''')
 
-    f.write('## Recent publications using SPECFEM:\n')
-    f.write('#### Here we list some recent publications using some of the SPECFEM codes. A larger, albeit possibly non-exhaustive, list of publications can be found on our [<span class="fas fa-external-link-alt"></span> Google Scholar](https://scholar.google.com/citations?hl=en&user=bvjzHdUAAAAJ&view_op=list_works&sortby=pubdate).')
-    f.write('\n')
-    f.write('\n')
-
-    # publication list
-    for i in range(20):
-        code = sorted_by_date[i,2]
-        pub  = P_dict[code]
-        url  = pub['url']
-        md_link = '(' + url + '){:style="color: gray;" target="_blank"}'
-
-        #print("md_link: ",md_link)
-
-        f.write(f"<i><b>{pub['Title']}</b></i>  \n")
-        f.write(f"{pub['Authors']}   \n")
-        f.write(f'[<span style="color:grey"><span class="fas fa-external-link-alt"></span> Published in {calendar[sorted_by_date[i,0]]} {sorted_by_date[i,1]}</span>]' + md_link + '\n')
+        ## Title
         f.write('\n')
-    f.close()
+        f.write('# Publications:\n')
+        ## Introduction
+        f.write('The open-source development of the SPECFEM codes has allowed researchers across the globe to apply them in various fields of study. Below shows the citation count of journal articles that utilised the SPECFEM codes. Seminal papers relating to the development of, and theory behind, SPECFEM can be found on the [Training page](training.md).  \n')
+        # Add the image/bargraph
+        f.write("![title](scholar/total_citations_per_year.jpg)\n\n")
+
+        f.write('## Recent publications using SPECFEM:\n')
+        f.write('#### Here we list some recent publications using some of the SPECFEM codes. A larger, albeit possibly non-exhaustive, list of publications can be found on our [<span class="fas fa-external-link-alt"></span> Google Scholar](https://scholar.google.com/citations?hl=en&user=bvjzHdUAAAAJ&view_op=list_works&sortby=pubdate).')
+        f.write('\n')
+        f.write('\n')
+
+        # publication list
+        for i in range(20):
+            code = sorted_by_date[i,2]
+            pub  = P_dict[code]
+            url  = pub['url']
+            md_link = '(' + url + '){:style="color: gray;" target="_blank"}'
+
+            #print("md_link: ",md_link)
+
+            f.write(f"<i><b>{pub['Title']}</b></i>  \n")
+            f.write(f"{pub['Authors']}   \n")
+            f.write(f'[<span style="color:grey"><span class="fas fa-external-link-alt"></span> Published in {calendar[sorted_by_date[i,0]]} {sorted_by_date[i,1]}</span>]' + md_link + '\n')
+            f.write('\n')
+        f.close()
+
+    # new way - only update the corresponding 'Recent publications..' section
+    if 1 == 1:
+        # Read the existing file
+        with open(file_path, "r") as f:
+            lines = f.readlines()
+
+        # Find the section "Recent publications"
+        section_header = "## Recent publications using SPECFEM"
+        start_idx = next((i for i, line in enumerate(lines) if section_header in line), None)
+
+        if start_idx is None:
+            raise ValueError(f"Could not find section header: {section_header} in publications.md page")
+
+        # Keep content before the section
+        new_content = lines[: start_idx + 1]
+
+        # Add sub-header
+        new_content.append('\nHere’s a list of recent publications that used some of the SPECFEM codes. If you’re interested in a bigger, albeit possibly non-exhaustive, list of publications, you can check out our [<span class="fas fa-external-link-alt"></span> Google Scholar](https://scholar.google.com/citations?hl=en&user=bvjzHdUAAAAJ&view_op=list_works&sortby=pubdate).\n\n')
+
+        # Generate new publication list
+        for i in range(20):
+            code = sorted_by_date[i, 2]
+            pub = P_dict[code]
+            url = pub["url"]
+            md_link = f'({url}){{:style="color: gray;" target="_blank"}}'
+
+            new_content.append(f"- <i><b>{pub['Title']}</b></i>  \n")
+            new_content.append(f"{pub['Authors']}   \n")
+            new_content.append(f'[<span style="color:grey"><span class="fas fa-external-link-alt"></span> Published in {calendar[sorted_by_date[i,0]]} {sorted_by_date[i,1]}</span>]{md_link}\n\n')
+
+        # Write the updated content back to the file
+        with open(file_path, "w") as f:
+            f.writelines(new_content)
 
     print('Completed conversion to Markdown.')
 
