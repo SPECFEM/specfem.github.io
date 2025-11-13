@@ -18,6 +18,10 @@ Seminal papers related to the development of, and theory behind, SPECFEM can be 
 
 Here’s a list of recent publications that used some of the SPECFEM codes. If you’re interested in a bigger, albeit possibly non-exhaustive, list of publications, you can check out our [<span class="fas fa-external-link-alt"></span> Google Scholar](https://scholar.google.com/citations?hl=en&user=bvjzHdUAAAAJ&view_op=list_works&sortby=pubdate).
 
+- <i><b>Navigating the space of seismic anisotropy for crystal and whole-Earth scales</b></i>  
+Aakash Gupta, Carl Tape, J Michael Brown, Thorsten W Becker   
+[<span style="color:grey"><span class="fas fa-external-link-alt"></span> Published in July 2025</span>](https://scholar.google.com/citations?view_op=view_citation&hl=en&oe=ASCII&user=bvjzHdUAAAAJ&sortby=pubdate&citation_for_view=bvjzHdUAAAAJ:IUKN3-7HHlwC){:style="color: gray;" target="_blank"}
+
 - <i><b>Seismic wavefield injection based on interface discontinuity: Theory and numerical implementation based upon the spectral-element method</b></i>  
 Tianshi Liu, Nanqiao Du, Ting Lei, Kai Wang, Bin He, Ping Tong, Giovanni Grasselli, Qinya Liu   
 [<span style="color:grey"><span class="fas fa-external-link-alt"></span> Published in February 2025</span>](https://scholar.google.com/citations?view_op=view_citation&hl=en&oe=ASCII&user=bvjzHdUAAAAJ&sortby=pubdate&citation_for_view=bvjzHdUAAAAJ:gsN89kCJA0AC){:style="color: gray;" target="_blank"}
@@ -93,8 +97,4 @@ Marouchka Froment, Philippe Lognonné, Carene Larmat, Zhou Lei, Esteban Rougier,
 - <i><b>Investigating seismic performance of SMRF buildings under subshear and supershear rupture conditions: Assessment of storey-level internal damage</b></i>  
 Sumit Saha, KSK Karthik Reddy, Krishn Katyal, Surendra Nadh Somala   
 [<span style="color:grey"><span class="fas fa-external-link-alt"></span> Published in June 2024</span>](https://scholar.google.com/citations?view_op=view_citation&hl=en&oe=ASCII&user=bvjzHdUAAAAJ&sortby=pubdate&citation_for_view=bvjzHdUAAAAJ:LO7wyVUgiFcC){:style="color: gray;" target="_blank"}
-
-- <i><b>Imaging Upper&#8208;Mantle Anisotropy with Transdimensional Bayesian Monte Carlo Sampling</b></i>  
-Gianmarco Del Piccolo, Brandon P VanderBeek, Manuele Faccenda, Andrea Morelli, Joseph S Byrnes   
-[<span style="color:grey"><span class="fas fa-external-link-alt"></span> Published in June 2024</span>](https://scholar.google.com/citations?view_op=view_citation&hl=en&oe=ASCII&user=bvjzHdUAAAAJ&sortby=pubdate&citation_for_view=bvjzHdUAAAAJ:tuHXwOkdijsC){:style="color: gray;" target="_blank"}
 
