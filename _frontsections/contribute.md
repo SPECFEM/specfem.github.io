@@ -6,10 +6,10 @@ description: Contribute to SPECFEM
 accordion:
   - title: SPECFEM2D
     content: Follow [<span class="fas fa-external-link-alt"></span> contribute to SPECFEM2D](https://github.com/SPECFEM/specfem2d/blob/devel/CONTRIBUTING.md){:target="_blank"}
-  - title: SPECFEM3D
-    content: Follow [<span class="fas fa-external-link-alt"></span> contribute to SPECFEM3D](https://github.com/SPECFEM/specfem3d/blob/devel/CONTRIBUTING.md){:target="_blank"}
-  - title: SPECFEM3D_GLOBE
-    content: Follow [<span class="fas fa-external-link-alt"></span> contribute to SPECFEM3D_GLOBE](https://github.com/SPECFEM/specfem3d_globe/blob/devel/CONTRIBUTING.md){:target="_blank"}
+  - title: SPECFEM3D Cartesian
+    content: Follow [<span class="fas fa-external-link-alt"></span> contribute to SPECFEM3D Cartesian](https://github.com/SPECFEM/specfem3d/blob/devel/CONTRIBUTING.md){:target="_blank"}
+  - title: SPECFEM3D Globe
+    content: Follow [<span class="fas fa-external-link-alt"></span> contribute to SPECFEM3D Globe](https://github.com/SPECFEM/specfem3d_globe/blob/devel/CONTRIBUTING.md){:target="_blank"}
 ---
 
 # Contributions
